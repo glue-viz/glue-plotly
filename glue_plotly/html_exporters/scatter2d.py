@@ -16,6 +16,8 @@ from plotly.offline import plot
 import plotly.graph_objs as go
 
 
+DEFAULT_FONT = 'Arial, sans-serif'
+
 @viewer_tool
 class PlotlyScatter2DStaticExport(Tool):
 
@@ -29,8 +31,7 @@ class PlotlyScatter2DStaticExport(Tool):
         filename, _ = compat.getsavefilename(
             parent=self.viewer, basedir="plot.html")
 
-        width, height = np.array(self.viewer.figure.get_size_inches()*self.viewer.figure.dpi)[
-            0], np.array(self.viewer.figure.get_size_inches()*self.viewer.figure.dpi)[1]
+        width, height = self.viewer.figure.get_size_inches()*self.viewer.figure.dpi
 
         # set the aspect ratio of the axes, the tick label size, the axis label sizes, and the axes limits
         layout = go.Layout(
@@ -40,13 +41,13 @@ class PlotlyScatter2DStaticExport(Tool):
             xaxis=dict(
                 title=self.viewer.axes.get_xlabel(),
                 titlefont=dict(
-                    family='Arial, sans-serif',
+                    family=DEFAULT_FONT,
                     size=self.viewer.axes.xaxis.get_label().get_size(),
                     color='black'
                 ),
                 showticklabels=True,
                 tickfont=dict(
-                    family='Arial, sans-serif',
+                    family=DEFAULT_FONT,
                     size=self.viewer.axes.xaxis.get_ticklabels()[
                         0].get_fontsize(),
                     color='black'),
@@ -54,13 +55,13 @@ class PlotlyScatter2DStaticExport(Tool):
             yaxis=dict(
                 title=self.viewer.axes.get_xlabel(),
                 titlefont=dict(
-                    family='Arial, sans-serif',
+                    family=DEFAULT_FONT,
                     size=self.viewer.axes.yaxis.get_label().get_size(),
                     color='black'),
                 range=[self.viewer.state.y_min, self.viewer.state.y_max],
                 showticklabels=True,
                 tickfont=dict(
-                    family='Old Standard TT, serif',
+                    family=DEFAULT_FONT,
                     size=self.viewer.axes.yaxis.get_ticklabels()[
                         0].get_fontsize(),
                     color='black'),
@@ -75,8 +76,13 @@ class PlotlyScatter2DStaticExport(Tool):
 
                 marker = {}
 
-                x = layer_state.layer[self.viewer.state.x_att]
-                y = layer_state.layer[self.viewer.state.y_att]
+                try:
+                    x = layer_state.layer[self.viewer.state.x_att]
+                    y = layer_state.layer[self.viewer.state.y_att]
+                    
+                except:
+                    print("Cannot visualize layer {}. This layer depends on attributes that cannot be derived for the underlying dataset.".format(layer_state.layer.label))
+                    continue 
 
                 # set all points to be the same color
                 if layer_state.cmap_mode == 'Fixed':
@@ -117,6 +123,10 @@ class PlotlyScatter2DStaticExport(Tool):
 
                 # set the opacity
                 marker['opacity'] = layer_state.alpha
+                
+                #remove default white border around points
+                marker['line'] = dict(width = 0)
+
 
                 # add layer to axes
                 fig.add_scatter(x=x, y=y,

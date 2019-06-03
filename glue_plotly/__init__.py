@@ -10,3 +10,4 @@ def setup():
     ScatterViewer.subtools['save'].append('save:plotly2d')
     VispyScatterViewer.subtools['save'].append('save:plotly3d')
 
+

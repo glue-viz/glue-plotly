@@ -15,6 +15,9 @@ from plotly.offline import plot
 import plotly.graph_objs as go
 
 
+DEFAULT_FONT = 'Arial, sans-serif'
+
+
 @viewer_tool
 class PlotlyScatter3DStaticExport(Tool):
 
@@ -48,39 +51,39 @@ class PlotlyScatter3DStaticExport(Tool):
                 xaxis=dict(
                     title=self.viewer.state.x_att.label,
                     titlefont=dict(
-                        family='Arial, sans-serif',
+                        family=DEFAULT_FONT,
                         size=20,
                         color='black'
                     ),
                     showticklabels=True,
                     tickfont=dict(
-                        family='Arial, sans-serif',
+                        family=DEFAULT_FONT,
                         size=12,
                         color='black'),
                     range=[self.viewer.state.x_min, self.viewer.state.x_max]),
                 yaxis=dict(
                     title=self.viewer.state.y_att.label,
                     titlefont=dict(
-                        family='Arial, sans-serif',
+                        family=DEFAULT_FONT,
                         size=20,
                         color='black'),
                     range=[self.viewer.state.y_min, self.viewer.state.y_max],
                     showticklabels=True,
                     tickfont=dict(
-                        family='Old Standard TT, serif',
+                        family=DEFAULT_FONT,
                         size=12,
                         color='black'),
                 ),
                 zaxis=dict(
                     title=self.viewer.state.z_att.label,
                     titlefont=dict(
-                        family='Arial, sans-serif',
+                        family=DEFAULT_FONT,
                         size=20,
                         color='black'),
                     range=[self.viewer.state.z_min, self.viewer.state.z_max],
                     showticklabels=True,
                     tickfont=dict(
-                        family='Old Standard TT, serif',
+                        family=DEFAULT_FONT,
                         size=12,
                         color='black'),
                 ),
@@ -98,9 +101,14 @@ class PlotlyScatter3DStaticExport(Tool):
 
                 marker = {}
 
-                x = layer_state.layer[self.viewer.state.x_att]
-                y = layer_state.layer[self.viewer.state.y_att]
-                z = layer_state.layer[self.viewer.state.z_att]
+                try:
+                    x = layer_state.layer[self.viewer.state.x_att]
+                    y = layer_state.layer[self.viewer.state.y_att]
+                    z = layer_state.layer[self.viewer.state.z_att]
+                    
+                except:
+                    print("Cannot visualize layer {}. This layer depends on attributes that cannot be derived for the underlying dataset.".format(layer_state.layer.label))
+                    continue 
 
                 # set all points to be the same color
                 if layer_state.color_mode == 'Fixed':
@@ -141,6 +149,8 @@ class PlotlyScatter3DStaticExport(Tool):
 
                 # set the opacity
                 marker['opacity'] = layer_state.alpha
+                marker['line'] = dict(width = 0)
+
 
                 # add layer to axes
                 fig.add_scatter3d(x=x, y=y, z=z,
@@ -149,3 +159,5 @@ class PlotlyScatter3DStaticExport(Tool):
                                   name=layer_state.layer.label)
 
         plot(fig, filename=filename, auto_open=False)
+        
+
