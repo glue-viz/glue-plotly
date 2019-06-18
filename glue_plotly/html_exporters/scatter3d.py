@@ -2,12 +2,15 @@ from __future__ import absolute_import, division, print_function
 
 import numpy as np
 import matplotlib.colors as colors
-import matplotlib.pyplot as plt
 from matplotlib.colors import Normalize
 
 from qtpy import compat
 from glue.config import viewer_tool
-from glue.viewers.common.tool import Tool
+
+try:
+    from glue.viewers.common.qt.tool import Tool
+except ImportError:
+    from glue.viewers.common.tool import Tool
 
 from glue_plotly import PLOTLY_LOGO
 
@@ -105,10 +108,9 @@ class PlotlyScatter3DStaticExport(Tool):
                     x = layer_state.layer[self.viewer.state.x_att]
                     y = layer_state.layer[self.viewer.state.y_att]
                     z = layer_state.layer[self.viewer.state.z_att]
-                    
-                except:
+                except Exception:
                     print("Cannot visualize layer {}. This layer depends on attributes that cannot be derived for the underlying dataset.".format(layer_state.layer.label))
-                    continue 
+                    continue
 
                 # set all points to be the same color
                 if layer_state.color_mode == 'Fixed':
@@ -159,5 +161,3 @@ class PlotlyScatter3DStaticExport(Tool):
                                   name=layer_state.layer.label)
 
         plot(fig, filename=filename, auto_open=False)
-        
-

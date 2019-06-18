@@ -2,13 +2,15 @@ from __future__ import absolute_import, division, print_function
 
 import numpy as np
 import matplotlib.colors as colors
-import matplotlib.pyplot as plt
 from matplotlib.colors import Normalize
-
 
 from qtpy import compat
 from glue.config import viewer_tool
-from glue.viewers.common.tool import Tool
+
+try:
+    from glue.viewers.common.qt.tool import Tool
+except ImportError:
+    from glue.viewers.common.tool import Tool
 
 from glue_plotly import PLOTLY_LOGO
 
@@ -28,8 +30,7 @@ class PlotlyScatter2DStaticExport(Tool):
 
     def activate(self):
 
-        filename, _ = compat.getsavefilename(
-            parent=self.viewer, basedir="plot.html")
+        filename, _ = compat.getsavefilename(parent=self.viewer, basedir="plot.html")
 
         width, height = self.viewer.figure.get_size_inches()*self.viewer.figure.dpi
 
@@ -72,17 +73,16 @@ class PlotlyScatter2DStaticExport(Tool):
 
         for layer_state in self.viewer.state.layers:
 
-            if layer_state.visible == True:
+            if layer_state.visible:
 
                 marker = {}
 
                 try:
                     x = layer_state.layer[self.viewer.state.x_att]
                     y = layer_state.layer[self.viewer.state.y_att]
-                    
-                except:
+                except Exception:
                     print("Cannot visualize layer {}. This layer depends on attributes that cannot be derived for the underlying dataset.".format(layer_state.layer.label))
-                    continue 
+                    continue
 
                 # set all points to be the same color
                 if layer_state.cmap_mode == 'Fixed':
@@ -123,7 +123,7 @@ class PlotlyScatter2DStaticExport(Tool):
 
                 # set the opacity
                 marker['opacity'] = layer_state.alpha
-                
+
                 #remove default white border around points
                 marker['line'] = dict(width = 0)
 
