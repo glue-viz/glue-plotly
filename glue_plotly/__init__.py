@@ -19,7 +19,9 @@ def setup():
 
     try:
         from glue_vispy_viewers.scatter.scatter_viewer import VispyScatterViewer
+        from glue_vispy_viewers.volume.volume_viewer import VispyVolumeViewer
     except ImportError:
         pass
     else:
         VispyScatterViewer.subtools['save'].append('save:plotly3d')
+        VispyVolumeViewer.subtools['save'].append('save:plotly3dvolume')

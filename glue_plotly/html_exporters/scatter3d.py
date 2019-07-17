@@ -103,7 +103,6 @@ class PlotlyScatter3DStaticExport(Tool):
             if layer_state.visible:
 
                 marker = {}
-
                 try:
                     x = layer_state.layer[self.viewer.state.x_att]
                     y = layer_state.layer[self.viewer.state.y_att]
@@ -125,20 +124,20 @@ class PlotlyScatter3DStaticExport(Tool):
                 else:
                     if layer_state.cmap_vmin > layer_state.cmap_vmax:
                         cmap = layer_state.cmap.reversed()
-                        norm = Normalize(
-                            vmin=layer_state.cmap_vmax, vmax=layer_state.cmap_vmin)
+                        norm = Normalize(vmin=1, vmax=0)
                     else:
-                        cmap = layer_state.cmap
-                        norm = Normalize(
-                            vmin=layer_state.cmap_vmin, vmax=layer_state.cmap_vmax)
+                        norm = Normalize(vmin=0, vmax=1)
 
-                    # most matplotlib colormaps aren't recognized by plotly, so we convert manually to a hex code
-                    rgba_list = [cmap(
-                        norm(point)) for point in layer_state.layer[layer_state.cmap_attribute].copy()]
-                    rgb_str = [r'{}'.format(colors.rgb2hex(
-                        (rgba[0], rgba[1], rgba[2]))) for rgba in rgba_list]
-                    marker['color'] = rgb_str
-
+                    rgba_colorscale = [cmap(norm(cmap_sample)) for cmap_sample in np.linspace(0,1,1000)]
+                    rgb_colorscale_str = [[cmap_sample,r'{}'.format(colors.rgb2hex((rgba[0], rgba[1], rgba[2])))] for (cmap_sample,rgba) in zip(np.linspace(0,1,1000),rgba_colorscale)]
+                    
+                    marker['color']=layer_state.layer[layer_state.cmap_attribute].copy()
+                    marker['colorscale']=rgb_colorscale_str
+                    marker['cmin']=layer_state.cmap_vmin
+                    marker['cmax']=layer_state.cmap_vmax
+                    marker['colorbar'] = dict(title = str(layer_state.cmap_attribute))
+                    marker['showscale']=True
+                    
                 # set all points to be the same size, with some arbitrary scaling
                 if layer_state.size_mode == 'Fixed':
                     marker['size'] = layer_state.size
