@@ -24,8 +24,8 @@ class Plotly3DVolumeStaticExport(Tool):
 
     icon = PLOTLY_LOGO
     tool_id = 'save:plotly3dvolume'
-    action_text = 'Save Plotly HTML page'
-    tool_tip = 'Save Plotly HTML page'
+    action_text = 'Save Plotly Volume Rendering HTML page'
+    tool_tip = 'Save Plotly Volume Rendering HTML page'
 
     def activate(self):
 

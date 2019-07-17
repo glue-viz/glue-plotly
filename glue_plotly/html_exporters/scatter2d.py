@@ -26,8 +26,8 @@ class PlotlyScatter2DStaticExport(Tool):
 
     icon = PLOTLY_LOGO
     tool_id = 'save:plotly2d'
-    action_text = 'Save Plotly HTML page'
-    tool_tip = 'Save Plotly HTML page'
+    action_text = 'Save Plotly 2D Scatter HTML page'
+    tool_tip = 'Save Plotly 2D Scatter HTML page'
 
     def activate(self):
 

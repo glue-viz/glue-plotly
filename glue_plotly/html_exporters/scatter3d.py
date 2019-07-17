@@ -26,8 +26,8 @@ class PlotlyScatter3DStaticExport(Tool):
 
     icon = PLOTLY_LOGO
     tool_id = 'save:plotly3d'
-    action_text = 'Save Plotly HTML page'
-    tool_tip = 'Save Plotly HTML page'
+    action_text = 'Save Plotly 3D Scatter HTML page'
+    tool_tip = 'Save Plotly 3d Scatter HTML page'
 
     def activate(self):
 
@@ -126,6 +126,7 @@ class PlotlyScatter3DStaticExport(Tool):
                         cmap = layer_state.cmap.reversed()
                         norm = Normalize(vmin=1, vmax=0)
                     else:
+                        cmap= layer_state.cmap
                         norm = Normalize(vmin=0, vmax=1)
 
                     rgba_colorscale = [cmap(norm(cmap_sample)) for cmap_sample in np.linspace(0,1,1000)]
@@ -144,7 +145,7 @@ class PlotlyScatter3DStaticExport(Tool):
 
                 # scale size of points by some attribute
                 else:
-                    marker['size'] = 25 * (layer_state.layer[layer_state.size_attribute] -
+                    marker['size'] = 18 * (layer_state.layer[layer_state.size_attribute] -
                                            layer_state.size_vmin) / (layer_state.size_vmax - layer_state.size_vmin)
                     marker['sizemin'] = 1
                     marker['size'][np.isnan(marker['size'])] = 0
