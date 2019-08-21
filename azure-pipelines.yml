@@ -2,7 +2,7 @@ resources:
   repositories:
   - repository: glue
     type: github
-    endpoint: gluevizorg
+    endpoint: glue-viz
     name: glue-viz/azure-pipelines-template
     ref: master
 
