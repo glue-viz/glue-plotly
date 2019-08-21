@@ -35,7 +35,7 @@ class PlotlyScatter3DStaticExport(Tool):
             parent=self.viewer, basedir="plot.html")
 
         # when vispy viewer is in "native aspect ratio" mode, scale axes size by data
-        if self.viewer.state.native_aspect == True:
+        if self.viewer.state.native_aspect:
             width = self.viewer.state.x_max-self.viewer.state.x_min
             height = self.viewer.state.y_max-self.viewer.state.y_min
             depth = self.viewer.state.z_max-self.viewer.state.z_min
@@ -48,7 +48,7 @@ class PlotlyScatter3DStaticExport(Tool):
 
         # set the aspect ratio of the axes, the tick label size, the axis label sizes, and the axes limits
         layout = go.Layout(
-            margin=dict(r=50, l=50, b=50, t=50),
+            margin=dict(r=50, l=50, b=50, t=50),  # noqa
             width=1200,
             scene=dict(
                 xaxis=dict(
@@ -100,7 +100,7 @@ class PlotlyScatter3DStaticExport(Tool):
         # only show if visible in viewer
         for layer_state in self.viewer.state.layers:
 
-            if layer_state.visible == True:
+            if layer_state.visible:
 
                 marker = {}
 
@@ -109,7 +109,9 @@ class PlotlyScatter3DStaticExport(Tool):
                     y = layer_state.layer[self.viewer.state.y_att]
                     z = layer_state.layer[self.viewer.state.z_att]
                 except Exception:
-                    print("Cannot visualize layer {}. This layer depends on attributes that cannot be derived for the underlying dataset.".format(layer_state.layer.label))
+                    print("Cannot visualize layer {}. This layer depends on "
+                          "attributes that cannot be derived for the underlying "
+                          "dataset.".format(layer_state.layer.label))
                     continue
 
                 # set all points to be the same color
@@ -151,8 +153,7 @@ class PlotlyScatter3DStaticExport(Tool):
 
                 # set the opacity
                 marker['opacity'] = layer_state.alpha
-                marker['line'] = dict(width = 0)
-
+                marker['line'] = dict(width=0)
 
                 # add layer to axes
                 fig.add_scatter3d(x=x, y=y, z=z,

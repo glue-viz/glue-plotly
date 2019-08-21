@@ -7,11 +7,10 @@ from mock import patch
 
 from glue.core import Data
 from glue.app.qt import GlueApplication
-from glue.viewers.scatter.qt import ScatterViewer
 
 pytest.importorskip('glue_vispy_viewers')
 
-from glue_vispy_viewers.scatter.scatter_viewer import VispyScatterViewer
+from glue_vispy_viewers.scatter.scatter_viewer import VispyScatterViewer  # noqa
 
 
 class TestScatter3D:

@@ -12,6 +12,8 @@ jobs:
   parameters:
     envs:
 
+    - linux: pep8
+
     - linux: py27_test
     - linux: py36_test
     - linux: py37_test
