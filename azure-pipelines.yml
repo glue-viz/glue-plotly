@@ -14,15 +14,12 @@ jobs:
 
     - linux: pep8
 
-    - linux: py27_test
     - linux: py36_test
     - linux: py37_test
 
-    - windows: py27_test
     - windows: py36_test
     - windows: py37_test
 
-    - macosx: py27_test
     - macosx: py36_test
     - macosx: py37_test
 
