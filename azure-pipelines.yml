@@ -3,7 +3,7 @@ resources:
   - repository: glue
     type: github
     endpoint: glue-viz
-    name: glue-viz/azure-pipelines-template
+    name: glue-viz/azure-pipelines-templates
     ref: master
 
 jobs:
