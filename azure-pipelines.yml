@@ -12,17 +12,17 @@ jobs:
   parameters:
     envs:
 
-    - linux: py27-test
-    - linux: py36-test
-    - linux: py37-test
+    - linux: py27_test
+    - linux: py36_test
+    - linux: py37_test
 
-    - windows: py27-test
-    - windows: py36-test
-    - windows: py37-test
+    - windows: py27_test
+    - windows: py36_test
+    - windows: py37_test
 
-    - macosx: py27-test
-    - macosx: py36-test
-    - macosx: py37-test
+    - macosx: py27_test
+    - macosx: py36_test
+    - macosx: py37_test
 
 
 
