@@ -20,6 +20,7 @@ import plotly.graph_objs as go
 
 DEFAULT_FONT = 'Arial, sans-serif'
 
+
 @viewer_tool
 class PlotlyScatter2DStaticExport(Tool):
 
@@ -34,9 +35,10 @@ class PlotlyScatter2DStaticExport(Tool):
 
         width, height = self.viewer.figure.get_size_inches()*self.viewer.figure.dpi
 
-        # set the aspect ratio of the axes, the tick label size, the axis label sizes, and the axes limits
+        # set the aspect ratio of the axes, the tick label size, the axis label
+        # sizes, and the axes limits
         layout = go.Layout(
-            margin=dict(r=50, l=50, b=50, t=50),
+            margin=dict(r=50, l=50, b=50, t=50),  # noqa
             width=1200,
             height=1200*height/width,  # scale axis correctly
             xaxis=dict(
@@ -81,7 +83,9 @@ class PlotlyScatter2DStaticExport(Tool):
                     x = layer_state.layer[self.viewer.state.x_att]
                     y = layer_state.layer[self.viewer.state.y_att]
                 except Exception:
-                    print("Cannot visualize layer {}. This layer depends on attributes that cannot be derived for the underlying dataset.".format(layer_state.layer.label))
+                    print("Cannot visualize layer {}. This layer depends on "
+                          "attributes that cannot be derived for the underlying "
+                          "dataset.".format(layer_state.layer.label))
                     continue
 
                 # set all points to be the same color
@@ -124,9 +128,8 @@ class PlotlyScatter2DStaticExport(Tool):
                 # set the opacity
                 marker['opacity'] = layer_state.alpha
 
-                #remove default white border around points
-                marker['line'] = dict(width = 0)
-
+                # remove default white border around points
+                marker['line'] = dict(width=0)
 
                 # add layer to axes
                 fig.add_scatter(x=x, y=y,
