@@ -57,6 +57,7 @@ class Plotly3DVolumeStaticExport(Tool):
                         color='black'
                     ),
                     showticklabels=True,
+                    backgroundcolor='white',
                     tickfont=dict(
                         family=DEFAULT_FONT,
                         size=12,
@@ -70,6 +71,7 @@ class Plotly3DVolumeStaticExport(Tool):
                         color='black'),
                     range=[0,self.viewer.state.resolution],
                     showticklabels=True,
+                    backgroundcolor='white',
                     tickfont=dict(
                         family=DEFAULT_FONT,
                         size=12,
@@ -83,6 +85,7 @@ class Plotly3DVolumeStaticExport(Tool):
                         color='black'),
                     range=[0,self.viewer.state.resolution],
                     showticklabels=True,
+                    backgroundcolor='white',
                     tickfont=dict(
                         family=DEFAULT_FONT,
                         size=12,

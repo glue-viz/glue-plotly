@@ -59,6 +59,7 @@ class PlotlyScatter3DStaticExport(Tool):
                         color='black'
                     ),
                     showticklabels=True,
+                    backgroundcolor='white',
                     tickfont=dict(
                         family=DEFAULT_FONT,
                         size=12,
@@ -72,6 +73,7 @@ class PlotlyScatter3DStaticExport(Tool):
                         color='black'),
                     range=[self.viewer.state.y_min, self.viewer.state.y_max],
                     showticklabels=True,
+                    backgroundcolor='white',
                     tickfont=dict(
                         family=DEFAULT_FONT,
                         size=12,
@@ -85,6 +87,7 @@ class PlotlyScatter3DStaticExport(Tool):
                         color='black'),
                     range=[self.viewer.state.z_min, self.viewer.state.z_max],
                     showticklabels=True,
+                    backgroundcolor='white',
                     tickfont=dict(
                         family=DEFAULT_FONT,
                         size=12,

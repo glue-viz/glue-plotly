@@ -41,6 +41,7 @@ class PlotlyScatter2DStaticExport(Tool):
             margin=dict(r=50, l=50, b=50, t=50),  # noqa
             width=1200,
             height=1200*height/width,  # scale axis correctly
+            plot_bgcolor="white",
             xaxis=dict(
                 title=self.viewer.axes.get_xlabel(),
                 titlefont=dict(
