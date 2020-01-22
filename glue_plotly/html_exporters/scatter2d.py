@@ -56,7 +56,7 @@ class PlotlyScatter2DStaticExport(Tool):
                     color='black'),
                 range=[self.viewer.state.x_min, self.viewer.state.x_max]),
             yaxis=dict(
-                title=self.viewer.axes.get_xlabel(),
+                title=self.viewer.axes.get_ylabel(),
                 titlefont=dict(
                     family=DEFAULT_FONT,
                     size=self.viewer.axes.yaxis.get_label().get_size(),
