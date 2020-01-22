@@ -1,4 +1,4 @@
-0.2 (unreleased)
+0.2 (2020-01-22)
 ----------------
 
 - Fixed a bug related to axis labels for 2d scatter plots. [#10]
