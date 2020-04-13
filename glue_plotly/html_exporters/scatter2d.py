@@ -8,7 +8,6 @@ from qtpy import compat
 from glue.config import viewer_tool
 
 from glue.core import DataCollection, Data
-from glue.utils.qt import get_qapp
 
 from .. import save_hover
 
@@ -53,8 +52,6 @@ class PlotlyScatter2DStaticExport(Tool):
             layer_state = layer.state
             if layer_state.visible and layer.enabled:
                 checked_dictionary[layer_state.layer.label] = np.zeros((len(layer_state.layer.components))).astype(bool)
-
-        app = get_qapp()
 
         dialog = save_hover.SaveHoverDialog(data_collection=dc_hover, checked_dictionary=checked_dictionary)
         dialog.exec_()
@@ -168,11 +165,13 @@ class PlotlyScatter2DStaticExport(Tool):
                 else:
                     hoverinfo = 'text'
                     hovertext = ["" for i in range((layer_state.layer.shape[0]))]
-                    for i in range(0,len(layer_state.layer.components)):
+                    for i in range(0, len(layer_state.layer.components)):
                         if dialog.checked_dictionary[layer_state.layer.label][i]:
                             hover_data = layer_state.layer[layer_state.layer.components[i].label]
-                            for k in range(0,len(hover_data)):
-                                hovertext[k]=hovertext[k]+"{}: {} <br>".format(layer_state.layer.components[i].label,hover_data[k])
+                            for k in range(0, len(hover_data)):
+                                hovertext[k] = (hovertext[k] + "{}: {} <br>"
+                                                .format(layer_state.layer.components[i].label,
+                                                        hover_data[k]))
 
                 # add layer to axes
                 fig.add_scatter(x=x, y=y,

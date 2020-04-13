@@ -12,12 +12,12 @@ from glue.utils.qt import load_ui
 from glue.core.state_objects import State
 from glue.external.echo import ChoiceSeparator
 from glue.core.data_combo_helper import ComponentIDComboHelper, DataCollectionComboHelper
-from glue.core.data_exporters.qt.dialog import export_data
 
 import numpy as np
 
 
 __all__ = ['SaveHoverDialog']
+
 
 class SaveHoverState(State):
 
@@ -38,7 +38,7 @@ class SaveHoverState(State):
         self._on_data_change()
 
         self._sync_data_exporters()
-        
+
     def _sync_data_exporters(self):
 
         exporters = list(config.data_exporter)
@@ -76,14 +76,13 @@ class SaveHoverDialog(QDialog):
 
         super(SaveHoverDialog, self).__init__(parent=parent)
 
-
-        self.checked_dictionary=checked_dictionary
+        self.checked_dictionary = checked_dictionary
 
         self.state = SaveHoverState(data_collection=data_collection)
 
         self.ui = load_ui('save_hover.ui', self,
                           directory=os.path.dirname(__file__))
-                          
+
         self._connections = autoconnect_callbacks_to_qt(self.state, self.ui)
 
         self.ui.button_cancel.clicked.connect(self.reject)
@@ -98,11 +97,11 @@ class SaveHoverDialog(QDialog):
         self._on_data_change()
 
     def _on_data_change(self, *event):
-            
+
         components = getattr(type(self.state), 'component').get_choices(self.state)
         self.ui.list_component.clear()
 
-        for (component,k) in zip(components,np.arange(0,len(components))):
+        for (component, k) in zip(components, np.arange(0, len(components))):
 
             if isinstance(component, ChoiceSeparator):
                 item = QListWidgetItem(str(component))
@@ -110,23 +109,22 @@ class SaveHoverDialog(QDialog):
                 item.setForeground(Qt.gray)
             else:
                 item = QListWidgetItem(component.label)
-                if self.checked_dictionary[self.state.data.label][k]==True:
+                if self.checked_dictionary[self.state.data.label][k]:
                     item.setCheckState(Qt.Checked)
                 else:
                     item.setCheckState(Qt.Unchecked)
 
-
             self.ui.list_component.addItem(item)
 
     def _on_check_change(self, *event):
-        
-        current_layer=self.state.data.label
+
+        current_layer = self.state.data.label
         for idx in range(self.ui.list_component.count()):
             item = self.ui.list_component.item(idx)
             if item.checkState() == Qt.Checked:
-                self.checked_dictionary[current_layer][idx]=True
+                self.checked_dictionary[current_layer][idx] = True
             else:
-                self.checked_dictionary[current_layer][idx]=False
+                self.checked_dictionary[current_layer][idx] = False
 
         any_checked = False
 
@@ -155,12 +153,12 @@ class SaveHoverDialog(QDialog):
             item = self.ui.list_component.item(idx)
             if item.checkState() == Qt.Checked:
                 components.append(self.state.data.id[item.text()])
-        if self.state.subset is None:
-            data = self.state.data
-        else:
-            data = self.state.subset
-        
-        #return checked_dictionary
-        #export_data(data, components=components, exporter=self.state.exporter.function)
-        super(SaveHoverDialog, self).accept()
 
+        # if self.state.subset is None:
+        #     data = self.state.data
+        # else:
+        #     data = self.state.subset
+
+        # return checked_dictionary
+        # export_data(data, components=components, exporter=self.state.exporter.function)
+        super(SaveHoverDialog, self).accept()

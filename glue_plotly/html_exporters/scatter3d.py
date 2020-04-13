@@ -4,13 +4,10 @@ import numpy as np
 import matplotlib.colors as colors
 from matplotlib.colors import Normalize
 
-import pandas as pd
-
 from qtpy import compat
 from glue.config import viewer_tool
 
 from glue.core import DataCollection, Data
-from glue.utils.qt import get_qapp
 
 try:
     from glue.viewers.common.qt.tool import Tool
@@ -56,12 +53,10 @@ class PlotlyScatter3DStaticExport(Tool):
             if layer_state.visible and layer.enabled:
                 checked_dictionary[layer_state.layer.label] = np.zeros((len(layer_state.layer.components))).astype(bool)
 
-        app = get_qapp()
-
         dialog = save_hover.SaveHoverDialog(data_collection=dc_hover, checked_dictionary=checked_dictionary)
         dialog.exec_()
 
-        #query filename
+        # query filename
         filename, _ = compat.getsavefilename(
             parent=self.viewer, basedir="plot.html")
 
@@ -190,8 +185,7 @@ class PlotlyScatter3DStaticExport(Tool):
                 marker['opacity'] = layer_state.alpha
                 marker['line'] = dict(width=0)
 
-                #add hover info to layer
-
+                # add hover info to layer
                 if np.sum(dialog.checked_dictionary[layer_state.layer.label]) == 0:
                     hoverinfo = 'skip'
                     hovertext = None
@@ -202,8 +196,9 @@ class PlotlyScatter3DStaticExport(Tool):
                         if dialog.checked_dictionary[layer_state.layer.label][i]:
                             hover_data = layer_state.layer[layer_state.layer.components[i].label]
                             for k in range(0, len(hover_data)):
-                                hovertext[k] = hovertext[k]+"{}: {} <br>".format(layer_state.layer.components[i].label, hover_data[k])
-
+                                hovertext[k] = (hovertext[k] + "{}: {} <br>"
+                                                .format(layer_state.layer.components[i].label,
+                                                        hover_data[k]))
 
                 # add layer to axes
                 fig.add_scatter3d(x=x, y=y, z=z,
