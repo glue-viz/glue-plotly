@@ -7,10 +7,18 @@ from mock import patch
 
 from glue.core import Data
 from glue.app.qt import GlueApplication
+from glue_plotly.save_hover import SaveHoverDialog
 
 pytest.importorskip('glue_vispy_viewers')
 
 from glue_vispy_viewers.scatter.scatter_viewer import VispyScatterViewer  # noqa
+
+
+def auto_accept():
+    def exec_replacement(self):
+        self.select_all()
+        self.accept()
+    return exec_replacement
 
 
 class TestScatter3D:
@@ -38,5 +46,6 @@ class TestScatter3D:
         output_file = tmpdir.join('test.html').strpath
         with patch('qtpy.compat.getsavefilename') as fd:
             fd.return_value = output_file, 'html'
-            self.tool.activate()
+            with patch.object(SaveHoverDialog, 'exec_', auto_accept()):
+                self.tool.activate()
         assert os.path.exists(output_file)
