@@ -7,12 +7,15 @@ from matplotlib.colors import Normalize
 from qtpy import compat
 from glue.config import viewer_tool
 
+from glue.core import DataCollection, Data
+
 try:
     from glue.viewers.common.qt.tool import Tool
 except ImportError:
     from glue.viewers.common.tool import Tool
 
 from glue_plotly import PLOTLY_LOGO
+from .. import save_hover
 
 from plotly.offline import plot
 import plotly.graph_objs as go
@@ -31,6 +34,29 @@ class PlotlyScatter3DStaticExport(Tool):
 
     def activate(self):
 
+        # grab hover info
+        dc_hover = DataCollection()
+
+        for layer in self.viewer.layers:
+            layer_state = layer.state
+            if layer_state.visible and layer.enabled:
+                data = Data(label=layer_state.layer.label)
+                for component in layer_state.layer.components:
+                    data[component.label] = np.ones(10)
+                dc_hover.append(data)
+
+        checked_dictionary = {}
+
+        # figure out which hover info user wants to display
+        for layer in self.viewer.layers:
+            layer_state = layer.state
+            if layer_state.visible and layer.enabled:
+                checked_dictionary[layer_state.layer.label] = np.zeros((len(layer_state.layer.components))).astype(bool)
+
+        dialog = save_hover.SaveHoverDialog(data_collection=dc_hover, checked_dictionary=checked_dictionary)
+        dialog.exec_()
+
+        # query filename
         filename, _ = compat.getsavefilename(
             parent=self.viewer, basedir="plot.html")
 
@@ -58,6 +84,9 @@ class PlotlyScatter3DStaticExport(Tool):
                         size=20,
                         color='black'
                     ),
+                    showspikes=False,
+                    backgroundcolor='white',
+                    gridcolor='rgb(220,220,220)',
                     showticklabels=True,
                     tickfont=dict(
                         family=DEFAULT_FONT,
@@ -70,6 +99,9 @@ class PlotlyScatter3DStaticExport(Tool):
                         family=DEFAULT_FONT,
                         size=20,
                         color='black'),
+                    showspikes=False,
+                    backgroundcolor='white',
+                    gridcolor='rgb(220,220,220)',
                     range=[self.viewer.state.y_min, self.viewer.state.y_max],
                     showticklabels=True,
                     tickfont=dict(
@@ -83,6 +115,9 @@ class PlotlyScatter3DStaticExport(Tool):
                         family=DEFAULT_FONT,
                         size=20,
                         color='black'),
+                    showspikes=False,
+                    backgroundcolor='white',
+                    gridcolor='rgb(220,220,220)',
                     range=[self.viewer.state.z_min, self.viewer.state.z_max],
                     showticklabels=True,
                     tickfont=dict(
@@ -97,22 +132,17 @@ class PlotlyScatter3DStaticExport(Tool):
 
         fig = go.Figure(layout=layout)
 
-        # only show if visible in viewer
-        for layer_state in self.viewer.state.layers:
+        for layer in self.viewer.layers:
 
-            if layer_state.visible:
+            layer_state = layer.state
+
+            if layer_state.visible and layer.enabled:
+
+                x = layer_state.layer[self.viewer.state.x_att]
+                y = layer_state.layer[self.viewer.state.y_att]
+                z = layer_state.layer[self.viewer.state.z_att]
 
                 marker = {}
-
-                try:
-                    x = layer_state.layer[self.viewer.state.x_att]
-                    y = layer_state.layer[self.viewer.state.y_att]
-                    z = layer_state.layer[self.viewer.state.z_att]
-                except Exception:
-                    print("Cannot visualize layer {}. This layer depends on "
-                          "attributes that cannot be derived for the underlying "
-                          "dataset.".format(layer_state.layer.label))
-                    continue
 
                 # set all points to be the same color
                 if layer_state.color_mode == 'Fixed':
@@ -155,10 +185,27 @@ class PlotlyScatter3DStaticExport(Tool):
                 marker['opacity'] = layer_state.alpha
                 marker['line'] = dict(width=0)
 
+                # add hover info to layer
+                if np.sum(dialog.checked_dictionary[layer_state.layer.label]) == 0:
+                    hoverinfo = 'skip'
+                    hovertext = None
+                else:
+                    hoverinfo = 'text'
+                    hovertext = ["" for i in range((layer_state.layer.shape[0]))]
+                    for i in range(0, len(layer_state.layer.components)):
+                        if dialog.checked_dictionary[layer_state.layer.label][i]:
+                            hover_data = layer_state.layer[layer_state.layer.components[i].label]
+                            for k in range(0, len(hover_data)):
+                                hovertext[k] = (hovertext[k] + "{}: {} <br>"
+                                                .format(layer_state.layer.components[i].label,
+                                                        hover_data[k]))
+
                 # add layer to axes
                 fig.add_scatter3d(x=x, y=y, z=z,
                                   mode='markers',
                                   marker=marker,
+                                  hoverinfo=hoverinfo,
+                                  hovertext=hovertext,
                                   name=layer_state.layer.label)
 
         plot(fig, filename=filename, auto_open=False)
