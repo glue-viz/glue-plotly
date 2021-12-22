@@ -60,14 +60,45 @@ class PlotlyScatter2DStaticExport(Tool):
 
         width, height = self.viewer.figure.get_size_inches()*self.viewer.figure.dpi
 
+        polar = getattr(self.viewer.state, 'using_polar', False)
+        degrees = polar and self.viewer.state.using_degrees
+
         # set the aspect ratio of the axes, the tick label size, the axis label
         # sizes, and the axes limits
-        layout = go.Layout(
+        layout_config = dict(
             margin=dict(r=50, l=50, b=50, t=50),  # noqa
             width=1200,
             height=1200*height/width,  # scale axis correctly
             plot_bgcolor='white',
-            xaxis=dict(
+        )
+
+        if polar:
+            angle_unit = 'degrees' if degrees else 'radians'
+            angular_axis = dict(
+                type='linear',
+                thetaunit=angle_unit,
+                showticklabels=True,
+                tickfont=dict(
+                    family=DEFAULT_FONT,
+                    size=1.5*self.viewer.axes.xaxis.get_ticklabels()[
+                        0].get_fontsize(),
+                    color='black')
+            )
+            radial_axis = dict(
+                type='linear',
+                range=[self.viewer.state.y_min, self.viewer.state.y_max],
+                showticklabels=True,
+                tickfont=dict(
+                    family=DEFAULT_FONT,
+                    size=1.5*self.viewer.axes.yaxis.get_ticklabels()[
+                        0].get_fontsize(),
+                    color='black')
+            )
+            polar_layout = go.layout.Polar(angularaxis=angular_axis, radialaxis=radial_axis)
+            layout_config.update(polar=polar_layout)
+        else:
+            angle_unit = None
+            x_axis = dict(
                 title=self.viewer.axes.get_xlabel(),
                 titlefont=dict(
                     family=DEFAULT_FONT,
@@ -82,8 +113,9 @@ class PlotlyScatter2DStaticExport(Tool):
                     size=1.5*self.viewer.axes.xaxis.get_ticklabels()[
                         0].get_fontsize(),
                     color='black'),
-                range=[self.viewer.state.x_min, self.viewer.state.x_max]),
-            yaxis=dict(
+                range=[self.viewer.state.x_min, self.viewer.state.x_max]
+            )
+            y_axis = dict(
                 title=self.viewer.axes.get_ylabel(),
                 titlefont=dict(
                     family=DEFAULT_FONT,
@@ -99,7 +131,9 @@ class PlotlyScatter2DStaticExport(Tool):
                         0].get_fontsize(),
                     color='black'),
             )
-        )
+            layout_config.update(xaxis=x_axis, yaxis=y_axis)
+
+        layout = go.Layout(**layout_config)
 
         fig = go.Figure(layout=layout)
 
@@ -173,12 +207,19 @@ class PlotlyScatter2DStaticExport(Tool):
                                                 .format(layer_state.layer.components[i].label,
                                                         hover_data[k]))
 
-                # add layer to axes
-                fig.add_scatter(x=x, y=y,
-                                mode='markers',
-                                marker=marker,
-                                hoverinfo=hoverinfo,
-                                hovertext=hovertext,
-                                name=layer_state.layer.label)
+                # add layer to axesdict(
+                scatter_info = dict(
+                    mode='markers',
+                    marker=marker,
+                    hoverinfo=hoverinfo,
+                    hovertext=hovertext,
+                    name=layer_state.layer.label
+                )
+                if polar:
+                    scatter_info.update(theta=x, r=y, thetaunit=angle_unit)
+                    fig.add_scatterpolar(**scatter_info)
+                else:
+                    scatter_info.update(x=x, y=y)
+                    fig.add_scatter(**scatter_info)
 
         plot(fig, filename=filename, auto_open=False)
