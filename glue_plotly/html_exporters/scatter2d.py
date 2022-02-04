@@ -74,10 +74,15 @@ class PlotlyScatter2DStaticExport(Tool):
 
         if polar:
             angle_unit = 'degrees' if degrees else 'radians'
+            theta_prefix = ''
+            if self.viewer.state.x_axislabel:
+                theta_prefix = '{0}='.format(self.viewer.state.x_axislabel)
             angular_axis = dict(
                 type='linear',
                 thetaunit=angle_unit,
                 showticklabels=True,
+                showtickprefix='first',
+                tickprefix=theta_prefix,
                 tickfont=dict(
                     family=DEFAULT_FONT,
                     size=1.5*self.viewer.axes.xaxis.get_ticklabels()[
@@ -88,6 +93,12 @@ class PlotlyScatter2DStaticExport(Tool):
                 type='linear',
                 range=[self.viewer.state.y_min, self.viewer.state.y_max],
                 showticklabels=True,
+                tickmode='array',
+                tickvals=self.viewer.axes.yaxis.get_majorticklocs(),
+                ticktext=['<i>{0}</i>'.format(t.get_text()) for t in self.viewer.axes.yaxis.get_majorticklabels()],
+                angle=22.5,
+                tickangle=22.5,
+                showline=False,
                 tickfont=dict(
                     family=DEFAULT_FONT,
                     size=1.5*self.viewer.axes.yaxis.get_ticklabels()[
