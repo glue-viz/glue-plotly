@@ -38,10 +38,27 @@ class TestScatter2D:
         self.app.close()
         self.app = None
 
-    def test_default(self, tmpdir):
-        output_file = tmpdir.join('test.html').strpath
+    def export_figure(self, tmpdir, output_filename):
+        output_path = tmpdir.join(output_filename).strpath
         with patch('qtpy.compat.getsavefilename') as fd:
-            fd.return_value = output_file, 'html'
+            fd.return_value = output_path, 'html'
             with patch.object(SaveHoverDialog, 'exec_', auto_accept()):
                 self.tool.activate()
-        assert os.path.exists(output_file)
+        return output_path
+
+    def test_default(self, tmpdir):
+        self.viewer.state.plot_mode = 'rectilinear'
+        output_path = self.export_figure(tmpdir, 'test_rectilinear.html')
+        assert os.path.exists(output_path)
+
+    def test_polar_radians(self, tmpdir):
+        self.viewer.state.plot_mode = 'polar'
+        self.viewer.state.angle_unit = 'radians'
+        output_path = self.export_figure(tmpdir, 'test_polar_radians.html')
+        assert os.path.exists(output_path)
+
+    def test_polar_degrees(self, tmpdir):
+        self.viewer.state.plot_mode = 'polar'
+        self.viewer.state.angle_unit = 'degrees'
+        output_path = self.export_figure(tmpdir, 'test_polar_degrees.html')
+        assert os.path.exists(output_path)
