@@ -8,6 +8,7 @@ from qtpy import compat
 from glue.config import viewer_tool
 
 from glue.core import DataCollection, Data
+from glue.utils import ensure_numerical
 
 from .. import save_hover
 
@@ -190,7 +191,8 @@ class PlotlyScatter2DStaticExport(Tool):
 
                 # scale size of points by some attribute
                 else:
-                    marker['size'] = 25 * (layer_state.layer[layer_state.size_att] - layer_state.size_vmin) / (
+                    s = ensure_numerical(layer_state.layer[layer_state.size_att].ravel())
+                    marker['size'] = 25 * (s - layer_state.size_vmin) / (
                         layer_state.size_vmax - layer_state.size_vmin)
                     marker['sizemin'] = 1
                     marker['size'][np.isnan(marker['size'])] = 0
