@@ -1,6 +1,8 @@
 0.4 (unreleased)
 ----------------
 
+- Set exported camera projection based on glue viewer state. [#13]
+
 - Add support for 2d polar scatter plots. [#12]
 
 0.3 (2021-10-19)
