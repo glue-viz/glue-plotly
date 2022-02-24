@@ -73,6 +73,9 @@ class PlotlyScatter3DStaticExport(Tool):
             height = 1200
             depth = 1200
 
+        # check which projection we want to use
+        projection_type = "perspective" if self.viewer.state.perspective_view else "orthographic"
+
         # set the aspect ratio of the axes, the tick label size, the axis label sizes, and the axes limits
         layout = go.Layout(
             margin=dict(r=50, l=50, b=50, t=50),  # noqa
@@ -125,6 +128,11 @@ class PlotlyScatter3DStaticExport(Tool):
                         family=DEFAULT_FONT,
                         size=12,
                         color='black'),
+                ),
+                camera=dict(
+                    projection=dict(
+                        type=projection_type
+                    )
                 ),
                 aspectratio=dict(x=1*self.viewer.state.x_stretch, y=height/width *
                                  self.viewer.state.y_stretch, z=depth/width*self.viewer.state.z_stretch),
