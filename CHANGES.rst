@@ -1,6 +1,8 @@
 0.4 (unreleased)
 ----------------
 
+- Allow exporting of plots with a categorical size attribute. [#14]
+
 - Add support for 2d polar scatter plots. [#12]
 
 0.3 (2021-10-19)
