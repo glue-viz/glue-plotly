@@ -1,6 +1,8 @@
 0.4 (unreleased)
 ----------------
 
+- Allow exporting of plots with a categorical size attribute. [#14]
+
 - Set exported camera projection based on glue viewer state. [#13]
 
 - Add support for 2d polar scatter plots. [#12]

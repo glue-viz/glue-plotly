@@ -17,17 +17,15 @@ jobs:
 
     libraries:
       apt:
-        - libxkbcommon-x11-0
+        - libxcb.*-dev
+        - libxkbcommon-x11-dev
 
     envs:
 
     - linux: codestyle
 
     - linux: py36-test
-    - linux: py37-test
-
-    - windows: py36-test
-    - windows: py37-test
-
-    - macosx: py36-test
-    - macosx: py37-test
+    - macos: py37-test
+    - windows: py38-test
+    - linux: py39-test
+    - macos: py310-test
