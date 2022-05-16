@@ -204,6 +204,17 @@ class PlotlyScatter2DStaticExport(Tool):
                 # remove default white border around points
                 marker['line'] = dict(width=0)
 
+                # add line properties
+
+                line = {}
+
+                if layer_state.line_visible:
+                    mode = 'lines+markers'
+                    line['dash'] = layer_state.linestyle
+                    line['width'] = layer_state.linewidth
+                else:
+                    mode = 'markers'
+
                 # add hover info to layer
 
                 if np.sum(dialog.checked_dictionary[layer_state.layer.label]) == 0:
@@ -222,8 +233,9 @@ class PlotlyScatter2DStaticExport(Tool):
 
                 # add layer to axesdict(
                 scatter_info = dict(
-                    mode='markers',
+                    mode=mode,
                     marker=marker,
+                    line=line,
                     hoverinfo=hoverinfo,
                     hovertext=hovertext,
                     name=layer_state.layer.label
