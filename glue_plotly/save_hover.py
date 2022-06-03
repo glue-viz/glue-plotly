@@ -12,6 +12,7 @@ from glue.utils.qt import load_ui
 from glue.core.state_objects import State
 from glue.external.echo import ChoiceSeparator
 from glue.core.data_combo_helper import ComponentIDComboHelper, DataCollectionComboHelper
+from glue.core.qt.dialogs import warn
 
 import numpy as np
 
@@ -100,7 +101,6 @@ class SaveHoverDialog(QDialog):
 
         components = getattr(type(self.state), 'component').get_choices(self.state)
         self.ui.list_component.clear()
-
         for (component, k) in zip(components, np.arange(0, len(components))):
 
             if isinstance(component, ChoiceSeparator):

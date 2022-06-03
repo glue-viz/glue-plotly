@@ -1,14 +1,16 @@
 from __future__ import absolute_import, division, print_function
+from turtle import color
 
 import numpy as np
 import matplotlib.colors as colors
 from matplotlib.colors import Normalize
 
 from qtpy import compat
-from glue.config import viewer_tool
+from glue.config import viewer_tool, settings
 
 from glue.core import DataCollection, Data
 from glue.utils import ensure_numerical
+from glue.viewers.scatter.layer_artist import plot_colored_line
 
 from .. import save_hover
 
@@ -16,11 +18,13 @@ try:
     from glue.viewers.common.qt.tool import Tool
 except ImportError:
     from glue.viewers.common.tool import Tool
+from glue.core.qt.dialogs import warn
 
 from glue_plotly import PLOTLY_LOGO
 
 from plotly.offline import plot
 import plotly.graph_objs as go
+import plotly.figure_factory as ff
 
 
 DEFAULT_FONT = 'Arial, sans-serif'
@@ -64,13 +68,18 @@ class PlotlyScatter2DStaticExport(Tool):
         polar = getattr(self.viewer.state, 'using_polar', False)
         degrees = polar and self.viewer.state.using_degrees
 
+        # other projections
+        proj = self.viewer.state.plot_mode
+        proj_type = 'azimuthal equal area' if proj == 'lambert' else proj
+
         # set the aspect ratio of the axes, the tick label size, the axis label
         # sizes, and the axes limits
         layout_config = dict(
             margin=dict(r=50, l=50, b=50, t=50),  # noqa
             width=1200,
             height=1200*height/width,  # scale axis correctly
-            plot_bgcolor='white',
+            paper_bgcolor=settings.BACKGROUND_COLOR,
+            plot_bgcolor=settings.BACKGROUND_COLOR
         )
 
         if polar:
@@ -88,7 +97,9 @@ class PlotlyScatter2DStaticExport(Tool):
                     family=DEFAULT_FONT,
                     size=1.5*self.viewer.axes.xaxis.get_ticklabels()[
                         0].get_fontsize(),
-                    color='black')
+                    color=settings.FOREGROUND_COLOR),
+                linecolor=settings.FOREGROUND_COLOR,
+                gridcolor=settings.FOREGROUND_COLOR
             )
             radial_axis = dict(
                 type='linear',
@@ -104,10 +115,14 @@ class PlotlyScatter2DStaticExport(Tool):
                     family=DEFAULT_FONT,
                     size=1.5*self.viewer.axes.yaxis.get_ticklabels()[
                         0].get_fontsize(),
-                    color='black')
+                    color=settings.FOREGROUND_COLOR),
+                linecolor=settings.FOREGROUND_COLOR,
+                gridcolor=settings.FOREGROUND_COLOR
             )
-            polar_layout = go.layout.Polar(angularaxis=angular_axis, radialaxis=radial_axis)
+            polar_layout = go.layout.Polar(angularaxis=angular_axis, radialaxis=radial_axis,
+                            bgcolor=settings.BACKGROUND_COLOR)
             layout_config.update(polar=polar_layout)
+            
         else:
             angle_unit = None
             x_axis = dict(
@@ -115,16 +130,22 @@ class PlotlyScatter2DStaticExport(Tool):
                 titlefont=dict(
                     family=DEFAULT_FONT,
                     size=2*self.viewer.axes.xaxis.get_label().get_size(),
-                    color='black'
+                    color=settings.FOREGROUND_COLOR
                 ),
                 showspikes=False,
-                zerolinecolor='rgb(128,128,128)',
+                linecolor=settings.FOREGROUND_COLOR,
+                tickcolor=settings.FOREGROUND_COLOR,
+                zeroline=False,
+                mirror=True,
+                ticks='outside',
+                showline=True,
+                showgrid=False,
                 showticklabels=True,
                 tickfont=dict(
                     family=DEFAULT_FONT,
                     size=1.5*self.viewer.axes.xaxis.get_ticklabels()[
                         0].get_fontsize(),
-                    color='black'),
+                    color=settings.FOREGROUND_COLOR),
                 range=[self.viewer.state.x_min, self.viewer.state.x_max]
             )
             y_axis = dict(
@@ -132,16 +153,22 @@ class PlotlyScatter2DStaticExport(Tool):
                 titlefont=dict(
                     family=DEFAULT_FONT,
                     size=2*self.viewer.axes.yaxis.get_label().get_size(),
-                    color='black'),
+                    color=settings.FOREGROUND_COLOR),
+                showgrid=False,
                 showspikes=False,
-                gridcolor='rgb(220,220,220)',
+                linecolor=settings.FOREGROUND_COLOR,
+                tickcolor=settings.FOREGROUND_COLOR,
+                zeroline=False,
+                mirror=True,
+                ticks='outside',
+                showline=True,
                 range=[self.viewer.state.y_min, self.viewer.state.y_max],
                 showticklabels=True,
                 tickfont=dict(
                     family=DEFAULT_FONT,
                     size=1.5*self.viewer.axes.yaxis.get_ticklabels()[
                         0].get_fontsize(),
-                    color='black'),
+                    color=settings.FOREGROUND_COLOR),
             )
             layout_config.update(xaxis=x_axis, yaxis=y_axis)
 
@@ -155,8 +182,8 @@ class PlotlyScatter2DStaticExport(Tool):
 
             if layer_state.visible and layer.enabled:
 
-                x = layer_state.layer[self.viewer.state.x_att]
-                y = layer_state.layer[self.viewer.state.y_att]
+                x = layer_state.layer[self.viewer.state.x_att].copy()
+                y = layer_state.layer[self.viewer.state.y_att].copy()
 
                 marker = {}
 
@@ -187,33 +214,136 @@ class PlotlyScatter2DStaticExport(Tool):
 
                 # set all points to be the same size, with some arbitrary scaling
                 if layer_state.size_mode == 'Fixed':
-                    marker['size'] = layer_state.size
+                    marker['size'] = 2 * layer_state.size_scaling * layer_state.size
 
-                # scale size of points by some attribute
+                # scale size of points by set size scaling
                 else:
                     s = ensure_numerical(layer_state.layer[layer_state.size_att].ravel())
-                    marker['size'] = 25 * (s - layer_state.size_vmin) / (
-                        layer_state.size_vmax - layer_state.size_vmin)
-                    marker['sizemin'] = 1
-                    marker['size'][np.isnan(marker['size'])] = 0
-                    marker['size'][marker['size'] < 0] = 0
+                    s = ((s - layer_state.size_vmin) /
+                                 (layer_state.size_vmax - layer_state.size_vmin))
+                    # The following ensures that the sizes are in the
+                    # range 3 to 30 before the final size scaling.
+                    np.clip(s, 0, 1, out=s)
+                    s *= 0.95
+                    s += 0.05
+                    s *= (30 * layer_state.size_scaling)
+                    marker['size'] = s
 
                 # set the opacity
                 marker['opacity'] = layer_state.alpha
 
-                # remove default white border around points
-                marker['line'] = dict(width=0)
+                # check whether or not to fill circles
+                
+                if not layer_state.fill:
+                    marker['color'] = 'rgba(0,0,0,0)'
+                    marker['line'] = dict(width=1, 
+                                          color=layer_state.color)
+
+                else:
+                    # remove default white border around points
+                    marker['line'] = dict(width=0)
+
+                # add vectors
+                if layer_state.vector_visible:
+                    proceed = warn('Arrows may look different', 'Plotly and Matlotlib vector graphics differ and your graph may look different when exported. Do you want to proceed?',
+                    default='Cancel', setting='SHOW_WARN_PROFILE_DUPLICATE')
+                    if not proceed:
+                        return
+                    vx = layer_state.layer[layer_state.vx_att]
+                    vy = layer_state.layer[layer_state.vy_att]
+                    vector_info = dict(scale = .1 * layer_state.vector_scaling,
+                                        arrow_scale=.3, line_width=3,
+                                        showlegend=False, hoverinfo='skip')
+                    if layer_state.cmap_mode == 'Fixed':
+                        fig = ff.create_quiver(x, y, vx, vy, **vector_info)
+                        fig.update_traces(marker=dict(color=layer_state.color))
+                    else:
+                        # start with the first quiver to add the rest
+                        fig = ff.create_quiver([x[0]], [y[0]], [vx[0]], [vy[0]],
+                                        **vector_info, line_color=marker['color'][0])
+                        for i in range(1, len(marker['color'])):
+                            fig1 = ff.create_quiver([x[i]], [y[i]], [vx[i]], [vy[i]],
+                                                    **vector_info,
+                                                    line_color=marker['color'][i])
+                            fig.add_traces(data=fig1.data)
+                    fig.update_layout(layout)
+
 
                 # add line properties
 
                 line = {}
 
                 if layer_state.line_visible:
-                    mode = 'lines+markers'
-                    line['dash'] = layer_state.linestyle
+                    # convert linestyle names from glue values to plotly values
+                    ls_dict = {'solid':'solid', 'dotted':'dot', 'dashed':'dash', 'dashdot':'dashdot'}
+                    line['dash'] = ls_dict[layer_state.linestyle]
                     line['width'] = layer_state.linewidth
+
+                    if layer_state.cmap_mode == 'Fixed':
+                        mode = 'lines+markers'
+                        line['color'] = layer_state.color
+                    else:
+                        # set mode to markers and plot the colored line over it
+                        mode = 'markers'
+                        lc = plot_colored_line(self.viewer.axes, x, y, rgb_str)
+                        segments = lc.get_segments()
+                        # generate list of indices to parse colors over
+                        indices = np.repeat(range(len(x)), 2)
+                        indices = indices[1:len(x) * 2 - 1]
+                        for i in range(len(segments)):
+                            fig.add_trace(go.Scatter(
+                                        x=[segments[i][0][0], segments[i][1][0]], 
+                                        y=[segments[i][0][1], segments[i][1][1]], 
+                                        mode='lines', 
+                                        line=dict(
+                                            dash=ls_dict[layer_state.linestyle],
+                                            width=layer_state.linewidth,
+                                            color=rgb_str[indices[i]]),
+                                        showlegend=False,
+                                        hoverinfo='skip')
+                            )       
                 else:
                     mode = 'markers'
+
+                # add error bars
+                 
+                xerr = {}
+                if layer_state.xerr_visible:
+                    xerr['type'] = 'data'
+                    xerr['array'] = ensure_numerical(layer_state.layer[layer_state.xerr_att].ravel())
+                    xerr['visible'] = True
+                    # add points with error bars here if color mode is linear
+                    if layer_state.cmap_mode == 'Linear':
+                        for i, bar in enumerate(xerr['array']):
+                            fig.add_trace(go.Scatter(
+                                        x=[x[i]], 
+                                        y=[y[i]], 
+                                        mode='markers', 
+                                        error_x=dict(
+                                            type='data', color=marker['color'][i], 
+                                            array=[bar], visible=True),
+                                        marker=dict(color=marker['color'][i]),
+                                        showlegend=False)
+                                )
+                
+                yerr = {}
+                if layer_state.yerr_visible:
+                    yerr['type'] = 'data'
+                    yerr['array'] = ensure_numerical(layer_state.layer[layer_state.yerr_att].ravel())
+                    yerr['visible'] = True
+                    # add points with error bars here if color mode is linear
+                    if layer_state.cmap_mode == 'Linear':
+                        for i, bar in enumerate(yerr['array']):
+                            fig.add_trace(go.Scatter(
+                                        x=[x[i]], 
+                                        y=[y[i]], 
+                                        mode='markers', 
+                                        error_y=dict(
+                                            type='data', color=marker['color'][i], 
+                                            array=[bar], visible=True),
+                                        marker=dict(color=marker['color'][i]),
+                                        showlegend=False)
+                                )
 
                 # add hover info to layer
 
@@ -243,8 +373,23 @@ class PlotlyScatter2DStaticExport(Tool):
                 if polar:
                     scatter_info.update(theta=x, r=y, thetaunit=angle_unit)
                     fig.add_scatterpolar(**scatter_info)
-                else:
+                elif proj == 'rectilinear':
                     scatter_info.update(x=x, y=y)
+                    # add error bars here if the color mode was fixed
+                    if layer_state.cmap_mode == 'Fixed':
+                        scatter_info.update(error_x=xerr, error_y=yerr)
                     fig.add_scatter(**scatter_info)
+                else:
+                    if not degrees:
+                        x = x * 180 / np.pi
+                        y = y * 180 / np.pi
+                    fig.add_traces(data=go.Scattergeo(lon=x, lat=y))
+                    fig.update_geos(projection_type=proj_type, 
+                        showland=False, showcoastlines=False, showlakes=False,
+                        lataxis_showgrid=False, lonaxis_showgrid=False,
+                        bgcolor=settings.BACKGROUND_COLOR,
+                        framecolor=settings.FOREGROUND_COLOR)
+                    fig.update_traces(**scatter_info)
+
 
         plot(fig, filename=filename, auto_open=False)
