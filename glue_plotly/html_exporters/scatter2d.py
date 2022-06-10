@@ -146,7 +146,7 @@ class PlotlyScatter2DStaticExport(Tool):
                     size=1.5*self.viewer.axes.xaxis.get_ticklabels()[
                         0].get_fontsize(),
                     color=settings.FOREGROUND_COLOR),
-                range=[self.viewer.state.x_min, self.viewer.state.x_max]
+                range=[self.viewer.state.x_min, self.viewer.state.x_max],
             )
             y_axis = dict(
                 title=self.viewer.axes.get_ylabel(),
@@ -344,6 +344,15 @@ class PlotlyScatter2DStaticExport(Tool):
                                         marker=dict(color=marker['color'][i]),
                                         showlegend=False)
                                 )
+                # set log
+                if self.viewer.state.x_log:
+                    fig.update_xaxes(type='log', dtick=1, minor_ticks='outside',
+                        range=[np.log10(self.viewer.state.x_min), np.log10(self.viewer.state.x_max)]
+                    )
+                if self.viewer.state.y_log:
+                    fig.update_yaxes(type='log', dtick=1, minor_ticks='outside',
+                        range=[np.log10(self.viewer.state.y_min), np.log10(self.viewer.state.y_max)]
+                    )
 
                 # add hover info to layer
 

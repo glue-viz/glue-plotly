@@ -3,7 +3,7 @@ from __future__ import absolute_import, division, print_function
 import numpy as np
 
 from qtpy import compat
-from glue.config import viewer_tool, settings
+from glue.config import viewer_tool, settings, colormaps
 
 from glue.core import DataCollection, Data
 
@@ -24,10 +24,10 @@ DEFAULT_FONT = 'Arial, sans-serif'
 
 
 @viewer_tool
-class PlotlyHistogram1DExport(Tool):
+class PlotlyImage2DExport(Tool):
 
     icon = PLOTLY_LOGO
-    tool_id = 'save:plotlyhist'
+    tool_id = 'save:plotlyimage2d'
     action_text = 'Save Plotly HTML page'
     tool_tip = 'Save Plotly HTML page'
 
@@ -52,10 +52,6 @@ class PlotlyHistogram1DExport(Tool):
                 checked_dictionary[layer_state.layer.label] = np.zeros((len(layer_state.layer.components))).astype(bool)
 
         dialog = save_hover.SaveHoverDialog(data_collection=dc_hover, checked_dictionary=checked_dictionary)
-        proceed = warn('Histogram plotly may look different', 'Plotly and Matlotlib binning methods differ and your graph may look different when exported. Do you want to proceed?',
-                    default='Cancel', setting='SHOW_WARN_PROFILE_DUPLICATE')
-        if not proceed:
-            return
         dialog.exec_()
 
         filename, _ = compat.getsavefilename(parent=self.viewer, basedir="plot.html")
@@ -84,6 +80,7 @@ class PlotlyHistogram1DExport(Tool):
             tickcolor=settings.FOREGROUND_COLOR,
             mirror=True,
             ticks='outside',
+            zeroline=False,
             showline=True,
             showgrid=False,
             showticklabels=True,
@@ -92,7 +89,9 @@ class PlotlyHistogram1DExport(Tool):
                 size=1.5*self.viewer.axes.xaxis.get_ticklabels()[
                     0].get_fontsize(),
                 color=settings.FOREGROUND_COLOR),
-            range=[self.viewer.state.x_min, self.viewer.state.x_max],
+            range=[self.viewer.axes.get_xlim()[0], self.viewer.axes.get_xlim()[1]],
+            # tickmode='array',
+            # tickvals=self.viewer.axes.
         )
         y_axis = dict(
             title=self.viewer.axes.get_ylabel(),
@@ -108,7 +107,8 @@ class PlotlyHistogram1DExport(Tool):
             mirror=True,
             ticks='outside',
             showline=True,
-            range=[self.viewer.state.y_min, self.viewer.state.y_max],
+            range=[self.viewer.axes.get_ylim()[0], self.viewer.axes.get_ylim()[1]],
+            # range=[self.viewer.state.y_min, self.viewer.state.y_max],
             showticklabels=True,
             tickfont=dict(
                 family=DEFAULT_FONT,
@@ -128,7 +128,14 @@ class PlotlyHistogram1DExport(Tool):
 
             if layer_state.visible and layer.enabled:
 
-                x = layer_state.layer[self.viewer.state.x_att]
+                # get image data and scale it down to default size
+                img = layer_state.layer['PRIMARY']
+
+                
+                x = layer_state.layer[self.viewer.state.x_att_world]
+                y = layer_state.layer[self.viewer.state.y_att_world]
+                print(self.viewer.state.reference_data[self.viewer.state.x_att_world])
+                
 
                 marker = {}
 
@@ -141,43 +148,18 @@ class PlotlyHistogram1DExport(Tool):
                 # set the opacity
                 marker['opacity'] = layer_state.alpha
 
-                # check whether to show cumulative
-                cumulative = {}
-                if self.viewer.state.cumulative:
-                    cumulative['currentbin'] = 'include'
-                    cumulative['enabled'] = True
+                # get colors
+                colors = {'Red-Blue' : 'RdBu', 'Gray' : 'Greys', 'Hot' : 'Hot', 
+                'Viridis' : 'Viridis', 'Yellow-Green-Blue' : 'YlGnBu', 'Yellow-Orange-Red' : 'YlOrRd'}
 
-                # set log
-                if self.viewer.state.x_log:
-                    fig.update_xaxes(type='log', dtick=1, minor_ticks='outside',
-                        range=[np.log10(self.viewer.state.x_min), np.log10(self.viewer.state.x_max)]
-                    )
-                if self.viewer.state.y_log:
-                    fig.update_yaxes(type='log', dtick=1, minor_ticks='outside',
-                        range=[np.log10(self.viewer.state.y_min), np.log10(self.viewer.state.y_max)]
-                    )
-
-                # set xbins
-                # when the max bin edge is the same as the max x value, plotly excludes this value
-                # so there is always one less in the frequency if these numbers are equal
-                if self.viewer.state.x_log:
-                    start_val = np.log10(self.viewer.state.hist_x_min)
-                    end_val = self.viewer.state.hist_x_max
-                    # end_val += end_val * 0.001
-                    end_val *= np.log10(end_val)
-                else:
-                    start_val = self.viewer.state.hist_x_min
-                    end_val = self.viewer.state.hist_x_max
-                    # end_val += end_val * 0.001
-                xbins = dict(
-                    start=start_val,
-                    end=end_val,
-                    size=(self.viewer.state.hist_x_max - self.viewer.state.hist_x_min) / 
-                        self.viewer.state.hist_n_bin
-                )
+                # default colorscale
+                colorscale = 'Greys'
+                for i in range(len(colormaps.members)):
+                    if layer_state.cmap == colormaps.members[i][1] and colormaps.members[i][0] in colors:
+                        colorscale = colors[colormaps.members[i][0]]
+                        break
 
                 # add hover info to layer
-
                 if np.sum(dialog.checked_dictionary[layer_state.layer.label]) == 0:
                     hoverinfo = 'skip'
                     hovertext = None
@@ -193,17 +175,17 @@ class PlotlyHistogram1DExport(Tool):
                                                         hover_data[k]))
 
                 # add layer to dict
-                hist_info = dict(
-                    x=x,
-                    nbinsx=self.viewer.state.hist_n_bin,
-                    xbins=xbins,
-                    marker=marker,
-                    cumulative=cumulative,
+                # need to figure out how to get the right tick numbers
+                # background color outside of image need to match the cmap max
+                image_info = dict(
+                    z=img,
+                    colorscale=colorscale,
                     hoverinfo=hoverinfo,
                     hovertext=hovertext,
-                    name=layer_state.layer.label,
-                    autobinx=False
+                    name=layer_state.layer.label
                 )
-                fig.add_histogram(**hist_info)
+                if colorscale == 'Greys':
+                    image_info.update(reversescale=True)
+                fig.add_trace(go.Heatmap(**image_info))
 
         plot(fig, filename=filename, auto_open=False)
