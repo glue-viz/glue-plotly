@@ -25,7 +25,7 @@ jobs:
           coverage: false
 
         # Standard tests
-        - linux: py36-test
+        - linux: py37-test
         - linux: py39-test
 
         - macos: py37-test
