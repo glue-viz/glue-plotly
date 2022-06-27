@@ -17,6 +17,11 @@ jobs:
       libraries: |
         apt:
           - libxkbcommon-x11-0
+          - libxcb-icccm4-dev
+          - libxcb-image0-dev
+          - libxcb-keysyms1-dev
+          - libxcb-randr0-dev
+          - libxcb-render-util0-dev
           - libxcb-xinerama0-dev
 
       envs: |
@@ -37,6 +42,6 @@ jobs:
     needs: tests
     uses: OpenAstronomy/github-actions-workflows/.github/workflows/publish_pure_python.yml@v1
     with:
-      libraries: 'libxkbcommon-x11-dev libxcb-xinerama0-dev xvfb'
+      libraries: 'libxkbcommon-x11-dev libxcb-icccm4-dev libxcb-image0-dev libxcb-keysyms1-dev libxcb-randr0-dev libxcb-render-util0-dev libxcb-xinerama0-dev xvfb'
     secrets:
       pypi_token: ${{ secrets.pypi_token }}
