@@ -1,5 +1,6 @@
 from __future__ import absolute_import, division, print_function
 
+from math import pi
 import numpy as np
 import matplotlib.colors as colors
 from matplotlib.colors import Normalize
@@ -29,6 +30,8 @@ import plotly.figure_factory as ff
 
 DEFAULT_FONT = 'Arial, sans-serif'
 
+SHOW_PLOTLY_VECTORS_2D_DIFFERENT = 'SHOW_PLOTLY_2D_VECTORS_DIFFERENT'
+settings.add(SHOW_PLOTLY_VECTORS_2D_DIFFERENT, True)
 
 @viewer_tool
 class PlotlyScatter2DStaticExport(Tool):
@@ -36,6 +39,16 @@ class PlotlyScatter2DStaticExport(Tool):
     tool_id = 'save:plotly2d'
     action_text = 'Save Plotly HTML page'
     tool_tip = 'Save Plotly HTML page'
+
+    def _adjusted_vector_points(self, origin, scale, x, y, vx, vy):
+        vx = scale * vx
+        vy = scale * vy
+        if origin == 'tail':
+            return x, y
+        elif origin == 'middle':
+            return x - 0.5 * vx, y - 0.5 * vy
+        else: # tip
+            return x - vx, y - vy
 
     @messagebox_on_error(PLOTLY_ERROR_MESSAGE)
     def activate(self):
@@ -253,16 +266,26 @@ class PlotlyScatter2DStaticExport(Tool):
                     proceed = warn('Arrows may look different',
                                    'Plotly and Matlotlib vector graphics differ and your graph may look different '
                                    'when exported. Do you want to proceed?',
-                                   default='Cancel', setting='SHOW_WARN_PROFILE_DUPLICATE')
+                                   default='Cancel', setting=SHOW_PLOTLY_VECTORS_2D_DIFFERENT)
                     if not proceed:
                         return
                     vx = layer_state.layer[layer_state.vx_att]
                     vy = layer_state.layer[layer_state.vy_att]
-                    vector_info = dict(scale=.1 * layer_state.vector_scaling,
-                                       arrow_scale=.3, line_width=3,
+                    scale = 0.1 * layer_state.vector_scaling
+                    angle = pi / 9 if layer_state.vector_arrowhead else 0
+                    arrow_scale = 0.4 if layer_state.vector_arrowhead else 0.001
+                    vector_info = dict(scale=0.25,
+                                       angle=angle,
+                                       arrow_scale=arrow_scale,
+                                       line=dict(width=5),
                                        showlegend=False, hoverinfo='skip')
+                    x_vec, y_vec = self._adjusted_vector_points(layer_state.vector_origin, scale, x, y, vx, vy)
+                    print(layer_state.vector_origin)
+                    print(scale)
+                    for i in range(x.size):
+                        print(x[i], vx[i], x_vec[i])
                     if layer_state.cmap_mode == 'Fixed':
-                        fig = ff.create_quiver(x, y, vx, vy, **vector_info)
+                        fig = ff.create_quiver(x_vec, y_vec, vx, vy, **vector_info)
                         fig.update_traces(marker=dict(color=layer_color))
 
                     else:
@@ -409,5 +432,7 @@ class PlotlyScatter2DStaticExport(Tool):
                                     bgcolor=settings.BACKGROUND_COLOR,
                                     framecolor=settings.FOREGROUND_COLOR)
                     fig.update_traces(**scatter_info)
+
+            break
 
         plot(fig, filename=filename, auto_open=False)
