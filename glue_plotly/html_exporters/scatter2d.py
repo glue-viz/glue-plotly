@@ -194,12 +194,13 @@ class PlotlyScatter2DStaticExport(Tool):
 
                 marker = {}
 
+                layer_color = layer_state.color
+                if layer_color == '0.35':
+                    layer_color = 'gray'
+
                 # set all points to be the same color
                 if layer_state.cmap_mode == 'Fixed':
-                    if layer_state.color != '0.35':
-                        marker['color'] = layer_state.color
-                    else:
-                        marker['color'] = 'gray'
+                    marker['color'] = layer_color
 
                 # color by some attribute
                 else:
@@ -263,10 +264,7 @@ class PlotlyScatter2DStaticExport(Tool):
                                         showlegend=False, hoverinfo='skip')
                     if layer_state.cmap_mode == 'Fixed':
                         fig = ff.create_quiver(x, y, vx, vy, **vector_info)
-                        if layer_state.color != '0.35':
-                            fig.update_traces(marker=dict(color=layer_state.color))
-                        else:
-                            fig.update_traces(marker=dict(color='gray'))
+                        fig.update_traces(marker=dict(color=layer_color))
                         
                     else:
                         # start with the first quiver to add the rest
@@ -291,10 +289,7 @@ class PlotlyScatter2DStaticExport(Tool):
                     line['width'] = layer_state.linewidth
 
                     if layer_state.cmap_mode == 'Fixed':
-                        if layer_state.color != '0.35':
-                            marker['color'] = layer_state.color
-                        else:
-                            marker['color'] = 'gray'
+                        marker['color'] = layer_color
                         mode = 'lines+markers'
                     else:
                         # set mode to markers and plot the colored line over it
