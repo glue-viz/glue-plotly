@@ -352,6 +352,18 @@ class PlotlyScatter2DStaticExport(Tool):
                                         showlegend=False)
                                 )
 
+                # set log
+                if self.viewer.state.x_log:
+                    fig.update_xaxes(type='log', dtick=1, minor_ticks='outside',
+                                     range=[np.log10(self.viewer.state.x_min),
+                                            np.log10(self.viewer.state.x_max)]
+                                     )
+                if self.viewer.state.y_log:
+                    fig.update_yaxes(type='log', dtick=1, minor_ticks='outside',
+                                     range=[np.log10(self.viewer.state.y_min),
+                                            np.log10(self.viewer.state.y_max)]
+                                     )
+
                 # add hover info to layer
 
                 if np.sum(dialog.checked_dictionary[layer_state.layer.label]) == 0:
