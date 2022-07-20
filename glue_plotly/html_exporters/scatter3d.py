@@ -23,6 +23,7 @@ import plotly.graph_objs as go
 from glue.core.qt.dialogs import warn
 
 DEFAULT_FONT = 'Arial, sans-serif'
+settings.add('SHOW_WARN_PLOTLY_3D_GRAPHICS_DIFFERENT', True)
 
 
 @viewer_tool
@@ -57,9 +58,10 @@ class PlotlyScatter3DStaticExport(Tool):
         proceed = warn('Scatter 3d plotly may look different',
                        'Plotly and Matlotlib graphics differ and your graph may look different when exported. Do you '
                        'want to proceed?',
-                       default='Cancel', setting='SHOW_WARN_PROFILE_DUPLICATE')
+                       default='Cancel', setting='SHOW_WARN_PLOTLY_3D_GRAPHICS_DIFFERENT')
         if not proceed:
             return
+
         dialog.exec_()
 
         # query filename
@@ -225,12 +227,6 @@ class PlotlyScatter3DStaticExport(Tool):
                 marker['line'] = dict(width=0)
 
                 if layer_state.vector_visible:
-                    proceed = warn('Arrows may look different',
-                                   'Plotly and Matlotlib vector graphics differ and your graph may look different '
-                                   'when exported. Do you want to proceed?',
-                                   default='Cancel', setting='SHOW_WARN_PROFILE_DUPLICATE')
-                    if not proceed:
-                        return
                     vx = layer_state.layer[layer_state.vx_attribute]
                     vy = layer_state.layer[layer_state.vy_attribute]
                     vz = layer_state.layer[layer_state.vz_attribute]
