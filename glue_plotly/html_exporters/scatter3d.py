@@ -15,7 +15,6 @@ try:
 except ImportError:
     from glue.viewers.common.tool import Tool
 
-
 from glue_plotly import PLOTLY_LOGO
 from .. import save_hover
 
@@ -23,13 +22,11 @@ from plotly.offline import plot
 import plotly.graph_objs as go
 from glue.core.qt.dialogs import warn
 
-
 DEFAULT_FONT = 'Arial, sans-serif'
 
 
 @viewer_tool
 class PlotlyScatter3DStaticExport(Tool):
-
     icon = PLOTLY_LOGO
     tool_id = 'save:plotly3d'
     action_text = 'Save Plotly HTML page'
@@ -57,8 +54,10 @@ class PlotlyScatter3DStaticExport(Tool):
                 checked_dictionary[layer_state.layer.label] = np.zeros((len(layer_state.layer.components))).astype(bool)
 
         dialog = save_hover.SaveHoverDialog(data_collection=dc_hover, checked_dictionary=checked_dictionary)
-        proceed = warn('Scatter 3d plotly may look different', 'Plotly and Matlotlib graphics differ and your graph may look different when exported. Do you want to proceed?',
-                    default='Cancel', setting='SHOW_WARN_PROFILE_DUPLICATE')
+        proceed = warn('Scatter 3d plotly may look different',
+                       'Plotly and Matlotlib graphics differ and your graph may look different when exported. Do you '
+                       'want to proceed?',
+                       default='Cancel', setting='SHOW_WARN_PROFILE_DUPLICATE')
         if not proceed:
             return
         dialog.exec_()
@@ -69,9 +68,9 @@ class PlotlyScatter3DStaticExport(Tool):
 
         # when vispy viewer is in "native aspect ratio" mode, scale axes size by data
         if self.viewer.state.native_aspect:
-            width = self.viewer.state.x_max-self.viewer.state.x_min
-            height = self.viewer.state.y_max-self.viewer.state.y_min
-            depth = self.viewer.state.z_max-self.viewer.state.z_min
+            width = self.viewer.state.x_max - self.viewer.state.x_min
+            height = self.viewer.state.y_max - self.viewer.state.y_min
+            depth = self.viewer.state.z_max - self.viewer.state.z_min
 
         # otherwise, set all axes to be equal size
         else:
@@ -159,9 +158,10 @@ class PlotlyScatter3DStaticExport(Tool):
                         type=projection_type
                     )
                 ),
-                aspectratio=dict(x=1*self.viewer.state.x_stretch, y=height/width *
-                                 self.viewer.state.y_stretch, z=depth/width*self.viewer.state.z_stretch),
-                aspectmode='manual',),
+                aspectratio=dict(x=1 * self.viewer.state.x_stretch,
+                                 y=height / width * self.viewer.state.y_stretch,
+                                 z=depth / width * self.viewer.state.z_stretch),
+                                 aspectmode='manual'),
         )
 
         fig = go.Figure(layout=layout)
@@ -211,7 +211,7 @@ class PlotlyScatter3DStaticExport(Tool):
                 else:
                     s = ensure_numerical(layer_state.layer[layer_state.size_attribute].ravel())
                     s = ((s - layer_state.size_vmin) /
-                                 (layer_state.size_vmax - layer_state.size_vmin))
+                         (layer_state.size_vmax - layer_state.size_vmin))
                     # The following ensures that the sizes are in the
                     # range 3 to 30 before the final size scaling.
                     np.clip(s, 0, 1, out=s)
@@ -225,35 +225,36 @@ class PlotlyScatter3DStaticExport(Tool):
                 marker['line'] = dict(width=0)
 
                 if layer_state.vector_visible:
-                    proceed = warn('Arrows may look different', 'Plotly and Matlotlib vector graphics differ and your graph may look different when exported. Do you want to proceed?',
-                    default='Cancel', setting='SHOW_WARN_PROFILE_DUPLICATE')
+                    proceed = warn('Arrows may look different',
+                                   'Plotly and Matlotlib vector graphics differ and your graph may look different '
+                                   'when exported. Do you want to proceed?',
+                                   default='Cancel', setting='SHOW_WARN_PROFILE_DUPLICATE')
                     if not proceed:
                         return
                     vx = layer_state.layer[layer_state.vx_attribute]
                     vy = layer_state.layer[layer_state.vy_attribute]
                     vz = layer_state.layer[layer_state.vz_attribute]
                     # convert anchor names from glue values to plotly values
-                    anchor_dict = {'middle':'center', 'tip':'tip', 'tail':
-                    'tail'}
+                    anchor_dict = {'middle': 'center', 'tip': 'tip', 'tail': 'tail'}
                     anchor = anchor_dict[layer_state.vector_origin]
                     if layer_state.color_mode == 'Fixed':
                         # get the singular color in rgb format
                         c = 'rgb{}'.format(tuple(int(
-                            marker['color'][i:i+2], 16) for i in (1, 3, 5)))
+                            marker['color'][i:i + 2], 16) for i in (1, 3, 5)))
                         fig.add_cone(x=x, y=y, z=z, u=vx, v=vy, w=vz,
-                                    anchor=anchor, colorscale=[[0, c], [1, c]],
-                                    hoverinfo='skip', showscale=False,
-                                    showlegend=False)
+                                     anchor=anchor, colorscale=[[0, c], [1, c]],
+                                     hoverinfo='skip', showscale=False,
+                                     showlegend=False)
                     else:
-                        rgb_colors = list((int(rgba[0]*256), int(rgba[1]*256), int(rgba[2]*256)) 
-                                             for rgba in rgba_list)
+                        rgb_colors = list((int(rgba[0] * 256), int(rgba[1] * 256), int(rgba[2] * 256))
+                                          for rgba in rgba_list)
                         for i in range(len(marker['color'])):
-                            fig.add_cone(x=[x[i]], y=[y[i]], z=[z[i]], 
-                                u=[vx[i]], v=[vy[i]], w=[vz[i]], anchor=anchor,
-                                colorscale=[[0, 'rgb{}'.format(rgb_colors[i])], 
-                                [1, 'rgb{}'.format(rgb_colors[i])]],
-                                hoverinfo='skip',
-                                showscale=False, showlegend=False, sizeref=0.3)
+                            fig.add_cone(x=[x[i]], y=[y[i]], z=[z[i]],
+                                         u=[vx[i]], v=[vy[i]], w=[vz[i]], anchor=anchor,
+                                         colorscale=[[0, 'rgb{}'.format(rgb_colors[i])],
+                                                     [1, 'rgb{}'.format(rgb_colors[i])]],
+                                         hoverinfo='skip',
+                                         showscale=False, showlegend=False, sizeref=0.3)
                     fig.update_layout(layout)
 
                 # add error bars
@@ -263,15 +264,14 @@ class PlotlyScatter3DStaticExport(Tool):
                     xerr['array'] = np.absolute(ensure_numerical(
                         layer_state.layer[layer_state.xerr_attribute].ravel()))
                     xerr['visible'] = True
-                    
-                
+
                 yerr = {}
                 if layer_state.yerr_visible:
                     yerr['type'] = 'data'
                     yerr['array'] = np.absolute(ensure_numerical(
                         layer_state.layer[layer_state.yerr_attribute].ravel()))
                     yerr['visible'] = True
-                
+
                 zerr = {}
                 if layer_state.zerr_visible:
                     zerr['type'] = 'data'
