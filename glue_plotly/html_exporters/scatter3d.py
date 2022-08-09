@@ -5,7 +5,7 @@ import matplotlib.colors as colors
 from matplotlib.colors import Normalize
 
 from qtpy import compat
-from glue.config import viewer_tool, settings, colormaps
+from glue.config import viewer_tool, settings
 
 from glue.core import DataCollection, Data
 from glue.utils import ensure_numerical
@@ -163,7 +163,8 @@ class PlotlyScatter3DStaticExport(Tool):
                 aspectratio=dict(x=1 * self.viewer.state.x_stretch,
                                  y=height / width * self.viewer.state.y_stretch,
                                  z=depth / width * self.viewer.state.z_stretch),
-                                 aspectmode='manual'),
+                aspectmode='manual'
+            )
         )
 
         fig = go.Figure(layout=layout)
