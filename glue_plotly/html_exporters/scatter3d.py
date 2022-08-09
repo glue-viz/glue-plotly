@@ -233,24 +233,25 @@ class PlotlyScatter3DStaticExport(Tool):
                     # convert anchor names from glue values to plotly values
                     anchor_dict = {'middle': 'center', 'tip': 'tip', 'tail': 'tail'}
                     anchor = anchor_dict[layer_state.vector_origin]
+                    name = layer_state.layer.label + " vectors"
                     if layer_state.color_mode == 'Fixed':
                         # get the singular color in rgb format
-                        c = 'rgb{}'.format(tuple(int(
-                            marker['color'][i:i + 2], 16) for i in (1, 3, 5)))
+                        rgb_color = [int(c * 256) for c in colors.to_rgb(marker["color"])]
+                        c = 'rgb{}'.format(tuple(rgb_color))
                         fig.add_cone(x=x, y=y, z=z, u=vx, v=vy, w=vz,
-                                     anchor=anchor, colorscale=[[0, c], [1, c]],
+                                     name=name, anchor=anchor, colorscale=[[0, c], [1, c]],
                                      hoverinfo='skip', showscale=False,
-                                     showlegend=False)
+                                     showlegend=True, sizeref=layer_state.vector_scaling)
                     else:
                         rgb_colors = list((int(rgba[0] * 256), int(rgba[1] * 256), int(rgba[2] * 256))
                                           for rgba in rgba_list)
                         for i in range(len(marker['color'])):
+                            c = 'rgb{}'.format(rgb_colors[i])
                             fig.add_cone(x=[x[i]], y=[y[i]], z=[z[i]],
-                                         u=[vx[i]], v=[vy[i]], w=[vz[i]], anchor=anchor,
-                                         colorscale=[[0, 'rgb{}'.format(rgb_colors[i])],
-                                                     [1, 'rgb{}'.format(rgb_colors[i])]],
-                                         hoverinfo='skip',
-                                         showscale=False, showlegend=False, sizeref=0.3)
+                                         u=[vx[i]], v=[vy[i]], w=[vz[i]],
+                                         name=name, anchor=anchor, colorscale=[[0, c], [1, c]],
+                                         hoverinfo='skip', showscale=False,
+                                         showlegend=True, sizeref=layer_state.vector_scaling)
                     fig.update_layout(layout)
 
                 # add error bars
