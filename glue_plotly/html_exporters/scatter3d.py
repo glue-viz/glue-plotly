@@ -235,6 +235,7 @@ class PlotlyScatter3DStaticExport(Tool):
                     anchor_dict = {'middle': 'center', 'tip': 'tip', 'tail': 'tail'}
                     anchor = anchor_dict[layer_state.vector_origin]
                     name = layer_state.layer.label + " cones"
+                    cones = []
                     if layer_state.color_mode == 'Fixed':
                         # get the singular color in rgb format
                         rgb_color = [int(c * 256) for c in colors.to_rgb(marker["color"])]
@@ -243,6 +244,7 @@ class PlotlyScatter3DStaticExport(Tool):
                                          name=name, anchor=anchor, colorscale=[[0, c], [1, c]],
                                          hoverinfo='skip', showscale=False,
                                          showlegend=True, sizeref=layer_state.vector_scaling)
+                        cones.append(cone_info)
                     else:
                         rgb_colors = list((int(rgba[0] * 256), int(rgba[1] * 256), int(rgba[2] * 256))
                                           for rgba in rgba_list)
@@ -250,9 +252,11 @@ class PlotlyScatter3DStaticExport(Tool):
                             c = 'rgb{}'.format(rgb_colors[i])
                             cone_info = dict(x=[x[i]], y=[y[i]], z=[z[i]],
                                              u=[vx[i]], v=[vy[i]], w=[vz[i]],
-                                             name=name, anchor=anchor, colorscale=[[0, c], [1, c]],
-                                             hoverinfo='skip', showscale=False,
-                                             showlegend=True, sizeref=layer_state.vector_scaling)
+                                             anchor=anchor, colorscale=[[0, c], [1, c]],
+                                             name=name, showlegend=i is 0,
+                                             hoverinfo='skip', showscale=False, legendgroup=name,
+                                             sizeref=layer_state.vector_scaling)
+                            cones.append(cone_info)
                     fig.update_layout(layout)
 
                 # add error bars
@@ -305,6 +309,8 @@ class PlotlyScatter3DStaticExport(Tool):
 
                 # add the cones here so that they show up after the data in the legend
                 if layer_state.vector_visible:
-                    fig.add_cone(**cone_info)
+                    for cone in cones:
+                        fig.add_cone(**cone)
 
+        print(fig)
         plot(fig, filename=filename, auto_open=False)
