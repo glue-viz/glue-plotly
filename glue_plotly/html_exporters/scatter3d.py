@@ -110,7 +110,9 @@ class PlotlyScatter3DStaticExport(Tool):
                     showline=True,
                     linecolor=settings.FOREGROUND_COLOR,
                     tickcolor=settings.FOREGROUND_COLOR,
-                    range=[self.viewer.state.x_min, self.viewer.state.x_max]),
+                    range=[self.viewer.state.x_min, self.viewer.state.x_max],
+                    visible=self.viewer.state.visible_axes
+                ),
                 yaxis=dict(
                     title=self.viewer.state.y_att.label,
                     titlefont=dict(
@@ -131,7 +133,8 @@ class PlotlyScatter3DStaticExport(Tool):
                     ticks='outside',
                     showline=True,
                     linecolor=settings.FOREGROUND_COLOR,
-                    tickcolor=settings.FOREGROUND_COLOR
+                    tickcolor=settings.FOREGROUND_COLOR,
+                    visible=self.viewer.state.visible_axes
                 ),
                 zaxis=dict(
                     title=self.viewer.state.z_att.label,
@@ -153,7 +156,8 @@ class PlotlyScatter3DStaticExport(Tool):
                     ticks='outside',
                     showline=True,
                     linecolor=settings.FOREGROUND_COLOR,
-                    tickcolor=settings.FOREGROUND_COLOR
+                    tickcolor=settings.FOREGROUND_COLOR,
+                    visible=self.viewer.state.visible_axes
                 ),
                 camera=dict(
                     projection=dict(
