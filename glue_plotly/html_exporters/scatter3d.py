@@ -179,6 +179,15 @@ class PlotlyScatter3DStaticExport(Tool):
                 y = layer_state.layer[self.viewer.state.y_att]
                 z = layer_state.layer[self.viewer.state.z_att]
 
+                # Plotly doesn't show anything outside the bounding box
+                viewer_state = self.viewer.state
+                indices = (x >= viewer_state.x_min) & (x <= viewer_state.x_max) & \
+                          (y >= viewer_state.y_min) & (y <= viewer_state.y_max) & \
+                          (z >= viewer_state.z_min) & (z <= viewer_state.z_max)
+                x = x[indices]
+                y = y[indices]
+                z = z[indices]
+
                 marker = {}
 
                 # set all points to be the same color
@@ -201,7 +210,7 @@ class PlotlyScatter3DStaticExport(Tool):
 
                     # most matplotlib colormaps aren't recognized by plotly, so we convert manually to a hex code
                     rgba_list = [cmap(
-                        norm(point)) for point in layer_state.layer[layer_state.cmap_attribute].copy()]
+                        norm(point)) for point in layer_state.layer[layer_state.cmap_attribute][indices].copy()]
                     rgb_str = [r'{}'.format(colors.rgb2hex(
                         (rgba[0], rgba[1], rgba[2]))) for rgba in rgba_list]
                     marker['color'] = rgb_str
@@ -227,26 +236,34 @@ class PlotlyScatter3DStaticExport(Tool):
                 marker['opacity'] = layer_state.alpha
                 marker['line'] = dict(width=0)
 
+                # add hover info to layer
+                if np.sum(dialog.checked_dictionary[layer_state.layer.label]) == 0:
+                    hoverinfo = 'skip'
+                    hovertext = None
+                else:
+                    hoverinfo = 'text'
+                    hovertext = ["" for i in range((indices.shape[0]))]
+                    for i in range(len(layer_state.layer.components)):
+                        if dialog.checked_dictionary[layer_state.layer.label][i]:
+                            label = layer_state.layer.components[i].label
+                            hover_data = layer_state.layer[label][indices]
+                            for k in range(len(hover_data)):
+                                hovertext[k] = (hovertext[k] + "{}: {} <br>"
+                                                .format(label, hover_data[k]))
+
                 if layer_state.vector_visible:
-                    vx = layer_state.layer[layer_state.vx_attribute]
-                    vy = layer_state.layer[layer_state.vy_attribute]
-                    vz = layer_state.layer[layer_state.vz_attribute]
+                    vx = layer_state.layer[layer_state.vx_attribute][indices]
+                    vy = layer_state.layer[layer_state.vy_attribute][indices]
+                    vz = layer_state.layer[layer_state.vz_attribute][indices]
                     # convert anchor names from glue values to plotly values
                     anchor_dict = {'middle': 'center', 'tip': 'tip', 'tail': 'tail'}
                     anchor = anchor_dict[layer_state.vector_origin]
                     name = layer_state.layer.label + " cones"
+                    scaling = layer_state.vector_scaling
                     cones = []
-
-                    viewer_state = self.viewer.state
-                    indices = (x >= viewer_state.x_min) & (x <= viewer_state.x_max) & \
-                              (y >= viewer_state.y_min) & (y <= viewer_state.y_max) & \
-                              (z >= viewer_state.z_min) & (z <= viewer_state.z_max)
-                    x = x[indices]
-                    y = y[indices]
-                    z = z[indices]
-                    vx = vx[indices]
-                    vy = vy[indices]
-                    vz = vz[indices]
+                    vx_v = scaling * vx
+                    vy_v = scaling * vy
+                    vz_v = scaling * vz
 
                     if layer_state.color_mode == 'Fixed':
                         # get the singular color in rgb format
@@ -255,21 +272,25 @@ class PlotlyScatter3DStaticExport(Tool):
                         colorscale = [[0, c], [1, c]]
 
                         for i in range(len(x)):
+                            ht = None if hovertext is None else [hovertext[i]]
                             cone_info = dict(x=[x[i]], y=[y[i]], z=[z[i]],
-                                             u=[vx[i]], v=[vy[i]], w=[vz[i]],
+                                             u=[vx_v[i]], v=[vy_v[i]], w=[vz_v[i]],
                                              name=name, anchor=anchor, colorscale=colorscale,
-                                             hoverinfo='skip', showscale=False, legendgroup=name,
-                                             sizemode="scaled", showlegend=not i, sizeref=layer_state.vector_scaling)
+                                             hoverinfo=hoverinfo, hovertext=ht,
+                                             showscale=False, legendgroup=name,
+                                             sizemode="absolute", showlegend=not i, sizeref=1)
                             cones.append(cone_info)
                     else:
-                        rgb_colors = [(int(t * 256) for t in rgba[:3]) for rgba in rgba_list]
+                        rgb_colors = [tuple(int(t * 256) for t in rgba[:3]) for rgba in rgba_list]
                         for i in range(len(marker['color'])):
                             c = 'rgb{}'.format(rgb_colors[i])
+                            ht = None if hovertext is None else [hovertext[i]]
                             cone_info = dict(x=[x[i]], y=[y[i]], z=[z[i]],
-                                             u=[vx[i]], v=[vy[i]], w=[vz[i]],
+                                             u=[vx_v[i]], v=[vy_v[i]], w=[vz_v[i]],
                                              name=name, anchor=anchor, colorscale=[[0, c], [1, c]],
-                                             hoverinfo='skip', showscale=False, legendgroup=name,
-                                             sizemode="scaled", showlegend=not i, sizeref=layer_state.vector_scaling)
+                                             hoverinfo=hoverinfo, hovertext=ht,
+                                             showscale=False, legendgroup=name,
+                                             sizemode="scaled", showlegend=not i, sizeref=1)
                             cones.append(cone_info)
                     fig.update_layout(layout)
 
@@ -278,37 +299,22 @@ class PlotlyScatter3DStaticExport(Tool):
                 if layer_state.xerr_visible:
                     xerr['type'] = 'data'
                     xerr['array'] = np.absolute(ensure_numerical(
-                        layer_state.layer[layer_state.xerr_attribute].ravel()))
+                        layer_state.layer[layer_state.xerr_attribute][indices].ravel()))
                     xerr['visible'] = True
 
                 yerr = {}
                 if layer_state.yerr_visible:
                     yerr['type'] = 'data'
                     yerr['array'] = np.absolute(ensure_numerical(
-                        layer_state.layer[layer_state.yerr_attribute].ravel()))
+                        layer_state.layer[layer_state.yerr_attribute][indices].ravel()))
                     yerr['visible'] = True
 
                 zerr = {}
                 if layer_state.zerr_visible:
                     zerr['type'] = 'data'
                     zerr['array'] = np.absolute(ensure_numerical(
-                        layer_state.layer[layer_state.zerr_attribute].ravel()))
+                        layer_state.layer[layer_state.zerr_attribute][indices].ravel()))
                     zerr['visible'] = True
-
-                # add hover info to layer
-                if np.sum(dialog.checked_dictionary[layer_state.layer.label]) == 0:
-                    hoverinfo = 'skip'
-                    hovertext = None
-                else:
-                    hoverinfo = 'text'
-                    hovertext = ["" for i in range((layer_state.layer.shape[0]))]
-                    for i in range(0, len(layer_state.layer.components)):
-                        if dialog.checked_dictionary[layer_state.layer.label][i]:
-                            hover_data = layer_state.layer[layer_state.layer.components[i].label]
-                            for k in range(0, len(hover_data)):
-                                hovertext[k] = (hovertext[k] + "{}: {} <br>"
-                                                .format(layer_state.layer.components[i].label,
-                                                        hover_data[k]))
 
                 # add layer to axes
                 fig.add_scatter3d(x=x, y=y, z=z,
@@ -326,5 +332,4 @@ class PlotlyScatter3DStaticExport(Tool):
                     for cone in cones:
                         fig.add_cone(**cone)
 
-        print(fig)
         plot(fig, filename=filename, auto_open=False)
