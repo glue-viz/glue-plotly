@@ -236,26 +236,40 @@ class PlotlyScatter3DStaticExport(Tool):
                     anchor = anchor_dict[layer_state.vector_origin]
                     name = layer_state.layer.label + " cones"
                     cones = []
+
+                    viewer_state = self.viewer.state
+                    indices = (x >= viewer_state.x_min) & (x <= viewer_state.x_max) & \
+                              (y >= viewer_state.y_min) & (y <= viewer_state.y_max) & \
+                              (z >= viewer_state.z_min) & (z <= viewer_state.z_max)
+                    x = x[indices]
+                    y = y[indices]
+                    z = z[indices]
+                    vx = vx[indices]
+                    vy = vy[indices]
+                    vz = vz[indices]
+
                     if layer_state.color_mode == 'Fixed':
                         # get the singular color in rgb format
                         rgb_color = [int(c * 256) for c in colors.to_rgb(marker["color"])]
                         c = 'rgb{}'.format(tuple(rgb_color))
-                        cone_info = dict(x=x, y=y, z=z, u=vx, v=vy, w=vz,
-                                         name=name, anchor=anchor, colorscale=[[0, c], [1, c]],
-                                         hoverinfo='skip', showscale=False,
-                                         showlegend=True, sizeref=layer_state.vector_scaling)
-                        cones.append(cone_info)
+                        colorscale = [[0, c], [1, c]]
+
+                        for i in range(len(x)):
+                            cone_info = dict(x=[x[i]], y=[y[i]], z=[z[i]],
+                                             u=[vx[i]], v=[vy[i]], w=[vz[i]],
+                                             name=name, anchor=anchor, colorscale=colorscale,
+                                             hoverinfo='skip', showscale=False, legendgroup=name,
+                                             sizemode="scaled", showlegend=not i, sizeref=layer_state.vector_scaling)
+                            cones.append(cone_info)
                     else:
-                        rgb_colors = list((int(rgba[0] * 256), int(rgba[1] * 256), int(rgba[2] * 256))
-                                          for rgba in rgba_list)
+                        rgb_colors = [(int(t * 256) for t in rgba[:3]) for rgba in rgba_list]
                         for i in range(len(marker['color'])):
                             c = 'rgb{}'.format(rgb_colors[i])
                             cone_info = dict(x=[x[i]], y=[y[i]], z=[z[i]],
                                              u=[vx[i]], v=[vy[i]], w=[vz[i]],
-                                             anchor=anchor, colorscale=[[0, c], [1, c]],
-                                             name=name, showlegend=i is 0,
+                                             name=name, anchor=anchor, colorscale=[[0, c], [1, c]],
                                              hoverinfo='skip', showscale=False, legendgroup=name,
-                                             sizeref=layer_state.vector_scaling)
+                                             sizemode="scaled", showlegend=not i, sizeref=layer_state.vector_scaling)
                             cones.append(cone_info)
                     fig.update_layout(layout)
 
