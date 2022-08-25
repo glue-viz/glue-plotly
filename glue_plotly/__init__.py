@@ -23,3 +23,6 @@ def setup():
         pass
     else:
         VispyScatterViewer.subtools['save'] = VispyScatterViewer.subtools['save'] + ['save:plotly3d']
+
+    from glue.viewers.image.qt import ImageViewer
+    ImageViewer.subtools['save'] = ImageViewer.subtools['save'] + ['save:plotlyimage2d']
