@@ -18,14 +18,12 @@ from glue_plotly import PLOTLY_LOGO
 
 from plotly.offline import plot
 import plotly.graph_objs as go
-from glue.core.qt.dialogs import warn
 
 DEFAULT_FONT = 'Arial, sans-serif'
 
 
 @viewer_tool
 class PlotlyImage2DExport(Tool):
-
     icon = PLOTLY_LOGO
     tool_id = 'save:plotlyimage2d'
     action_text = 'Save Plotly HTML page'
@@ -56,14 +54,14 @@ class PlotlyImage2DExport(Tool):
 
         filename, _ = compat.getsavefilename(parent=self.viewer, basedir="plot.html")
 
-        width, height = self.viewer.figure.get_size_inches()*self.viewer.figure.dpi
+        width, height = self.viewer.figure.get_size_inches() * self.viewer.figure.dpi
 
         # set the aspect ratio of the axes, the tick label size, the axis label
         # sizes, and the axes limits
         layout_config = dict(
             margin=dict(r=50, l=50, b=50, t=50),  # noqa
             width=1200,
-            height=1200*height/width,  # scale axis correctly
+            height=1200 * height / width,  # scale axis correctly
             paper_bgcolor=settings.BACKGROUND_COLOR,
             plot_bgcolor=settings.BACKGROUND_COLOR
         )
@@ -72,7 +70,7 @@ class PlotlyImage2DExport(Tool):
             title=self.viewer.axes.get_xlabel(),
             titlefont=dict(
                 family=DEFAULT_FONT,
-                size=2*self.viewer.axes.xaxis.get_label().get_size(),
+                size=2 * self.viewer.axes.xaxis.get_label().get_size(),
                 color=settings.FOREGROUND_COLOR
             ),
             showspikes=False,
@@ -86,7 +84,7 @@ class PlotlyImage2DExport(Tool):
             showticklabels=True,
             tickfont=dict(
                 family=DEFAULT_FONT,
-                size=1.5*self.viewer.axes.xaxis.get_ticklabels()[
+                size=1.5 * self.viewer.axes.xaxis.get_ticklabels()[
                     0].get_fontsize(),
                 color=settings.FOREGROUND_COLOR),
             range=[self.viewer.axes.get_xlim()[0], self.viewer.axes.get_xlim()[1]],
@@ -97,7 +95,7 @@ class PlotlyImage2DExport(Tool):
             title=self.viewer.axes.get_ylabel(),
             titlefont=dict(
                 family=DEFAULT_FONT,
-                size=2*self.viewer.axes.yaxis.get_label().get_size(),
+                size=2 * self.viewer.axes.yaxis.get_label().get_size(),
                 color=settings.FOREGROUND_COLOR),
             showgrid=False,
             showspikes=False,
@@ -112,7 +110,7 @@ class PlotlyImage2DExport(Tool):
             showticklabels=True,
             tickfont=dict(
                 family=DEFAULT_FONT,
-                size=1.5*self.viewer.axes.yaxis.get_ticklabels()[
+                size=1.5 * self.viewer.axes.yaxis.get_ticklabels()[
                     0].get_fontsize(),
                 color=settings.FOREGROUND_COLOR),
         )
@@ -131,17 +129,15 @@ class PlotlyImage2DExport(Tool):
                 # get image data and scale it down to default size
                 img = layer_state.layer['PRIMARY']
 
-                
                 x = layer_state.layer[self.viewer.state.x_att_world]
                 y = layer_state.layer[self.viewer.state.y_att_world]
                 print(self.viewer.state.reference_data[self.viewer.state.x_att_world])
-                
 
                 marker = {}
 
                 # set all bars to be the same color
                 if layer_state.color != '0.35':
-                        marker['color'] = layer_state.color
+                    marker['color'] = layer_state.color
                 else:
                     marker['color'] = 'gray'
 
@@ -149,8 +145,8 @@ class PlotlyImage2DExport(Tool):
                 marker['opacity'] = layer_state.alpha
 
                 # get colors
-                colors = {'Red-Blue' : 'RdBu', 'Gray' : 'Greys', 'Hot' : 'Hot', 
-                'Viridis' : 'Viridis', 'Yellow-Green-Blue' : 'YlGnBu', 'Yellow-Orange-Red' : 'YlOrRd'}
+                colors = {'Red-Blue': 'RdBu', 'Gray': 'Greys', 'Hot': 'Hot',
+                          'Viridis': 'Viridis', 'Yellow-Green-Blue': 'YlGnBu', 'Yellow-Orange-Red': 'YlOrRd'}
 
                 # default colorscale
                 colorscale = 'Greys'
