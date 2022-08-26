@@ -1,17 +1,21 @@
 from __future__ import absolute_import, division, print_function
 
+from math import sqrt
+
 from astropy.visualization import (LinearStretch, SqrtStretch, AsinhStretch,
                                    LogStretch, ManualInterval, ContrastBiasStretch)
 import numpy as np
-from matplotlib.colors import to_rgb, Normalize
+from matplotlib.cm import get_cmap
+from matplotlib.colors import to_rgb, to_hex, Normalize
 
 from qtpy import compat
 from glue.config import viewer_tool, settings, colormaps
 
 from glue.core import DataCollection, Data
+from glue.core.subset import RoiSubsetState, RangeSubsetState
 from glue.utils import ensure_numerical
 from glue.viewers.image.composite_array import COLOR_CONVERTER, STRETCHES
-from glue.viewers.image.state import ImageLayerState
+from glue.viewers.image.state import ImageLayerState, ImageSubsetLayerState
 from glue.viewers.scatter.state import ScatterLayerState
 
 from .. import save_hover
@@ -128,6 +132,7 @@ class PlotlyImage2DExport(Tool):
 
         fig = go.Figure(layout=layout)
 
+        bg_colors = []
         layers = sorted(self.viewer.layers, key=lambda x: x.zorder)
         for layer in layers:
 
@@ -176,21 +181,29 @@ class PlotlyImage2DExport(Tool):
 
                 # default colorscale
                 colorscale = None
-                for i in range(len(colormaps.members)):
-                    if layer_state.cmap == colormaps.members[i][1] and colormaps.members[i][0] in colors:
-                        colorscale = colors[colormaps.members[i][0]]
-                        break
-                if colorscale is None:
-                    if layer_state.v_min > layer_state.v_max:
-                        cmap = layer_state.cmap.reversed()
-                        bounds = [layer_state.v_max, layer_state.v_min]
-                    else:
-                        cmap = layer_state.cmap
-                        bounds = [layer_state.v_min, layer_state.v_max]
-
-                    color_bounds = STRETCHES[layer_state.stretch]()(contrast_bias(interval(bounds)))
-                    colors = ['rgb{0}'.format(tuple(int(256 * v) for v in cmap(c))) for c in color_bounds]
-                    colorscale = [[0, colors[0]], [1, colors[1]]]
+                if layer_state.v_min > layer_state.v_max:
+                    cmap = layer_state.cmap.reversed()
+                    bounds = [layer_state.v_max, layer_state.v_min]
+                else:
+                    cmap = layer_state.cmap
+                    bounds = [layer_state.v_min, layer_state.v_max]
+                if self.viewer.state.color_mode == 'Colormaps':
+                    for name, colormap in colormaps.members:
+                        if layer_state.cmap == colormap and name in colors:
+                            colorscale = colors[name]
+                            bg_colors.append([layer_state.alpha, colormap(bounds[0])])
+                            break
+                    if colorscale is None:
+                        color_bounds = STRETCHES[layer_state.stretch]()(contrast_bias(interval(bounds)))
+                        colors = [tuple(int(256 * v) for v in cmap(c)) for c in color_bounds]
+                        colorstrings = ['rgb{0}'.format(c) for c in colors]
+                        colorscale = [[0, colorstrings[0]], [1, colorstrings[1]]]
+                        bg_colors.append([layer_state.alpha, cmap(color_bounds[0])])
+                else:
+                    color = 'gray' if layer_state.color == '0.35' else layer_state.color
+                    rgb_color = to_rgb(color)
+                    colorscale = [[0, 'rgb(0,0,0)'], [1, 'rgb{0}'.format(tuple(int(256 * v) for v in rgb_color))]]
+                    bg_colors.append([layer_state.alpha, [0, 0, 0]])
 
                 # add hover info to layer
                 if np.sum(dialog.checked_dictionary[layer_state.layer.label]) == 0:
@@ -223,6 +236,12 @@ class PlotlyImage2DExport(Tool):
                 if colorscale == 'Greys':
                     image_info.update(reversescale=True)
                 fig.add_trace(go.Heatmap(**image_info))
+
+            elif isinstance(layer_state, ImageSubsetLayerState):
+                subset_state = layer_state.layer.subset_state
+                if isinstance(subset_state, RangeSubsetState):
+                    color = layer_state.color
+
 
             elif isinstance(layer_state, ScatterLayerState):
                 x = layer_state.layer[self.viewer.state.x_att]
@@ -300,5 +319,14 @@ class PlotlyImage2DExport(Tool):
                 )
                 scatter_info.update(x=x, y=y)
                 fig.add_scatter(**scatter_info)
+
+        print(bg_colors)
+        alpha_sum = sum(x[0] for x in bg_colors)
+        bg_color = []
+        for i in range(3):
+            s = sum((color[i]**2) * (w / alpha_sum) for w, color in bg_colors)
+            bg_color.append(sqrt(s))
+        print(bg_color)
+        fig.update_layout(plot_bgcolor=to_hex(bg_color))
 
         plot(fig, filename=filename, auto_open=False)
