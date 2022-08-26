@@ -1,11 +1,18 @@
 from __future__ import absolute_import, division, print_function
 
+from astropy.visualization import (LinearStretch, SqrtStretch, AsinhStretch,
+                                   LogStretch, ManualInterval, ContrastBiasStretch)
 import numpy as np
+from matplotlib.colors import to_rgb, Normalize
 
 from qtpy import compat
 from glue.config import viewer_tool, settings, colormaps
 
 from glue.core import DataCollection, Data
+from glue.utils import ensure_numerical
+from glue.viewers.image.composite_array import COLOR_CONVERTER, STRETCHES
+from glue.viewers.image.state import ImageLayerState
+from glue.viewers.scatter.state import ScatterLayerState
 
 from .. import save_hover
 
@@ -63,7 +70,8 @@ class PlotlyImage2DExport(Tool):
             width=1200,
             height=1200 * height / width,  # scale axis correctly
             paper_bgcolor=settings.BACKGROUND_COLOR,
-            plot_bgcolor=settings.BACKGROUND_COLOR
+            plot_bgcolor=settings.BACKGROUND_COLOR,
+            showlegend=True
         )
 
         x_axis = dict(
@@ -120,40 +128,67 @@ class PlotlyImage2DExport(Tool):
 
         fig = go.Figure(layout=layout)
 
-        for layer in self.viewer.layers:
+        layers = sorted(self.viewer.layers, key=lambda x: x.zorder)
+        for layer in layers:
 
             layer_state = layer.state
 
-            if layer_state.visible and layer.enabled:
+            if not (layer_state.visible and layer.enabled):
+                continue
+
+            if isinstance(layer_state, ImageLayerState):
 
                 # get image data and scale it down to default size
-                img = layer_state.layer['PRIMARY']
+                #img = layer_state.layer[layer_state.attribute]
 
-                x = layer_state.layer[self.viewer.state.x_att_world]
-                y = layer_state.layer[self.viewer.state.y_att_world]
-                print(self.viewer.state.reference_data[self.viewer.state.x_att_world])
+                interval = ManualInterval(layer_state.v_min, layer_state.v_max)
+                contrast_bias = ContrastBiasStretch(layer_state.contrast, layer_state.bias)
+                array = layer.get_image_data
+                if callable(array):
+                    array = array(bounds=None)
+                if array is None:
+                    continue
+
+                if np.isscalar(array):
+                    array = np.atleast_2d(array)
+
+                img = STRETCHES[layer_state.stretch]()(contrast_bias(interval(array)))
+                img[np.isnan(img)] = 0
+
+                # x = layer_state.layer[self.viewer.state.x_att_world]
+                # y = layer_state.layer[self.viewer.state.y_att_world]
+                # print(self.viewer.state.reference_data[self.viewer.state.x_att_world])
 
                 marker = {}
-
-                # set all bars to be the same color
-                if layer_state.color != '0.35':
-                    marker['color'] = layer_state.color
-                else:
-                    marker['color'] = 'gray'
 
                 # set the opacity
                 marker['opacity'] = layer_state.alpha
 
                 # get colors
-                colors = {'Red-Blue': 'RdBu', 'Gray': 'Greys', 'Hot': 'Hot',
-                          'Viridis': 'Viridis', 'Yellow-Green-Blue': 'YlGnBu', 'Yellow-Orange-Red': 'YlOrRd'}
+                colors = {
+                    'Red-Blue': 'RdBu',
+                    'Gray': 'Greys',
+                    'Hot': 'Hot',
+                    'Viridis': 'Viridis',
+                    'Yellow-Green-Blue': 'YlGnBu',
+                    'Yellow-Orange-Red': 'YlOrRd'
+                }
 
                 # default colorscale
-                colorscale = 'Greys'
+                colorscale = None
                 for i in range(len(colormaps.members)):
                     if layer_state.cmap == colormaps.members[i][1] and colormaps.members[i][0] in colors:
                         colorscale = colors[colormaps.members[i][0]]
                         break
+                if colorscale is None:
+                    if layer_state.v_min > layer_state.v_max:
+                        cmap = layer_state.cmap.reversed()
+                    else:
+                        cmap = layer_state.cmap
+                    x = np.linspace(0, 1, 256)
+                    rgb_list = [to_rgb(cmap(p)) for p in x]
+                    colorscale = [[p, 'rgb{0}'.format(tuple(int(256 * v) for v in rgb))] for p, rgb in zip(x, rgb_list)]
+                    print(colorscale)
 
                 # add hover info to layer
                 if np.sum(dialog.checked_dictionary[layer_state.layer.label]) == 0:
@@ -161,7 +196,7 @@ class PlotlyImage2DExport(Tool):
                     hovertext = None
                 else:
                     hoverinfo = 'text'
-                    hovertext = ["" for i in range((layer_state.layer.shape[0]))]
+                    hovertext = ["" for _ in range((layer_state.layer.shape[0]))]
                     for i in range(0, len(layer_state.layer.components)):
                         if dialog.checked_dictionary[layer_state.layer.label][i]:
                             hover_data = layer_state.layer[layer_state.layer.components[i].label]
@@ -178,10 +213,90 @@ class PlotlyImage2DExport(Tool):
                     colorscale=colorscale,
                     hoverinfo=hoverinfo,
                     hovertext=hovertext,
-                    name=layer_state.layer.label
+                    name=layer_state.layer.label,
+                    opacity=layer_state.alpha,
+                    showscale=False,
+                    showlegend=True
                 )
                 if colorscale == 'Greys':
                     image_info.update(reversescale=True)
                 fig.add_trace(go.Heatmap(**image_info))
+
+            elif isinstance(layer_state, ScatterLayerState):
+                x = layer_state.layer[self.viewer.state.x_att]
+                y = layer_state.layer[self.viewer.state.y_att]
+
+                marker = {}
+
+                # set all points to be the same color
+                if layer_state.cmap_mode == 'Fixed':
+                    if layer_state.color != '0.35':
+                        marker['color'] = layer_state.color
+                    else:
+                        marker['color'] = 'gray'
+
+                # color by some attribute
+                else:
+                    if layer_state.cmap_vmin > layer_state.cmap_vmax:
+                        cmap = layer_state.cmap.reversed()
+                        norm = Normalize(
+                            vmin=layer_state.cmap_vmax, vmax=layer_state.cmap_vmin)
+                    else:
+                        cmap = layer_state.cmap
+                        norm = Normalize(
+                            vmin=layer_state.cmap_vmin, vmax=layer_state.cmap_vmax)
+
+                    # most matplotlib colormaps aren't recognized by plotly, so we convert manually to a hex code
+                    rgba_list = [
+                        cmap(norm(point)) for point in layer_state.layer[layer_state.cmap_att].copy()]
+                    rgb_str = [r'{}'.format(colors.rgb2hex(
+                        (rgba[0], rgba[1], rgba[2]))) for rgba in rgba_list]
+                    marker['color'] = rgb_str
+
+                # set all points to be the same size, with some arbitrary scaling
+                if layer_state.size_mode == 'Fixed':
+                    marker['size'] = layer_state.size
+
+                # scale size of points by some attribute
+                else:
+                    s = ensure_numerical(layer_state.layer[layer_state.size_att].ravel())
+                    marker['size'] = 25 * (s - layer_state.size_vmin) / (
+                            layer_state.size_vmax - layer_state.size_vmin)
+                    marker['sizemin'] = 1
+                    marker['size'][np.isnan(marker['size'])] = 0
+                    marker['size'][marker['size'] < 0] = 0
+
+                # set the opacity
+                marker['opacity'] = layer_state.alpha
+
+                # remove default white border around points
+                marker['line'] = dict(width=0)
+
+                # add hover info to layer
+
+                if np.sum(dialog.checked_dictionary[layer_state.layer.label]) == 0:
+                    hoverinfo = 'skip'
+                    hovertext = None
+                else:
+                    hoverinfo = 'text'
+                    hovertext = ["" for _ in range((layer_state.layer.shape[0]))]
+                    for i in range(0, len(layer_state.layer.components)):
+                        if dialog.checked_dictionary[layer_state.layer.label][i]:
+                            hover_data = layer_state.layer[layer_state.layer.components[i].label]
+                            for k in range(0, len(hover_data)):
+                                hovertext[k] = (hovertext[k] + "{}: {} <br>"
+                                                .format(layer_state.layer.components[i].label,
+                                                        hover_data[k]))
+
+                # add layer to axesdict
+                scatter_info = dict(
+                    mode='markers',
+                    marker=marker,
+                    hoverinfo=hoverinfo,
+                    hovertext=hovertext,
+                    name=layer_state.layer.label
+                )
+                scatter_info.update(x=x, y=y)
+                fig.add_scatter(**scatter_info)
 
         plot(fig, filename=filename, auto_open=False)
