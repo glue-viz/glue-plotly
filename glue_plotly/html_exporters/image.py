@@ -183,12 +183,14 @@ class PlotlyImage2DExport(Tool):
                 if colorscale is None:
                     if layer_state.v_min > layer_state.v_max:
                         cmap = layer_state.cmap.reversed()
+                        bounds = [layer_state.v_max, layer_state.v_min]
                     else:
                         cmap = layer_state.cmap
-                    x = np.linspace(0, 1, 256)
-                    rgb_list = [to_rgb(cmap(p)) for p in x]
-                    colorscale = [[p, 'rgb{0}'.format(tuple(int(256 * v) for v in rgb))] for p, rgb in zip(x, rgb_list)]
-                    print(colorscale)
+                        bounds = [layer_state.v_min, layer_state.v_max]
+
+                    color_bounds = STRETCHES[layer_state.stretch]()(contrast_bias(interval(bounds)))
+                    colors = ['rgb{0}'.format(tuple(int(256 * v) for v in cmap(c))) for c in color_bounds]
+                    colorscale = [[0, colors[0]], [1, colors[1]]]
 
                 # add hover info to layer
                 if np.sum(dialog.checked_dictionary[layer_state.layer.label]) == 0:
