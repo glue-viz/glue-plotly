@@ -15,6 +15,7 @@ from glue.core import DataCollection, Data
 from glue.core.subset import RoiSubsetState, RangeSubsetState
 from glue.utils import ensure_numerical
 from glue.viewers.image.composite_array import COLOR_CONVERTER, STRETCHES
+from glue.viewers.image.frb_artist import imshow
 from glue.viewers.image.state import ImageLayerState, ImageSubsetLayerState
 from glue.viewers.scatter.state import ScatterLayerState
 
@@ -31,6 +32,13 @@ from plotly.offline import plot
 import plotly.graph_objs as go
 
 DEFAULT_FONT = 'Arial, sans-serif'
+
+
+def slice_to_bound(slc, size):
+    min, max, step = slc.indices(size)
+    n = (max - min - 1) // step
+    max = min + step * n
+    return (min, max, n + 1)
 
 
 @viewer_tool
@@ -132,6 +140,15 @@ class PlotlyImage2DExport(Tool):
 
         fig = go.Figure(layout=layout)
 
+        full_view, agg_func, transpose = self.viewer.state.numpy_slice_aggregation_transpose
+        x_axis = self.viewer.state.x_att.axis
+        y_axis = self.viewer.state.y_att.axis
+        full_view[x_axis] = slice(None)
+        full_view[y_axis] = slice(None)
+        for i in range(self.viewer.state.reference_data.ndim):
+            if isinstance(full_view[i], slice):
+                full_view[i] = slice_to_bound(full_view[i], self.viewer.state.reference_data.shape[i])
+
         bg_colors = []
         layers = sorted(self.viewer.layers, key=lambda x: x.zorder)
         for layer in layers:
@@ -141,10 +158,12 @@ class PlotlyImage2DExport(Tool):
             if not (layer_state.visible and layer.enabled):
                 continue
 
+            color = 'gray' if layer_state.color == '0.35' else layer_state.color
+
             if isinstance(layer_state, ImageLayerState):
 
                 # get image data and scale it down to default size
-                #img = layer_state.layer[layer_state.attribute]
+                # img = layer_state.layer[layer_state.attribute]
 
                 interval = ManualInterval(layer_state.v_min, layer_state.v_max)
                 contrast_bias = ContrastBiasStretch(layer_state.contrast, layer_state.bias)
@@ -200,7 +219,6 @@ class PlotlyImage2DExport(Tool):
                         colorscale = [[0, colorstrings[0]], [1, colorstrings[1]]]
                         bg_colors.append([layer_state.alpha, cmap(color_bounds[0])])
                 else:
-                    color = 'gray' if layer_state.color == '0.35' else layer_state.color
                     rgb_color = to_rgb(color)
                     colorscale = [[0, 'rgb(0,0,0)'], [1, 'rgb{0}'.format(tuple(int(256 * v) for v in rgb_color))]]
                     bg_colors.append([layer_state.alpha, [0, 0, 0]])
@@ -238,9 +256,27 @@ class PlotlyImage2DExport(Tool):
                 fig.add_trace(go.Heatmap(**image_info))
 
             elif isinstance(layer_state, ImageSubsetLayerState):
-                subset_state = layer_state.layer.subset_state
-                if isinstance(subset_state, RangeSubsetState):
-                    color = layer_state.color
+                ss = layer.layer.subset_state
+                buf = self.viewer.state.reference_data \
+                    .compute_fixed_resolution_buffer(full_view,
+                                                     target_data=self.viewer.state.reference_data,
+                                                     broadcast=False, subset_state=ss)
+                if transpose:
+                    buf = buf.transpose()
+
+                vf = np.vectorize(int)
+                img = vf(buf)
+                rgb_color = to_rgb(color)
+                colorscale = [[0, 'rgb(0,0,0)'], [1, 'rgb{0}'.format(tuple(int(256 * v) for v in rgb_color))]]
+                image_info = dict(
+                    z=img,
+                    colorscale=colorscale,
+                    name=layer_state.layer.label,
+                    opacity=layer_state.alpha,
+                    showscale=False,
+                    showlegend=True
+                )
+                fig.add_trace(go.Heatmap(**image_info))
 
 
             elif isinstance(layer_state, ScatterLayerState):
@@ -320,13 +356,13 @@ class PlotlyImage2DExport(Tool):
                 scatter_info.update(x=x, y=y)
                 fig.add_scatter(**scatter_info)
 
-        print(bg_colors)
+        # The background color is a weighted sum of the bottom (0) color
+        # of the colorscales for each of the image layers
         alpha_sum = sum(x[0] for x in bg_colors)
         bg_color = []
         for i in range(3):
-            s = sum((color[i]**2) * (w / alpha_sum) for w, color in bg_colors)
+            s = sum((color[i] ** 2) * (w / alpha_sum) for w, color in bg_colors)
             bg_color.append(sqrt(s))
-        print(bg_color)
         fig.update_layout(plot_bgcolor=to_hex(bg_color))
 
         plot(fig, filename=filename, auto_open=False)
