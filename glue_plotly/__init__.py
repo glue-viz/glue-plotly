@@ -15,7 +15,16 @@ def setup():
     from . import html_exporters  # noqa
 
     from glue.viewers.scatter.qt import ScatterViewer
-    ScatterViewer.subtools['save'] = ScatterViewer.subtools['save'] + ['save:plotly2d']
+    ScatterViewer.subtools = {
+        **ScatterViewer.subtools,
+        "save": ScatterViewer.subtools["save"] + ['save:plotly2d']
+    }
+
+    from glue.viewers.image.qt import ImageViewer
+    ImageViewer.subtools = {
+        **ImageViewer.subtools,
+        "save": ImageViewer.subtools["save"] + ['save:plotlyimage2d']
+    }
 
     try:
         from glue_vispy_viewers.scatter.scatter_viewer import VispyScatterViewer
@@ -23,6 +32,3 @@ def setup():
         pass
     else:
         VispyScatterViewer.subtools['save'] = VispyScatterViewer.subtools['save'] + ['save:plotly3d']
-
-    from glue.viewers.image.qt import ImageViewer
-    ImageViewer.subtools['save'] = ImageViewer.subtools['save'] + ['save:plotlyimage2d']
