@@ -1,5 +1,6 @@
 from __future__ import absolute_import, division, print_function
 
+from collections import defaultdict
 from math import sqrt
 
 from astropy.visualization import (ManualInterval, ContrastBiasStretch)
@@ -107,8 +108,6 @@ class PlotlyImage2DExport(Tool):
                     0].get_fontsize(),
                 color=settings.FOREGROUND_COLOR),
             range=[self.viewer.axes.get_xlim()[0], self.viewer.axes.get_xlim()[1]],
-            # tickmode='array',
-            # tickvals=self.viewer.axes.
         )
         y_axis = dict(
             title=self.viewer.axes.get_ylabel(),
@@ -153,6 +152,7 @@ class PlotlyImage2DExport(Tool):
                     full_view[i] = slice_to_bound(full_view[i], self.viewer.state.reference_data.shape[i])
 
         bg_colors = []
+        legend_groups = defaultdict(int)
         layers = sorted(self.viewer.layers, key=lambda x: x.zorder)
         for layer in layers:
 
@@ -265,25 +265,21 @@ class PlotlyImage2DExport(Tool):
                 ymin, ymax = self.viewer.axes.get_ylim()
                 if isinstance(ss, PixelSubsetState):
                     try:
-                        x, y = ss.get_xy(refdata, self.viewer.state.x_att.axis, self.viewer.state.y_att.axis)
-                        fig.add_shape(
-                            type="line",
-                            x0=x,
-                            x1=x,
-                            y0=ymin,
-                            y1=ymax,
-                            xref="x",
-                            yref="y"
+                        x, y = ss.get_xy(layer.layer.data, self.viewer.state.x_att.axis, self.viewer.state.y_att.axis)
+                        label = layer_state.layer.label
+                        group = '{0}_{1}'.format(label, legend_groups[label])
+                        legend_groups[label] += 1
+                        line_data = dict(
+                            mode="lines",
+                            marker=dict(
+                                color=layer_state.color
+                            ),
+                            opacity=layer_state.alpha * 0.5,
+                            name=layer_state.layer.label,
+                            legendgroup=group
                         )
-                        fig.add_shape(
-                            type="line",
-                            x0=xmin,
-                            x1=xmax,
-                            y0=y,
-                            y1=y,
-                            xref="x",
-                            yref="y"
-                        )
+                        fig.add_scatter(**line_data, x=[x, x], y=[ymin, ymax], showlegend=True)
+                        fig.add_scatter(**line_data, x=[xmin, xmax], y=[y, y], showlegend=False)
                     except IncompatibleAttribute:
                         pass
                 else:
@@ -297,12 +293,15 @@ class PlotlyImage2DExport(Tool):
                     vf = np.vectorize(int)
                     img = vf(buf)
                     rgb_color = to_rgb(color)
-                    colorscale = [[0, 'rgb(0,0,0)'], [1, 'rgb{0}'.format(tuple(int(256 * v) for v in rgb_color))]]
+
+                    # We use alpha = 0 for the bottom of the colorscale since we don't want
+                    # anything outside the subset to contribute
+                    colorscale = [[0, 'rgba(0,0,0,0)'], [1, 'rgb{0}'.format(tuple(int(256 * v) for v in rgb_color))]]
                     image_info = dict(
                         z=img,
                         colorscale=colorscale,
                         name=layer_state.layer.label,
-                        opacity=layer_state.alpha,
+                        opacity=layer_state.alpha * 0.5,
                         showscale=False,
                         showlegend=True
                     )
