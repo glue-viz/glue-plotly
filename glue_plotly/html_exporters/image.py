@@ -5,17 +5,16 @@ from math import sqrt
 
 from astropy.visualization import (ManualInterval, ContrastBiasStretch)
 import numpy as np
-from matplotlib.colors import to_rgb, to_hex, Normalize
+from matplotlib.colors import rgb2hex, to_rgb, to_hex, Normalize
 
 from qtpy import compat
 from glue.config import viewer_tool, settings, colormaps
 
 from glue.core import DataCollection, Data
 from glue.core.exceptions import IncompatibleAttribute
-from glue.core.subset import RoiSubsetState, RangeSubsetState
 from glue.utils import ensure_numerical
 from glue.viewers.image.pixel_selection_subset_state import PixelSubsetState
-from glue.viewers.image.composite_array import COLOR_CONVERTER, STRETCHES
+from glue.viewers.image.composite_array import STRETCHES
 from glue.viewers.image.state import ImageLayerState, ImageSubsetLayerState
 from glue.viewers.scatter.state import ScatterLayerState
 
@@ -38,7 +37,7 @@ def slice_to_bound(slc, size):
     min, max, step = slc.indices(size)
     n = (max - min - 1) // step
     max = min + step * n
-    return (min, max, n + 1)
+    return min, max, n + 1
 
 
 @viewer_tool
@@ -51,25 +50,28 @@ class PlotlyImage2DExport(Tool):
     def activate(self):
 
         # grab hover info
-        dc_hover = DataCollection()
-        for layer in self.viewer.layers:
-            layer_state = layer.state
-            if layer_state.visible and layer.enabled:
-                data = Data(label=layer_state.layer.label)
-                for component in layer_state.layer.components:
-                    data[component.label] = np.ones(10)
-                dc_hover.append(data)
+        visible_enabled_layers = [layer for layer in self.viewer.layers if layer.state.visible and layer.enabled]
+        scatter_layers = [layer for layer in visible_enabled_layers if isinstance(layer.state, ScatterLayerState)]
+        if len(scatter_layers) > 0:
+            dc_hover = DataCollection()
+            for layer in scatter_layers:
+                layer_state = layer.state
+                if layer_state.visible and layer.enabled:
+                    data = Data(label=layer_state.layer.label)
+                    for component in layer_state.layer.components:
+                        data[component.label] = np.ones(10)
+                    dc_hover.append(data)
 
-        checked_dictionary = {}
+            checked_dictionary = {}
 
-        # figure out which hover info user wants to display
-        for layer in self.viewer.layers:
-            layer_state = layer.state
-            if layer_state.visible and layer.enabled:
-                checked_dictionary[layer_state.layer.label] = np.zeros((len(layer_state.layer.components))).astype(bool)
+            # figure out which hover info user wants to display
+            for layer in scatter_layers:
+                layer_state = layer.state
+                if layer_state.visible and layer.enabled:
+                    checked_dictionary[layer_state.layer.label] = np.zeros((len(layer_state.layer.components))).astype(bool)
 
-        dialog = save_hover.SaveHoverDialog(data_collection=dc_hover, checked_dictionary=checked_dictionary)
-        dialog.exec_()
+            dialog = save_hover.SaveHoverDialog(data_collection=dc_hover, checked_dictionary=checked_dictionary)
+            dialog.exec_()
 
         filename, _ = compat.getsavefilename(parent=self.viewer, basedir="plot.html")
 
@@ -153,13 +155,10 @@ class PlotlyImage2DExport(Tool):
 
         bg_colors = []
         legend_groups = defaultdict(int)
-        layers = sorted(self.viewer.layers, key=lambda x: x.zorder)
+        layers = sorted(visible_enabled_layers, key=lambda l: l.zorder)
         for layer in layers:
 
             layer_state = layer.state
-
-            if not (layer_state.visible and layer.enabled):
-                continue
 
             color = 'gray' if layer_state.color == '0.35' else layer_state.color
 
@@ -209,37 +208,24 @@ class PlotlyImage2DExport(Tool):
                 else:
                     cmap = layer_state.cmap
                     bounds = [layer_state.v_min, layer_state.v_max]
+                mapped_bounds = STRETCHES[layer_state.stretch]()(contrast_bias(interval(bounds)))
                 if self.viewer.state.color_mode == 'Colormaps':
                     for name, colormap in colormaps.members:
                         if layer_state.cmap == colormap and name in colors:
                             colorscale = colors[name]
-                            bg_colors.append([layer_state.alpha, colormap(bounds[0])])
+                            bg_colors.append([layer_state.alpha, colormap(mapped_bounds[0])])
                             break
                     if colorscale is None:
-                        color_bounds = STRETCHES[layer_state.stretch]()(contrast_bias(interval(bounds)))
-                        colors = [tuple(int(256 * v) for v in cmap(c)) for c in color_bounds]
-                        colorstrings = ['rgb{0}'.format(c) for c in colors]
-                        colorscale = [[0, colorstrings[0]], [1, colorstrings[1]]]
-                        bg_colors.append([layer_state.alpha, cmap(color_bounds[0])])
+                        unmapped_space = np.linspace(0, 1, 30)
+                        mapped_space = np.linspace(mapped_bounds[0], mapped_bounds[1], 30)
+                        color_space = [cmap(b) for b in mapped_space]
+                        color_values = [tuple(int(256 * v) for v in p) for p in color_space]
+                        colorscale = [[t, 'rgb{0}'.format(c)] for t, c in zip(unmapped_space, color_values)]
+                        bg_colors.append([layer_state.alpha, color_space[0]])
                 else:
                     rgb_color = to_rgb(color)
                     colorscale = [[0, 'rgb(0,0,0)'], [1, 'rgb{0}'.format(tuple(int(256 * v) for v in rgb_color))]]
                     bg_colors.append([layer_state.alpha, [0, 0, 0]])
-
-                # add hover info to layer
-                if np.sum(dialog.checked_dictionary[layer_state.layer.label]) == 0:
-                    hoverinfo = 'skip'
-                    hovertext = None
-                else:
-                    hoverinfo = 'text'
-                    hovertext = ["" for _ in range((layer_state.layer.shape[0]))]
-                    for i in range(0, len(layer_state.layer.components)):
-                        if dialog.checked_dictionary[layer_state.layer.label][i]:
-                            hover_data = layer_state.layer[layer_state.layer.components[i].label]
-                            for k in range(0, len(hover_data)):
-                                hovertext[k] = (hovertext[k] + "{}: {} <br>"
-                                                .format(layer_state.layer.components[i].label,
-                                                        hover_data[k]))
 
                 # add layer to dict
                 # need to figure out how to get the right tick numbers
@@ -247,8 +233,7 @@ class PlotlyImage2DExport(Tool):
                 image_info = dict(
                     z=img,
                     colorscale=colorscale,
-                    hoverinfo=hoverinfo,
-                    hovertext=hovertext,
+                    hoverinfo='skip',
                     name=layer_state.layer.label,
                     opacity=layer_state.alpha,
                     showscale=False,
@@ -300,6 +285,7 @@ class PlotlyImage2DExport(Tool):
                     image_info = dict(
                         z=img,
                         colorscale=colorscale,
+                        hoverinfo='skip',
                         name=layer_state.layer.label,
                         opacity=layer_state.alpha * 0.5,
                         showscale=False,
@@ -335,7 +321,7 @@ class PlotlyImage2DExport(Tool):
                     # most matplotlib colormaps aren't recognized by plotly, so we convert manually to a hex code
                     rgba_list = [
                         cmap(norm(point)) for point in layer_state.layer[layer_state.cmap_att].copy()]
-                    rgb_str = [r'{}'.format(colors.rgb2hex(
+                    rgb_str = [r'{}'.format(rgb2hex(
                         (rgba[0], rgba[1], rgba[2]))) for rgba in rgba_list]
                     marker['color'] = rgb_str
 
