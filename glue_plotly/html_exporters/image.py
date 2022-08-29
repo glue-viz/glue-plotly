@@ -2,20 +2,19 @@ from __future__ import absolute_import, division, print_function
 
 from math import sqrt
 
-from astropy.visualization import (LinearStretch, SqrtStretch, AsinhStretch,
-                                   LogStretch, ManualInterval, ContrastBiasStretch)
+from astropy.visualization import (ManualInterval, ContrastBiasStretch)
 import numpy as np
-from matplotlib.cm import get_cmap
 from matplotlib.colors import to_rgb, to_hex, Normalize
 
 from qtpy import compat
 from glue.config import viewer_tool, settings, colormaps
 
 from glue.core import DataCollection, Data
+from glue.core.exceptions import IncompatibleAttribute
 from glue.core.subset import RoiSubsetState, RangeSubsetState
 from glue.utils import ensure_numerical
+from glue.viewers.image.pixel_selection_subset_state import PixelSubsetState
 from glue.viewers.image.composite_array import COLOR_CONVERTER, STRETCHES
-from glue.viewers.image.frb_artist import imshow
 from glue.viewers.image.state import ImageLayerState, ImageSubsetLayerState
 from glue.viewers.scatter.state import ScatterLayerState
 
@@ -140,14 +139,18 @@ class PlotlyImage2DExport(Tool):
 
         fig = go.Figure(layout=layout)
 
-        full_view, agg_func, transpose = self.viewer.state.numpy_slice_aggregation_transpose
-        x_axis = self.viewer.state.x_att.axis
-        y_axis = self.viewer.state.y_att.axis
-        full_view[x_axis] = slice(None)
-        full_view[y_axis] = slice(None)
-        for i in range(self.viewer.state.reference_data.ndim):
-            if isinstance(full_view[i], slice):
-                full_view[i] = slice_to_bound(full_view[i], self.viewer.state.reference_data.shape[i])
+        has_nonpixel_subset = any(isinstance(layer.state, ImageSubsetLayerState)
+                                  and not isinstance(layer.layer.subset_state, PixelSubsetState)
+                                  for layer in self.viewer.layers)
+        if has_nonpixel_subset:
+            full_view, agg_func, transpose = self.viewer.state.numpy_slice_aggregation_transpose
+            x_axis = self.viewer.state.x_att.axis
+            y_axis = self.viewer.state.y_att.axis
+            full_view[x_axis] = slice(None)
+            full_view[y_axis] = slice(None)
+            for i in range(self.viewer.state.reference_data.ndim):
+                if isinstance(full_view[i], slice):
+                    full_view[i] = slice_to_bound(full_view[i], self.viewer.state.reference_data.shape[i])
 
         bg_colors = []
         layers = sorted(self.viewer.layers, key=lambda x: x.zorder)
@@ -257,26 +260,53 @@ class PlotlyImage2DExport(Tool):
 
             elif isinstance(layer_state, ImageSubsetLayerState):
                 ss = layer.layer.subset_state
-                buf = self.viewer.state.reference_data \
-                    .compute_fixed_resolution_buffer(full_view,
-                                                     target_data=self.viewer.state.reference_data,
-                                                     broadcast=False, subset_state=ss)
-                if transpose:
-                    buf = buf.transpose()
+                refdata = self.viewer.state.reference_data
+                xmin, xmax = self.viewer.axes.get_xlim()
+                ymin, ymax = self.viewer.axes.get_ylim()
+                if isinstance(ss, PixelSubsetState):
+                    try:
+                        x, y = ss.get_xy(refdata, self.viewer.state.x_att.axis, self.viewer.state.y_att.axis)
+                        fig.add_shape(
+                            type="line",
+                            x0=x,
+                            x1=x,
+                            y0=ymin,
+                            y1=ymax,
+                            xref="x",
+                            yref="y"
+                        )
+                        fig.add_shape(
+                            type="line",
+                            x0=xmin,
+                            x1=xmax,
+                            y0=y,
+                            y1=y,
+                            xref="x",
+                            yref="y"
+                        )
+                    except IncompatibleAttribute:
+                        pass
+                else:
+                    buf = refdata \
+                        .compute_fixed_resolution_buffer(full_view,
+                                                         target_data=refdata,
+                                                         broadcast=False, subset_state=ss)
+                    if transpose:
+                        buf = buf.transpose()
 
-                vf = np.vectorize(int)
-                img = vf(buf)
-                rgb_color = to_rgb(color)
-                colorscale = [[0, 'rgb(0,0,0)'], [1, 'rgb{0}'.format(tuple(int(256 * v) for v in rgb_color))]]
-                image_info = dict(
-                    z=img,
-                    colorscale=colorscale,
-                    name=layer_state.layer.label,
-                    opacity=layer_state.alpha,
-                    showscale=False,
-                    showlegend=True
-                )
-                fig.add_trace(go.Heatmap(**image_info))
+                    vf = np.vectorize(int)
+                    img = vf(buf)
+                    rgb_color = to_rgb(color)
+                    colorscale = [[0, 'rgb(0,0,0)'], [1, 'rgb{0}'.format(tuple(int(256 * v) for v in rgb_color))]]
+                    image_info = dict(
+                        z=img,
+                        colorscale=colorscale,
+                        name=layer_state.layer.label,
+                        opacity=layer_state.alpha,
+                        showscale=False,
+                        showlegend=True
+                    )
+                    fig.add_trace(go.Heatmap(**image_info))
 
 
             elif isinstance(layer_state, ScatterLayerState):
