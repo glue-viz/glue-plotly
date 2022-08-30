@@ -192,8 +192,6 @@ class PlotlyImage2DExport(Tool):
                 if array is None:
                     continue
 
-                print(layer.get_image_shape())
-
                 if np.isscalar(array):
                     array = np.atleast_2d(array)
 
@@ -213,14 +211,14 @@ class PlotlyImage2DExport(Tool):
                     color_space = [cmap(b) for b in mapped_space]
                     color_values = [tuple(int(256 * v) for v in p) for p in color_space]
                     colorscale = [[t, 'rgb{0}'.format(c)] for t, c in zip(unmapped_space, color_values)]
-                    bg_colors.append([layer_state.alpha, color_space[0]])
                 else:
                     rgb_color = to_rgb(color)
-                    color_values = [tuple(int(256 * t * v) for v in rgb_color) for t in mapped_space]
+                    color_space = [[t * v for v in rgb_color] for t in mapped_space]
+                    color_values = [tuple(int(256 * v) for v in p) for p in color_space]
                     colorscale = [[0, 'rgb{0}'.format(color_values[0])]] + \
                                  [[t, 'rgb{0}'.format(c)] for t, c in zip(mapped_space, color_values)] + \
                                  [[1, 'rgb{0}'.format(color_values[-1])]]
-                    bg_colors.append([layer_state.alpha, rgb_color])
+                bg_colors.append([layer_state.alpha, color_space[0]])
 
                 image_info = dict(
                     z=img,
@@ -363,7 +361,6 @@ class PlotlyImage2DExport(Tool):
         # We construct the background color by compositing the bottoms of our colorscales
         # Note that bg_colors is already ordered by z-order
         alpha, base = bg_colors[0]
-        print(bg_colors)
         for a, color in bg_colors:
             mix_alpha = 1 - (1 - alpha) * (1 - a)
             base = [(x * a + b * alpha * (1 - a)) / mix_alpha for x, b in zip(color, base)]
