@@ -1,20 +1,19 @@
 from __future__ import absolute_import, division, print_function
 
 from collections import defaultdict
-from math import sqrt
 
 from astropy.visualization import (ManualInterval, ContrastBiasStretch)
 import numpy as np
-from matplotlib.colors import rgb2hex, to_rgb, to_hex, Normalize
+from matplotlib.colors import rgb2hex, to_rgb, Normalize
 
 from qtpy import compat
-from glue.config import viewer_tool, settings, colormaps
+from glue.config import viewer_tool, settings
 
 from glue.core import DataCollection, Data
 from glue.core.exceptions import IncompatibleAttribute
 from glue.utils import ensure_numerical
 from glue.viewers.image.pixel_selection_subset_state import PixelSubsetState
-from glue.viewers.image.composite_array import COLOR_CONVERTER, STRETCHES
+from glue.viewers.image.composite_array import STRETCHES
 from glue.viewers.image.state import ImageLayerState, ImageSubsetLayerState
 from glue.viewers.scatter.state import ScatterLayerState
 
@@ -28,7 +27,7 @@ except ImportError:
 from glue_plotly import PLOTLY_LOGO
 
 from plotly.offline import plot
-import plotly.graph_objs as go
+from plotly.subplots import make_subplots
 
 DEFAULT_FONT = 'Arial, sans-serif'
 
@@ -38,6 +37,15 @@ def slice_to_bound(slc, size):
     n = (max - min - 1) // step
     max = min + step * n
     return min, max, n + 1
+
+
+def cleaned_labels(labels):
+    cleaned = [label.replace('\\mathregular', '\\mathrm') for label in labels]
+    for j in range(len(cleaned)):
+        label = cleaned[j]
+        if '$' in label:
+            cleaned[j] = '${0}$'.format(label.replace('$', ''))
+    return cleaned
 
 
 @viewer_tool
@@ -82,6 +90,7 @@ class PlotlyImage2DExport(Tool):
         ymin, ymax = self.viewer.axes.get_ylim()
 
         viewer_state = self.viewer.state
+        axes = self.viewer.axes
 
         # set the aspect ratio of the axes, the tick label size, the axis label
         # sizes, and the axes limits
@@ -94,56 +103,78 @@ class PlotlyImage2DExport(Tool):
             showlegend=True
         )
 
-        x_axis = dict(
-            title=self.viewer.axes.get_xlabel(),
-            titlefont=dict(
-                family=DEFAULT_FONT,
-                size=2 * self.viewer.axes.xaxis.get_label().get_size(),
-                color=settings.FOREGROUND_COLOR
-            ),
-            showspikes=False,
-            linecolor=settings.FOREGROUND_COLOR,
-            tickcolor=settings.FOREGROUND_COLOR,
-            mirror=True,
-            ticks='outside',
-            zeroline=False,
-            showline=True,
-            showgrid=False,
-            range=[xmin, xmax],
-            showticklabels=True,
-            tickfont=dict(
-                family=DEFAULT_FONT,
-                size=1.5 * self.viewer.axes.xaxis.get_ticklabels()[
-                    0].get_fontsize(),
-                color=settings.FOREGROUND_COLOR)
-        )
-        y_axis = dict(
-            title=self.viewer.axes.get_ylabel(),
-            titlefont=dict(
-                family=DEFAULT_FONT,
-                size=2 * self.viewer.axes.yaxis.get_label().get_size(),
-                color=settings.FOREGROUND_COLOR),
-            showgrid=False,
-            showspikes=False,
-            linecolor=settings.FOREGROUND_COLOR,
-            tickcolor=settings.FOREGROUND_COLOR,
-            zeroline=False,
-            mirror=True,
-            ticks='outside',
-            showline=True,
-            range=[ymin, ymax],
-            showticklabels=True,
-            tickfont=dict(
-                family=DEFAULT_FONT,
-                size=1.5 * self.viewer.axes.yaxis.get_ticklabels()[
-                    0].get_fontsize(),
-                color=settings.FOREGROUND_COLOR)
-        )
-        layout_config.update(xaxis=x_axis, yaxis=y_axis)
+        axis_data = {}
+        secondary_x = False
+        secondary_y = False
+        for i, helper in enumerate(axes.coords):
+            ticks = helper.ticks
+            ticklabels = helper.ticklabels
+            for axis in ticklabels.get_visible_axes():
+                xy = 'x' if axis in ['t', 'b'] else 'y'
+                xy_idx = 0 if xy == 'x' else 1
+                locations = sorted([loc[0][xy_idx] for loc in ticks.ticks_locs[axis]])
+                labels = ticklabels.text[axis]
+                if xy == 'y':
+                    labels = list(reversed(labels))
+                labels = cleaned_labels(labels)
+                if xy == 'x':
+                    axis_range = [xmin, xmax]
+                else:
+                    axis_range = [ymin, ymax]
+                axis_info = dict(
+                    showspikes=False,
+                    linecolor=settings.FOREGROUND_COLOR,
+                    tickcolor=settings.FOREGROUND_COLOR,
+                    ticks='outside',
+                    zeroline=False,
+                    showline=False,
+                    showgrid=False,
+                    range=axis_range,
+                    showticklabels=True,
+                    tickmode='array',
+                    tickvals=locations,
+                    ticktext=labels,
+                    tickfont=dict(
+                        family=DEFAULT_FONT,
+                        size=1.5 * self.viewer.axes.xaxis.get_ticklabels()[
+                            0].get_fontsize(),
+                        color=settings.FOREGROUND_COLOR)
+                )
 
-        layout = go.Layout(**layout_config)
+                if axis == 'b':
+                    axis_info.update(
+                        title=self.viewer.axes.get_xlabel(),
+                        titlefont=dict(
+                            family=DEFAULT_FONT,
+                            size=2 * self.viewer.axes.xaxis.get_label().get_size(),
+                            color=settings.FOREGROUND_COLOR
+                        ),
+                    )
+                    axis_data["xaxis"] = axis_info
+                elif axis == 'l':
+                    axis_info.update(
+                        title=self.viewer.axes.get_ylabel(),
+                        titlefont=dict(
+                            family=DEFAULT_FONT,
+                            size=2 * self.viewer.axes.yaxis.get_label().get_size(),
+                            color=settings.FOREGROUND_COLOR
+                        ),
+                    )
+                    axis_data["yaxis"] = axis_info
+                elif axis == 't':
+                    axis_info.update(overlaying='x', side='top')
+                    axis_data["xaxis2"] = axis_info
+                    secondary_x = True
+                elif axis == 'r':
+                    axis_info.update(overlaying='y', side='right')
+                    axis_data["yaxis2"] = axis_info
+                    secondary_y = True
+                else:
+                    continue
 
-        fig = go.Figure(layout=layout)
+        layout_config.update(**axis_data)
+        fig = make_subplots(specs=[[{"secondary_y": True}]])
+        fig.update_layout(**layout_config)
 
         using_colormaps = viewer_state.color_mode == 'Colormaps'
         has_nonpixel_subset = any(isinstance(layer.state, ImageSubsetLayerState)
@@ -151,10 +182,8 @@ class PlotlyImage2DExport(Tool):
                                   for layer in self.viewer.layers)
         if has_nonpixel_subset:
             full_view, agg_func, transpose = viewer_state.numpy_slice_aggregation_transpose
-            x_axis = viewer_state.x_att.axis
-            y_axis = viewer_state.y_att.axis
-            full_view[x_axis] = slice(None)
-            full_view[y_axis] = slice(None)
+            full_view[viewer_state.x_att.axis] = slice(None)
+            full_view[viewer_state.y_att.axis] = slice(None)
             for i in range(viewer_state.reference_data.ndim):
                 if isinstance(full_view[i], slice):
                     full_view[i] = slice_to_bound(full_view[i], viewer_state.reference_data.shape[i])
@@ -224,6 +253,8 @@ class PlotlyImage2DExport(Tool):
                     z=img,
                     colorscale=colorscale,
                     hoverinfo='skip',
+                    xaxis='x',
+                    yaxis='y',
                     name=layer_state.layer.label,
                     opacity=layer_state.alpha,
                     showscale=False,
@@ -274,6 +305,8 @@ class PlotlyImage2DExport(Tool):
                         z=img,
                         colorscale=colorscale,
                         hoverinfo='skip',
+                        xaxis='x',
+                        yaxis='y',
                         name=layer_state.layer.label,
                         opacity=layer_state.alpha * 0.5,
                         showscale=False,
@@ -351,12 +384,26 @@ class PlotlyImage2DExport(Tool):
                 scatter_info = dict(
                     mode='markers',
                     marker=marker,
+                    xaxis='x',
+                    yaxis='y',
                     hoverinfo=hoverinfo,
                     hovertext=hovertext,
                     name=layer_state.layer.label
                 )
                 scatter_info.update(x=x, y=y)
                 fig.add_scatter(**scatter_info)
+
+        # This is a hack to force plotly to show the secondary axes, if there are any
+        # We just put in a transparent heatmap assigned to whatever secondary axes exist
+        if secondary_x or secondary_x:
+            secondary_info = dict(z=bg,
+                                  colorscale=[[0, bottom_colorstring], [1, bottom_colorstring]],
+                                  hoverinfo='skip',
+                                  opacity=0,
+                                  showscale=False,
+                                  xaxis='x2' if secondary_x else 'x',
+                                  yaxis='y2' if secondary_y else 'y')
+            fig.add_heatmap(**secondary_info)
 
         # We construct the background color by compositing the bottoms of our colorscales
         # Note that bg_colors is already ordered by z-order
@@ -368,4 +415,4 @@ class PlotlyImage2DExport(Tool):
         bg_color = base + [alpha]
         fig.update_layout(plot_bgcolor='rgba{0}'.format(tuple(bg_color)))
 
-        plot(fig, filename=filename, auto_open=False)
+        plot(fig, include_mathjax='cdn', filename=filename, auto_open=False)
