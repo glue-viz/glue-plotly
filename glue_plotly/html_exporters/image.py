@@ -14,7 +14,7 @@ from glue.core import DataCollection, Data
 from glue.core.exceptions import IncompatibleAttribute
 from glue.utils import ensure_numerical
 from glue.viewers.image.pixel_selection_subset_state import PixelSubsetState
-from glue.viewers.image.composite_array import STRETCHES
+from glue.viewers.image.composite_array import COLOR_CONVERTER, STRETCHES
 from glue.viewers.image.state import ImageLayerState, ImageSubsetLayerState
 from glue.viewers.scatter.state import ScatterLayerState
 
@@ -68,7 +68,8 @@ class PlotlyImage2DExport(Tool):
             for layer in scatter_layers:
                 layer_state = layer.state
                 if layer_state.visible and layer.enabled:
-                    checked_dictionary[layer_state.layer.label] = np.zeros((len(layer_state.layer.components))).astype(bool)
+                    checked_dictionary[layer_state.layer.label] = np.zeros((len(layer_state.layer.components))).astype(
+                        bool)
 
             dialog = save_hover.SaveHoverDialog(data_collection=dc_hover, checked_dictionary=checked_dictionary)
             dialog.exec_()
@@ -76,6 +77,11 @@ class PlotlyImage2DExport(Tool):
         filename, _ = compat.getsavefilename(parent=self.viewer, basedir="plot.html")
 
         width, height = self.viewer.figure.get_size_inches() * self.viewer.figure.dpi
+
+        xmin, xmax = self.viewer.axes.get_xlim()
+        ymin, ymax = self.viewer.axes.get_ylim()
+
+        viewer_state = self.viewer.state
 
         # set the aspect ratio of the axes, the tick label size, the axis label
         # sizes, and the axes limits
@@ -103,13 +109,13 @@ class PlotlyImage2DExport(Tool):
             zeroline=False,
             showline=True,
             showgrid=False,
+            range=[xmin, xmax],
             showticklabels=True,
             tickfont=dict(
                 family=DEFAULT_FONT,
                 size=1.5 * self.viewer.axes.xaxis.get_ticklabels()[
                     0].get_fontsize(),
-                color=settings.FOREGROUND_COLOR),
-            range=[self.viewer.axes.get_xlim()[0], self.viewer.axes.get_xlim()[1]],
+                color=settings.FOREGROUND_COLOR)
         )
         y_axis = dict(
             title=self.viewer.axes.get_ylabel(),
@@ -125,14 +131,13 @@ class PlotlyImage2DExport(Tool):
             mirror=True,
             ticks='outside',
             showline=True,
-            range=[self.viewer.axes.get_ylim()[0], self.viewer.axes.get_ylim()[1]],
-            # range=[self.viewer.state.y_min, self.viewer.state.y_max],
+            range=[ymin, ymax],
             showticklabels=True,
             tickfont=dict(
                 family=DEFAULT_FONT,
                 size=1.5 * self.viewer.axes.yaxis.get_ticklabels()[
                     0].get_fontsize(),
-                color=settings.FOREGROUND_COLOR),
+                color=settings.FOREGROUND_COLOR)
         )
         layout_config.update(xaxis=x_axis, yaxis=y_axis)
 
@@ -140,32 +145,29 @@ class PlotlyImage2DExport(Tool):
 
         fig = go.Figure(layout=layout)
 
+        layers_to_add = []
+        using_colormaps = viewer_state.color_mode == 'Colormaps'
         has_nonpixel_subset = any(isinstance(layer.state, ImageSubsetLayerState)
                                   and not isinstance(layer.layer.subset_state, PixelSubsetState)
                                   for layer in self.viewer.layers)
         if has_nonpixel_subset:
-            full_view, agg_func, transpose = self.viewer.state.numpy_slice_aggregation_transpose
-            x_axis = self.viewer.state.x_att.axis
-            y_axis = self.viewer.state.y_att.axis
+            full_view, agg_func, transpose = viewer_state.numpy_slice_aggregation_transpose
+            x_axis = viewer_state.x_att.axis
+            y_axis = viewer_state.y_att.axis
             full_view[x_axis] = slice(None)
             full_view[y_axis] = slice(None)
-            for i in range(self.viewer.state.reference_data.ndim):
+            for i in range(viewer_state.reference_data.ndim):
                 if isinstance(full_view[i], slice):
-                    full_view[i] = slice_to_bound(full_view[i], self.viewer.state.reference_data.shape[i])
+                    full_view[i] = slice_to_bound(full_view[i], viewer_state.reference_data.shape[i])
 
         bg_colors = []
         legend_groups = defaultdict(int)
-        layers = sorted(visible_enabled_layers, key=lambda l: l.zorder)
-        for layer in layers:
+        for layer in visible_enabled_layers:
 
             layer_state = layer.state
-
             color = 'gray' if layer_state.color == '0.35' else layer_state.color
 
             if isinstance(layer_state, ImageLayerState):
-
-                # get image data and scale it down to default size
-                # img = layer_state.layer[layer_state.attribute]
 
                 interval = ManualInterval(layer_state.v_min, layer_state.v_max)
                 contrast_bias = ContrastBiasStretch(layer_state.contrast, layer_state.bias)
@@ -175,33 +177,14 @@ class PlotlyImage2DExport(Tool):
                 if array is None:
                     continue
 
+                print(layer.get_image_shape())
+
                 if np.isscalar(array):
                     array = np.atleast_2d(array)
 
                 img = STRETCHES[layer_state.stretch]()(contrast_bias(interval(array)))
                 img[np.isnan(img)] = 0
 
-                # x = layer_state.layer[self.viewer.state.x_att_world]
-                # y = layer_state.layer[self.viewer.state.y_att_world]
-                # print(self.viewer.state.reference_data[self.viewer.state.x_att_world])
-
-                marker = {}
-
-                # set the opacity
-                marker['opacity'] = layer_state.alpha
-
-                # get colors
-                colors = {
-                    'Red-Blue': 'RdBu',
-                    'Gray': 'Greys',
-                    'Hot': 'Hot',
-                    'Viridis': 'Viridis',
-                    'Yellow-Green-Blue': 'YlGnBu',
-                    'Yellow-Orange-Red': 'YlOrRd'
-                }
-
-                # default colorscale
-                colorscale = None
                 if layer_state.v_min > layer_state.v_max:
                     cmap = layer_state.cmap.reversed()
                     bounds = [layer_state.v_max, layer_state.v_min]
@@ -209,27 +192,18 @@ class PlotlyImage2DExport(Tool):
                     cmap = layer_state.cmap
                     bounds = [layer_state.v_min, layer_state.v_max]
                 mapped_bounds = STRETCHES[layer_state.stretch]()(contrast_bias(interval(bounds)))
-                if self.viewer.state.color_mode == 'Colormaps':
-                    for name, colormap in colormaps.members:
-                        if layer_state.cmap == colormap and name in colors:
-                            colorscale = colors[name]
-                            bg_colors.append([layer_state.alpha, colormap(mapped_bounds[0])])
-                            break
-                    if colorscale is None:
-                        unmapped_space = np.linspace(0, 1, 30)
-                        mapped_space = np.linspace(mapped_bounds[0], mapped_bounds[1], 30)
-                        color_space = [cmap(b) for b in mapped_space]
-                        color_values = [tuple(int(256 * v) for v in p) for p in color_space]
-                        colorscale = [[t, 'rgb{0}'.format(c)] for t, c in zip(unmapped_space, color_values)]
-                        bg_colors.append([layer_state.alpha, color_space[0]])
+                unmapped_space = np.linspace(0, 1, 30)
+                mapped_space = np.linspace(mapped_bounds[0], mapped_bounds[1], 30)
+                if using_colormaps:
+                    color_space = [cmap(b) for b in mapped_space]
+                    color_values = [tuple(int(256 * v) for v in p) for p in color_space]
+                    colorscale = [[t, 'rgb{0}'.format(c)] for t, c in zip(unmapped_space, color_values)]
+                    bg_colors.append([layer_state.alpha, color_space[0]])
                 else:
                     rgb_color = to_rgb(color)
-                    colorscale = [[0, 'rgb(0,0,0)'], [1, 'rgb{0}'.format(tuple(int(256 * v) for v in rgb_color))]]
-                    bg_colors.append([layer_state.alpha, [0, 0, 0]])
+                    colorscale = [[u, 'rgb{0}'.format(tuple(int(256 * t * v) for v in rgb_color))] for t, u in zip(mapped_space, unmapped_space)]
+                    bg_colors.append([layer_state.alpha, rgb_color])
 
-                # add layer to dict
-                # need to figure out how to get the right tick numbers
-                # background color outside of image need to match the cmap max
                 image_info = dict(
                     z=img,
                     colorscale=colorscale,
@@ -241,16 +215,14 @@ class PlotlyImage2DExport(Tool):
                 )
                 if colorscale == 'Greys':
                     image_info.update(reversescale=True)
-                fig.add_trace(go.Heatmap(**image_info))
+                layers_to_add.append([layer.zorder, fig.add_heatmap, image_info])
 
             elif isinstance(layer_state, ImageSubsetLayerState):
                 ss = layer.layer.subset_state
-                refdata = self.viewer.state.reference_data
-                xmin, xmax = self.viewer.axes.get_xlim()
-                ymin, ymax = self.viewer.axes.get_ylim()
+                refdata = viewer_state.reference_data
                 if isinstance(ss, PixelSubsetState):
                     try:
-                        x, y = ss.get_xy(layer.layer.data, self.viewer.state.x_att.axis, self.viewer.state.y_att.axis)
+                        x, y = ss.get_xy(layer.layer.data, viewer_state.x_att.axis, viewer_state.y_att.axis)
                         label = layer_state.layer.label
                         group = '{0}_{1}'.format(label, legend_groups[label])
                         legend_groups[label] += 1
@@ -291,12 +263,12 @@ class PlotlyImage2DExport(Tool):
                         showscale=False,
                         showlegend=True
                     )
-                    fig.add_trace(go.Heatmap(**image_info))
+                    layers_to_add.append([layer.zorder, fig.add_heatmap, image_info])
 
 
             elif isinstance(layer_state, ScatterLayerState):
-                x = layer_state.layer[self.viewer.state.x_att]
-                y = layer_state.layer[self.viewer.state.y_att]
+                x = layer_state.layer[viewer_state.x_att]
+                y = layer_state.layer[viewer_state.y_att]
 
                 marker = {}
 
@@ -369,15 +341,40 @@ class PlotlyImage2DExport(Tool):
                     name=layer_state.layer.label
                 )
                 scatter_info.update(x=x, y=y)
-                fig.add_scatter(**scatter_info)
+                layers_to_add.append([layer.zorder, fig.add_scatter, scatter_info])
 
         # The background color is a weighted sum of the bottom (0) color
         # of the colorscales for each of the image layers
         alpha_sum = sum(x[0] for x in bg_colors)
+        print(alpha_sum)
         bg_color = []
-        for i in range(3):
-            s = sum((color[i] ** 2) * (w / alpha_sum) for w, color in bg_colors)
-            bg_color.append(sqrt(s))
-        fig.update_layout(plot_bgcolor=to_hex(bg_color))
+        print(bg_colors)
+        if alpha_sum != 0:
+            for i in range(3):
+                s = sum((color[i] ** 2) * (w / alpha_sum) for w, color in bg_colors)
+                bg_color.append(int(256 * sqrt(s)))
+            bg_color.append(alpha_sum / len(bg_colors))
+        else:
+            v = 256 if using_colormaps else 0
+            bg_color = [v, v, v, 1]
+        print(bg_color)
+        fig.update_layout(plot_bgcolor='rgba{0}'.format(tuple(bg_color)))
+
+        # This block of code adds an all-white or background-colored heatmap as the bottom layer
+        # to match what we see in glue
+        axes = sorted([viewer_state.x_att.axis, viewer_state.y_att.axis])
+        shape = [viewer_state.reference_data.shape[i] for i in axes]
+        bg = np.ones(shape)
+        color = 'rgb(256,256,256)' if using_colormaps else 'rgba{0}'.format(tuple(bg_color))
+        bg_info = dict(z=bg,
+                       colorscale=[[0, color], [1, color]],
+                       hoverinfo='skip',
+                       opacity=1,
+                       showscale=False)
+
+        layers_to_add.append([-1, fig.add_heatmap, bg_info])
+
+        for _zorder, func, data in sorted(layers_to_add, key=lambda l: l[0]):
+            func(**data)
 
         plot(fig, filename=filename, auto_open=False)
