@@ -145,7 +145,6 @@ class PlotlyImage2DExport(Tool):
 
         fig = go.Figure(layout=layout)
 
-        layers_to_add = []
         using_colormaps = viewer_state.color_mode == 'Colormaps'
         has_nonpixel_subset = any(isinstance(layer.state, ImageSubsetLayerState)
                                   and not isinstance(layer.layer.subset_state, PixelSubsetState)
@@ -160,9 +159,25 @@ class PlotlyImage2DExport(Tool):
                 if isinstance(full_view[i], slice):
                     full_view[i] = slice_to_bound(full_view[i], viewer_state.reference_data.shape[i])
 
-        bg_colors = []
+        # This block of code adds an all-white or all-black heatmap as the bottom layer
+        # to match what we see in glue
+        axes = sorted([viewer_state.x_att.axis, viewer_state.y_att.axis])
+        shape = [viewer_state.reference_data.shape[i] for i in axes]
+        bg = np.ones(shape)
+        v = 1 if using_colormaps else 0
+        v256 = 256 * v
+        bottom_color = (v256, v256, v256)
+        bottom_colorstring = 'rgb{0}'.format(bottom_color)
+        bg_info = dict(z=bg,
+                       colorscale=[[0, bottom_colorstring], [1, bottom_colorstring]],
+                       hoverinfo='skip',
+                       opacity=1,
+                       showscale=False)
+        fig.add_heatmap(**bg_info)
+
+        bg_colors = [[1, [v, v, v]]]
         legend_groups = defaultdict(int)
-        for layer in visible_enabled_layers:
+        for layer in sorted(visible_enabled_layers, key=lambda l: l.zorder):
 
             layer_state = layer.state
             color = 'gray' if layer_state.color == '0.35' else layer_state.color
@@ -201,7 +216,10 @@ class PlotlyImage2DExport(Tool):
                     bg_colors.append([layer_state.alpha, color_space[0]])
                 else:
                     rgb_color = to_rgb(color)
-                    colorscale = [[u, 'rgb{0}'.format(tuple(int(256 * t * v) for v in rgb_color))] for t, u in zip(mapped_space, unmapped_space)]
+                    color_values = [tuple(int(256 * t * v) for v in rgb_color) for t in mapped_space]
+                    colorscale = [[0, 'rgb{0}'.format(color_values[0])]] + \
+                                 [[t, 'rgb{0}'.format(c)] for t, c in zip(mapped_space, color_values)] + \
+                                 [[1, 'rgb{0}'.format(color_values[-1])]]
                     bg_colors.append([layer_state.alpha, rgb_color])
 
                 image_info = dict(
@@ -215,7 +233,7 @@ class PlotlyImage2DExport(Tool):
                 )
                 if colorscale == 'Greys':
                     image_info.update(reversescale=True)
-                layers_to_add.append([layer.zorder, fig.add_heatmap, image_info])
+                fig.add_heatmap(**image_info)
 
             elif isinstance(layer_state, ImageSubsetLayerState):
                 ss = layer.layer.subset_state
@@ -263,8 +281,7 @@ class PlotlyImage2DExport(Tool):
                         showscale=False,
                         showlegend=True
                     )
-                    layers_to_add.append([layer.zorder, fig.add_heatmap, image_info])
-
+                    fig.add_heatmap(**image_info)
 
             elif isinstance(layer_state, ScatterLayerState):
                 x = layer_state.layer[viewer_state.x_att]
@@ -341,40 +358,17 @@ class PlotlyImage2DExport(Tool):
                     name=layer_state.layer.label
                 )
                 scatter_info.update(x=x, y=y)
-                layers_to_add.append([layer.zorder, fig.add_scatter, scatter_info])
+                fig.add_scatter(**scatter_info)
 
-        # The background color is a weighted sum of the bottom (0) color
-        # of the colorscales for each of the image layers
-        alpha_sum = sum(x[0] for x in bg_colors)
-        print(alpha_sum)
-        bg_color = []
+        # We construct the background color by compositing the bottoms of our colorscales
+        # Note that bg_colors is already ordered by z-order
+        alpha, base = bg_colors[0]
         print(bg_colors)
-        if alpha_sum != 0:
-            for i in range(3):
-                s = sum((color[i] ** 2) * (w / alpha_sum) for w, color in bg_colors)
-                bg_color.append(int(256 * sqrt(s)))
-            bg_color.append(alpha_sum / len(bg_colors))
-        else:
-            v = 256 if using_colormaps else 0
-            bg_color = [v, v, v, 1]
-        print(bg_color)
+        for a, color in bg_colors:
+            mix_alpha = 1 - (1 - alpha) * (1 - a)
+            base = [(x * a + b * alpha * (1 - a)) / mix_alpha for x, b in zip(color, base)]
+            alpha = mix_alpha
+        bg_color = base + [alpha]
         fig.update_layout(plot_bgcolor='rgba{0}'.format(tuple(bg_color)))
-
-        # This block of code adds an all-white or background-colored heatmap as the bottom layer
-        # to match what we see in glue
-        axes = sorted([viewer_state.x_att.axis, viewer_state.y_att.axis])
-        shape = [viewer_state.reference_data.shape[i] for i in axes]
-        bg = np.ones(shape)
-        color = 'rgb(256,256,256)' if using_colormaps else 'rgba{0}'.format(tuple(bg_color))
-        bg_info = dict(z=bg,
-                       colorscale=[[0, color], [1, color]],
-                       hoverinfo='skip',
-                       opacity=1,
-                       showscale=False)
-
-        layers_to_add.append([-1, fig.add_heatmap, bg_info])
-
-        for _zorder, func, data in sorted(layers_to_add, key=lambda l: l[0]):
-            func(**data)
 
         plot(fig, filename=filename, auto_open=False)
