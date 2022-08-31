@@ -59,8 +59,17 @@ class PlotlyImage2DExport(Tool):
     def activate(self):
 
         # grab hover info
-        visible_enabled_layers = [layer for layer in self.viewer.layers if layer.state.visible and layer.enabled]
-        scatter_layers = [layer for layer in visible_enabled_layers if isinstance(layer.state, ScatterLayerState)]
+        layers = sorted([layer for layer in self.viewer.layers if layer.state.visible and layer.enabled],
+                        key=lambda l: l.zorder)
+        scatter_layers, image_layers, image_subset_layers = [], [], []
+        for layer in layers:
+            if isinstance(layer.state, ImageLayerState):
+                image_layers.append(layer)
+            elif isinstance(layer.state, ImageSubsetLayerState):
+                image_subset_layers.append(layer)
+            elif isinstance(layer.state, ScatterLayerState):
+                scatter_layers.append(layer)
+
         if len(scatter_layers) > 0:
             dc_hover = DataCollection()
             for layer in scatter_layers:
@@ -183,9 +192,8 @@ class PlotlyImage2DExport(Tool):
             fig = go.Figure(layout=layout)
 
         using_colormaps = viewer_state.color_mode == 'Colormaps'
-        has_nonpixel_subset = any(isinstance(layer.state, ImageSubsetLayerState)
-                                  and not isinstance(layer.layer.subset_state, PixelSubsetState)
-                                  for layer in self.viewer.layers)
+        has_nonpixel_subset = any(not isinstance(layer.layer.subset_state, PixelSubsetState)
+                                  for layer in image_subset_layers)
         if has_nonpixel_subset:
             full_view, agg_func, transpose = viewer_state.numpy_slice_aggregation_transpose
             full_view[viewer_state.x_att.axis] = slice(None)
@@ -194,67 +202,130 @@ class PlotlyImage2DExport(Tool):
                 if isinstance(full_view[i], slice):
                     full_view[i] = slice_to_bound(full_view[i], viewer_state.reference_data.shape[i])
 
-        # This block of code adds an all-white or all-black heatmap as the bottom layer
+        # This block of code adds an all-white heatmap as the bottom layer when using colormaps
         # to match what we see in glue
         axes = sorted([viewer_state.x_att.axis, viewer_state.y_att.axis])
         shape = [viewer_state.reference_data.shape[i] for i in axes]
         bg = np.ones(shape)
-        v = 1 if using_colormaps else 0
-        v256 = 256 * v
-        bottom_color = (v256, v256, v256)
-        bottom_colorstring = 'rgb{0}'.format(bottom_color)
-        bg_info = dict(z=bg,
-                       colorscale=[[0, bottom_colorstring], [1, bottom_colorstring]],
-                       hoverinfo='skip',
-                       opacity=1,
-                       showscale=False)
-        fig.add_heatmap(**bg_info)
+        if using_colormaps:
+            bottom_color = (256, 256, 256)
+            bottom_colorstring = 'rgb{0}'.format(bottom_color)
+            bottom_info = dict(z=bg,
+                               colorscale=[[0, bottom_colorstring], [1, bottom_colorstring]],
+                               hoverinfo='skip',
+                               opacity=1,
+                               showscale=False)
 
-        bg_colors = [[1, [v, v, v]]]
+            bg_colors = [[1, [1, 1, 1]]]
+            layers_to_add = [[fig.add_heatmap, bottom_info]]
+        else:
+            layers_to_add = []
+            bg_colors = []
+
         legend_groups = defaultdict(int)
-        for layer in sorted(visible_enabled_layers, key=lambda l: l.zorder):
+        for i, layer in enumerate(image_layers):
 
             layer_state = layer.state
             color = 'gray' if layer_state.color == '0.35' else layer_state.color
 
-            if isinstance(layer_state, ImageLayerState):
+            interval = ManualInterval(layer_state.v_min, layer_state.v_max)
+            contrast_bias = ContrastBiasStretch(layer_state.contrast, layer_state.bias)
+            array = layer.get_image_data
+            if callable(array):
+                array = array(bounds=None)
+            if array is None:
+                continue
 
-                interval = ManualInterval(layer_state.v_min, layer_state.v_max)
-                contrast_bias = ContrastBiasStretch(layer_state.contrast, layer_state.bias)
-                array = layer.get_image_data
-                if callable(array):
-                    array = array(bounds=None)
-                if array is None:
-                    continue
+            if np.isscalar(array):
+                array = np.atleast_2d(array)
 
-                if np.isscalar(array):
-                    array = np.atleast_2d(array)
+            img = STRETCHES[layer_state.stretch]()(contrast_bias(interval(array)))
+            img[np.isnan(img)] = 0
 
-                img = STRETCHES[layer_state.stretch]()(contrast_bias(interval(array)))
-                img[np.isnan(img)] = 0
+            if layer_state.v_min > layer_state.v_max:
+                cmap = layer_state.cmap.reversed()
+                bounds = [layer_state.v_max, layer_state.v_min]
+                bottom_index = -1
+            else:
+                cmap = layer_state.cmap
+                bounds = [layer_state.v_min, layer_state.v_max]
+                bottom_index = 0
+            mapped_bounds = STRETCHES[layer_state.stretch]()(contrast_bias(interval(bounds)))
+            unmapped_space = np.linspace(0, 1, 60)
+            mapped_space = np.linspace(mapped_bounds[0], mapped_bounds[1], 60)
+            if using_colormaps:
+                color_space = [cmap(b)[:3] for b in mapped_space]
+                color_values = [tuple(int(256 * v) for v in p) for p in color_space]
+                colorscale = [[0, 'rgb{0}'.format(color_values[0])]] + \
+                             [[u, 'rgb{0}'.format(c)] for u, c in zip(unmapped_space, color_values)] + \
+                             [[1, 'rgb{0}'.format(color_values[-1])]]
+            else:
+                rgb_color = to_rgb(color)
+                color_space = [[t * v for v in rgb_color] for t in mapped_space]
+                color_values = [tuple([int(256 * v) for v in p] + [u])
+                                for p, u in zip(color_space, unmapped_space)]
+                colorscale = [[0, 'rgba{0}'.format(color_values[0])]] + \
+                             [[t, 'rgba{0}'.format(c)] for t, c in zip(mapped_space, color_values)] + \
+                             [[1, 'rgba{0}'.format(color_values[-1])]]
+            bg_colors.append([layer_state.alpha, color_space[bottom_index][:3]])
 
-                if layer_state.v_min > layer_state.v_max:
-                    cmap = layer_state.cmap.reversed()
-                    bounds = [layer_state.v_max, layer_state.v_min]
-                else:
-                    cmap = layer_state.cmap
-                    bounds = [layer_state.v_min, layer_state.v_max]
-                mapped_bounds = STRETCHES[layer_state.stretch]()(contrast_bias(interval(bounds)))
-                unmapped_space = np.linspace(0, 1, 30)
-                mapped_space = np.linspace(mapped_bounds[0], mapped_bounds[1], 30)
-                if using_colormaps:
-                    color_space = [cmap(b) for b in mapped_space]
-                    color_values = [tuple(int(256 * v) for v in p) for p in color_space]
-                    colorscale = [[t, 'rgb{0}'.format(c)] for t, c in zip(unmapped_space, color_values)]
-                else:
-                    rgb_color = to_rgb(color)
-                    color_space = [[t * v for v in rgb_color] for t in mapped_space]
-                    color_values = [tuple(int(256 * v) for v in p) for p in color_space]
-                    colorscale = [[0, 'rgb{0}'.format(color_values[0])]] + \
-                                 [[t, 'rgb{0}'.format(c)] for t, c in zip(mapped_space, color_values)] + \
-                                 [[1, 'rgb{0}'.format(color_values[-1])]]
-                bg_colors.append([layer_state.alpha, color_space[0]])
+            image_info = dict(
+                z=img,
+                colorscale=colorscale,
+                hoverinfo='skip',
+                xaxis='x',
+                yaxis='y',
+                zmin=mapped_bounds[0],
+                zmax=mapped_bounds[1],
+                opacity=layer_state.alpha,
+                name=layer_state.layer.label,
+                showscale=False,
+                showlegend=True
+            )
+            layers_to_add.append([fig.add_heatmap, image_info])
 
+        for layer in image_subset_layers:
+            layer_state = layer.state
+            ss = layer.layer.subset_state
+            refdata = viewer_state.reference_data
+            if isinstance(ss, PixelSubsetState):
+                try:
+                    x, y = ss.get_xy(layer.layer.data, viewer_state.x_att.axis, viewer_state.y_att.axis)
+                    label = layer_state.layer.label
+                    group = '{0}_{1}'.format(label, legend_groups[label])
+                    legend_groups[label] += 1
+                    line_data = dict(
+                        mode="lines",
+                        marker=dict(
+                            color=layer_state.color
+                        ),
+                        opacity=layer_state.alpha * 0.5,
+                        name=layer_state.layer.label,
+                        legendgroup=group
+                    )
+
+                    x_line_data = {**line_data, 'x': [x, x], 'y': [ymin, ymax], 'showlegend': True}
+                    y_line_data = {**line_data, 'x': [xmin, xmax], 'y': [y, y], 'showlegend': False}
+                    layers_to_add.append([fig.add_scatter, x_line_data])
+                    layers_to_add.append([fig.add_scatter, y_line_data])
+                except IncompatibleAttribute:
+                    pass
+            else:
+                color = 'gray' if layer_state.color == '0.35' else layer_state.color
+                buf = refdata \
+                    .compute_fixed_resolution_buffer(full_view,
+                                                     target_data=refdata,
+                                                     broadcast=False, subset_state=ss)
+                if transpose:
+                    buf = buf.transpose()
+
+                vf = np.vectorize(int)
+                img = vf(buf)
+                rgb_color = to_rgb(color)
+
+                # We use alpha = 0 for the bottom of the colorscale since we don't want
+                # anything outside the subset to contribute
+                colorscale = [[0, 'rgba(0,0,0,0)'], [1, 'rgb{0}'.format(tuple(int(256 * v) for v in rgb_color))]]
                 image_info = dict(
                     z=img,
                     colorscale=colorscale,
@@ -262,163 +333,118 @@ class PlotlyImage2DExport(Tool):
                     xaxis='x',
                     yaxis='y',
                     name=layer_state.layer.label,
-                    opacity=layer_state.alpha,
+                    opacity=layer_state.alpha * 0.5,
                     showscale=False,
                     showlegend=True
                 )
-                if colorscale == 'Greys':
-                    image_info.update(reversescale=True)
-                fig.add_heatmap(**image_info)
+                layers_to_add.append([fig.add_heatmap, image_info])
 
-            elif isinstance(layer_state, ImageSubsetLayerState):
-                ss = layer.layer.subset_state
-                refdata = viewer_state.reference_data
-                if isinstance(ss, PixelSubsetState):
-                    try:
-                        x, y = ss.get_xy(layer.layer.data, viewer_state.x_att.axis, viewer_state.y_att.axis)
-                        label = layer_state.layer.label
-                        group = '{0}_{1}'.format(label, legend_groups[label])
-                        legend_groups[label] += 1
-                        line_data = dict(
-                            mode="lines",
-                            marker=dict(
-                                color=layer_state.color
-                            ),
-                            opacity=layer_state.alpha * 0.5,
-                            name=layer_state.layer.label,
-                            legendgroup=group
-                        )
-                        fig.add_scatter(**line_data, x=[x, x], y=[ymin, ymax], showlegend=True)
-                        fig.add_scatter(**line_data, x=[xmin, xmax], y=[y, y], showlegend=False)
-                    except IncompatibleAttribute:
-                        pass
+        for layer in scatter_layers:
+            layer_state = layer.state
+            x = layer_state.layer[viewer_state.x_att]
+            y = layer_state.layer[viewer_state.y_att]
+
+            marker = {}
+
+            # set all points to be the same color
+            if layer_state.cmap_mode == 'Fixed':
+                if layer_state.color != '0.35':
+                    marker['color'] = layer_state.color
                 else:
-                    buf = refdata \
-                        .compute_fixed_resolution_buffer(full_view,
-                                                         target_data=refdata,
-                                                         broadcast=False, subset_state=ss)
-                    if transpose:
-                        buf = buf.transpose()
+                    marker['color'] = 'gray'
 
-                    vf = np.vectorize(int)
-                    img = vf(buf)
-                    rgb_color = to_rgb(color)
-
-                    # We use alpha = 0 for the bottom of the colorscale since we don't want
-                    # anything outside the subset to contribute
-                    colorscale = [[0, 'rgba(0,0,0,0)'], [1, 'rgb{0}'.format(tuple(int(256 * v) for v in rgb_color))]]
-                    image_info = dict(
-                        z=img,
-                        colorscale=colorscale,
-                        hoverinfo='skip',
-                        xaxis='x',
-                        yaxis='y',
-                        name=layer_state.layer.label,
-                        opacity=layer_state.alpha * 0.5,
-                        showscale=False,
-                        showlegend=True
-                    )
-                    fig.add_heatmap(**image_info)
-
-            elif isinstance(layer_state, ScatterLayerState):
-                x = layer_state.layer[viewer_state.x_att]
-                y = layer_state.layer[viewer_state.y_att]
-
-                marker = {}
-
-                # set all points to be the same color
-                if layer_state.cmap_mode == 'Fixed':
-                    if layer_state.color != '0.35':
-                        marker['color'] = layer_state.color
-                    else:
-                        marker['color'] = 'gray'
-
-                # color by some attribute
+            # color by some attribute
+            else:
+                if layer_state.cmap_vmin > layer_state.cmap_vmax:
+                    cmap = layer_state.cmap.reversed()
+                    norm = Normalize(
+                        vmin=layer_state.cmap_vmax, vmax=layer_state.cmap_vmin)
                 else:
-                    if layer_state.cmap_vmin > layer_state.cmap_vmax:
-                        cmap = layer_state.cmap.reversed()
-                        norm = Normalize(
-                            vmin=layer_state.cmap_vmax, vmax=layer_state.cmap_vmin)
-                    else:
-                        cmap = layer_state.cmap
-                        norm = Normalize(
-                            vmin=layer_state.cmap_vmin, vmax=layer_state.cmap_vmax)
+                    cmap = layer_state.cmap
+                    norm = Normalize(
+                        vmin=layer_state.cmap_vmin, vmax=layer_state.cmap_vmax)
 
-                    # most matplotlib colormaps aren't recognized by plotly, so we convert manually to a hex code
-                    rgba_list = [
-                        cmap(norm(point)) for point in layer_state.layer[layer_state.cmap_att].copy()]
-                    rgb_str = [r'{}'.format(rgb2hex(
-                        (rgba[0], rgba[1], rgba[2]))) for rgba in rgba_list]
-                    marker['color'] = rgb_str
+                # most matplotlib colormaps aren't recognized by plotly, so we convert manually to a hex code
+                rgba_list = [
+                    cmap(norm(point)) for point in layer_state.layer[layer_state.cmap_att].copy()]
+                rgb_str = [r'{}'.format(rgb2hex(
+                    (rgba[0], rgba[1], rgba[2]))) for rgba in rgba_list]
+                marker['color'] = rgb_str
 
-                # set all points to be the same size, with some arbitrary scaling
-                if layer_state.size_mode == 'Fixed':
-                    marker['size'] = layer_state.size
+            # set all points to be the same size, with some arbitrary scaling
+            if layer_state.size_mode == 'Fixed':
+                marker['size'] = layer_state.size
 
-                # scale size of points by some attribute
-                else:
-                    s = ensure_numerical(layer_state.layer[layer_state.size_att].ravel())
-                    marker['size'] = 25 * (s - layer_state.size_vmin) / (
-                            layer_state.size_vmax - layer_state.size_vmin)
-                    marker['sizemin'] = 1
-                    marker['size'][np.isnan(marker['size'])] = 0
-                    marker['size'][marker['size'] < 0] = 0
+            # scale size of points by some attribute
+            else:
+                s = ensure_numerical(layer_state.layer[layer_state.size_att].ravel())
+                marker['size'] = 25 * (s - layer_state.size_vmin) / (
+                        layer_state.size_vmax - layer_state.size_vmin)
+                marker['sizemin'] = 1
+                marker['size'][np.isnan(marker['size'])] = 0
+                marker['size'][marker['size'] < 0] = 0
 
-                # set the opacity
-                marker['opacity'] = layer_state.alpha
+            # set the opacity
+            marker['opacity'] = layer_state.alpha
 
-                # remove default white border around points
-                marker['line'] = dict(width=0)
+            # remove default white border around points
+            marker['line'] = dict(width=0)
 
-                # add hover info to layer
+            # add hover info to layer
 
-                if np.sum(dialog.checked_dictionary[layer_state.layer.label]) == 0:
-                    hoverinfo = 'skip'
-                    hovertext = None
-                else:
-                    hoverinfo = 'text'
-                    hovertext = ["" for _ in range((layer_state.layer.shape[0]))]
-                    for i in range(0, len(layer_state.layer.components)):
-                        if dialog.checked_dictionary[layer_state.layer.label][i]:
-                            hover_data = layer_state.layer[layer_state.layer.components[i].label]
-                            for k in range(0, len(hover_data)):
-                                hovertext[k] = (hovertext[k] + "{}: {} <br>"
-                                                .format(layer_state.layer.components[i].label,
-                                                        hover_data[k]))
+            if np.sum(dialog.checked_dictionary[layer_state.layer.label]) == 0:
+                hoverinfo = 'skip'
+                hovertext = None
+            else:
+                hoverinfo = 'text'
+                hovertext = ["" for _ in range((layer_state.layer.shape[0]))]
+                for i in range(0, len(layer_state.layer.components)):
+                    if dialog.checked_dictionary[layer_state.layer.label][i]:
+                        hover_data = layer_state.layer[layer_state.layer.components[i].label]
+                        for k in range(0, len(hover_data)):
+                            hovertext[k] = (hovertext[k] + "{}: {} <br>"
+                                            .format(layer_state.layer.components[i].label,
+                                                    hover_data[k]))
 
-                # add layer to axesdict
-                scatter_info = dict(
-                    mode='markers',
-                    marker=marker,
-                    xaxis='x',
-                    yaxis='y',
-                    hoverinfo=hoverinfo,
-                    hovertext=hovertext,
-                    name=layer_state.layer.label
-                )
-                scatter_info.update(x=x, y=y)
-                fig.add_scatter(**scatter_info)
+            # add layer to axesdict
+            scatter_info = dict(
+                mode='markers',
+                marker=marker,
+                xaxis='x',
+                yaxis='y',
+                hoverinfo=hoverinfo,
+                hovertext=hovertext,
+                name=layer_state.layer.label
+            )
+            scatter_info.update(x=x, y=y)
+            layers_to_add.append([fig.add_scatter, scatter_info])
 
         # This is a hack to force plotly to show the secondary axes, if there are any
         # We just put in a transparent heatmap assigned to whatever secondary axes exist
         if secondary_x or secondary_x:
             secondary_info = dict(z=bg,
-                                  colorscale=[[0, bottom_colorstring], [1, bottom_colorstring]],
+                                  colorscale=[[0, 'rgb(0,0,0)'], [1, 'rgb(0,0,0)']],
                                   hoverinfo='skip',
                                   opacity=0,
                                   showscale=False,
                                   xaxis='x2' if secondary_x else 'x',
                                   yaxis='y2' if secondary_y else 'y')
-            fig.add_heatmap(**secondary_info)
+            layers_to_add.append([fig.add_heatmap, secondary_info])
+
+        for func, data in layers_to_add:
+            func(**data)
 
         # We construct the background color by compositing the bottoms of our colorscales
         # Note that bg_colors is already ordered by z-order
-        alpha, base = bg_colors[0]
-        for a, color in bg_colors:
-            mix_alpha = 1 - (1 - alpha) * (1 - a)
-            base = [(x * a + b * alpha * (1 - a)) / mix_alpha for x, b in zip(color, base)]
-            alpha = mix_alpha
-        bg_color = base + [alpha]
+        if bg_colors:
+            alpha, base = bg_colors[0]
+            for a, color in bg_colors:
+                mix_alpha = 1 - (1 - alpha) * (1 - a)
+                base = [(x * a + b * alpha * (1 - a)) / mix_alpha for x, b in zip(color, base)]
+                alpha = mix_alpha
+            bg_color = [int(256 * v) for v in base] + [alpha]
+        else:
+            bg_color = [256, 256, 256]
         fig.update_layout(plot_bgcolor='rgba{0}'.format(tuple(bg_color)))
 
         plot(fig, include_mathjax='cdn', filename=filename, auto_open=False)
