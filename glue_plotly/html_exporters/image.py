@@ -216,11 +216,9 @@ class PlotlyImage2DExport(Tool):
                                opacity=1,
                                showscale=False)
 
-            bg_colors = [[1, [1, 1, 1]]]
             layers_to_add = [[fig.add_heatmap, bottom_info]]
         else:
             layers_to_add = []
-            bg_colors = []
 
         legend_groups = defaultdict(int)
         for i, layer in enumerate(image_layers):
@@ -267,7 +265,6 @@ class PlotlyImage2DExport(Tool):
                 colorscale = [[0, 'rgba{0}'.format(color_values[0])]] + \
                              [[t, 'rgba{0}'.format(c)] for t, c in zip(mapped_space, color_values)] + \
                              [[1, 'rgba{0}'.format(color_values[-1])]]
-            bg_colors.append([layer_state.alpha, color_space[bottom_index][:3]])
 
             image_info = dict(
                 z=img,
@@ -434,17 +431,7 @@ class PlotlyImage2DExport(Tool):
         for func, data in layers_to_add:
             func(**data)
 
-        # We construct the background color by compositing the bottoms of our colorscales
-        # Note that bg_colors is already ordered by z-order
-        if bg_colors:
-            alpha, base = bg_colors[0]
-            for a, color in bg_colors:
-                mix_alpha = 1 - (1 - alpha) * (1 - a)
-                base = [(x * a + b * alpha * (1 - a)) / mix_alpha for x, b in zip(color, base)]
-                alpha = mix_alpha
-            bg_color = [int(256 * v) for v in base] + [alpha]
-        else:
-            bg_color = [256, 256, 256]
+        bg_color = [256, 256, 256, 1] if using_colormaps else [0, 0, 0, 1]
         fig.update_layout(plot_bgcolor='rgba{0}'.format(tuple(bg_color)))
 
         plot(fig, include_mathjax='cdn', filename=filename, auto_open=False)
