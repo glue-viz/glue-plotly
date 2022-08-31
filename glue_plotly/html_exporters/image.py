@@ -26,6 +26,7 @@ except ImportError:
 
 from glue_plotly import PLOTLY_LOGO
 
+import plotly.graph_objects as go
 from plotly.offline import plot
 from plotly.subplots import make_subplots
 
@@ -173,8 +174,13 @@ class PlotlyImage2DExport(Tool):
                     continue
 
         layout_config.update(**axis_data)
-        fig = make_subplots(specs=[[{"secondary_y": True}]])
-        fig.update_layout(**layout_config)
+
+        if secondary_x or secondary_y:
+            fig = make_subplots(specs=[[{"secondary_y": True}]], horizontal_spacing=0, vertical_spacing=0)
+            fig.update_layout(**layout_config)
+        else:
+            layout = go.Layout(**layout_config)
+            fig = go.Figure(layout=layout)
 
         using_colormaps = viewer_state.color_mode == 'Colormaps'
         has_nonpixel_subset = any(isinstance(layer.state, ImageSubsetLayerState)
