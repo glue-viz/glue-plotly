@@ -116,7 +116,7 @@ class PlotlyImage2DExport(Tool):
         axis_data = {}
         secondary_x = False
         secondary_y = False
-        for i, helper in enumerate(axes.coords):
+        for helper in axes.coords:
             ticks = helper.ticks
             ticklabels = helper.ticklabels
             for axis in ticklabels.get_visible_axes():
@@ -243,11 +243,9 @@ class PlotlyImage2DExport(Tool):
             if layer_state.v_min > layer_state.v_max:
                 cmap = layer_state.cmap.reversed()
                 bounds = [layer_state.v_max, layer_state.v_min]
-                bottom_index = -1
             else:
                 cmap = layer_state.cmap
                 bounds = [layer_state.v_min, layer_state.v_max]
-                bottom_index = 0
             mapped_bounds = STRETCHES[layer_state.stretch]()(contrast_bias(interval(bounds)))
             unmapped_space = np.linspace(0, 1, 60)
             mapped_space = np.linspace(mapped_bounds[0], mapped_bounds[1], 60)
