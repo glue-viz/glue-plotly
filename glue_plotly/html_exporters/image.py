@@ -258,11 +258,10 @@ class PlotlyImage2DExport(Tool):
             else:
                 rgb_color = to_rgb(color)
                 color_space = [[t * v for v in rgb_color] for t in mapped_space]
-                color_values = [tuple([int(256 * v) for v in p] + [u])
-                                for p, u in zip(color_space, unmapped_space)]
-                colorscale = [[0, 'rgba{0}'.format(color_values[0])]] + \
-                             [[t, 'rgba{0}'.format(c)] for t, c in zip(mapped_space, color_values)] + \
-                             [[1, 'rgba{0}'.format(color_values[-1])]]
+                color_values = [tuple([int(256 * v) for v in p]) for p in color_space]
+                colorscale = [[0, 'rgb{0}'.format(color_values[0])]] + \
+                             [[t, 'rgb{0}'.format(c)] for t, c in zip(mapped_space, color_values)] + \
+                             [[1, 'rgb{0}'.format(color_values[-1])]]
 
             image_info = dict(
                 z=img,
