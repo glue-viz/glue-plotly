@@ -5,14 +5,6 @@ from mock import patch
 from glue.core import Data
 from glue.app.qt import GlueApplication
 from glue.viewers.histogram.qt import HistogramViewer
-from glue_plotly.save_hover import SaveHoverDialog
-
-
-def auto_accept():
-    def exec_replacement(self):
-        self.select_all()
-        self.accept()
-    return exec_replacement
 
 
 class TestHistogram:
@@ -42,8 +34,7 @@ class TestHistogram:
         output_path = tmpdir.join(output_filename).strpath
         with patch('qtpy.compat.getsavefilename') as fd:
             fd.return_value = output_path, 'html'
-            with patch.object(SaveHoverDialog, 'exec_', auto_accept()):
-                self.tool.activate()
+            self.tool.activate()
         return output_path
 
     def test_default(self, tmpdir):

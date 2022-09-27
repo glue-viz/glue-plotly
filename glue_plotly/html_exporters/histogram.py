@@ -49,9 +49,6 @@ class PlotlyHistogram1DExport(Tool):
             if layer_state.visible and layer.enabled:
                 checked_dictionary[layer_state.layer.label] = np.zeros((len(layer_state.layer.components))).astype(bool)
 
-        dialog = save_hover.SaveHoverDialog(data_collection=dc_hover, checked_dictionary=checked_dictionary)
-        dialog.exec_()
-
         filename, _ = compat.getsavefilename(parent=self.viewer, basedir="plot.html")
 
         width, height = self.viewer.figure.get_size_inches() * self.viewer.figure.dpi
@@ -154,6 +151,7 @@ class PlotlyHistogram1DExport(Tool):
                 hist_info = dict(
                     x=x,
                     y=y,
+                    hoverinfo='skip',
                     marker=marker,
                     name=layer_state.layer.label
                 )
