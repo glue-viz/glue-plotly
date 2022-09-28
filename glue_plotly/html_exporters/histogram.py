@@ -5,9 +5,7 @@ import numpy as np
 from qtpy import compat
 from glue.config import viewer_tool, settings
 
-from glue.core import DataCollection, Data
-
-from .. import save_hover
+from glue.core import DataCollection, Data, Subset
 
 try:
     from glue.viewers.common.qt.tool import Tool
@@ -147,13 +145,17 @@ class PlotlyHistogram1DExport(Tool):
                                      range=[np.log10(self.viewer.state.y_min), np.log10(self.viewer.state.y_max)]
                                      )
 
+                label = layer.layer.label
+                if isinstance(layer.layer, Subset):
+                    label += " ({0})".format(layer.layer.data.label)
+
                 # add layer to dict
                 hist_info = dict(
                     x=x,
                     y=y,
                     hoverinfo='skip',
                     marker=marker,
-                    name=layer_state.layer.label
+                    name=label
                 )
                 fig.add_bar(**hist_info)
 
