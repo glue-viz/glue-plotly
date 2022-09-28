@@ -1,10 +1,10 @@
 from __future__ import absolute_import, division, print_function
 
+from re import sub
 import numpy as np
 
 from qtpy import compat
 from glue.config import viewer_tool, settings
-
 from glue.core import DataCollection, Data, Subset
 
 try:
@@ -21,8 +21,7 @@ DEFAULT_FONT = 'Arial, sans-serif'
 
 
 def cleaned_labels(labels):
-    cleaned = [label.replace('\\mathregular', '\\mathrm') for label in labels]
-    cleaned = [label.replace('\\mathdefault', '\\mathrm') for label in cleaned]
+    cleaned = [sub(r'\\math(default|regular)', r'\\mathrm', label) for label in labels]
     for j in range(len(cleaned)):
         label = cleaned[j]
         if '$' in label:
@@ -33,10 +32,10 @@ def cleaned_labels(labels):
 def ticks_values(axes, axis):
     index = 1 if axis == 'y' else 0
     minor_getters = [axes.get_xminorticklabels, axes.get_yminorticklabels]
-    major_getters = [axes.get_xticklabels, axes.get_yticklabels]
     minor_ticks = minor_getters[index]()
     if not (minor_ticks and any(t.get_text() for t in minor_ticks)):
         return [], []
+    major_getters = [axes.get_xticklabels, axes.get_yticklabels]
     major_ticks = major_getters[index]()
     vals, text = [], []
     for tick in major_ticks + minor_ticks:
