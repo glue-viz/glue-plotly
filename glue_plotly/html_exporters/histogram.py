@@ -20,6 +20,34 @@ import plotly.graph_objs as go
 DEFAULT_FONT = 'Arial, sans-serif'
 
 
+def cleaned_labels(labels):
+    cleaned = [label.replace('\\mathregular', '\\mathrm') for label in labels]
+    cleaned = [label.replace('\\mathdefault', '\\mathrm') for label in cleaned]
+    for j in range(len(cleaned)):
+        label = cleaned[j]
+        if '$' in label:
+            cleaned[j] = '${0}$'.format(label.replace('$', ''))
+    return cleaned
+
+
+def ticks_values(axes, axis):
+    index = 1 if axis == 'y' else 0
+    minor_getters = [axes.get_xminorticklabels, axes.get_yminorticklabels]
+    major_getters = [axes.get_xticklabels, axes.get_yticklabels]
+    minor_ticks = minor_getters[index]()
+    if not (minor_ticks and any(t.get_text() for t in minor_ticks)):
+        return [], []
+    major_ticks = major_getters[index]()
+    vals, text = [], []
+    for tick in major_ticks + minor_ticks:
+        txt = tick.get_text()
+        if txt:
+            vals.append(tick.get_position()[index])
+            text.append(txt)
+        text = cleaned_labels(text)
+    return vals, text
+
+
 @viewer_tool
 class PlotlyHistogram1DExport(Tool):
     icon = PLOTLY_LOGO
@@ -107,6 +135,15 @@ class PlotlyHistogram1DExport(Tool):
                     0].get_fontsize(),
                 color=settings.FOREGROUND_COLOR),
         )
+
+        axes = self.viewer.axes
+        xvals, xtext = ticks_values(axes, 'x')
+        if xvals and xtext:
+            x_axis.update(tickmode='array', tickvals=xvals, ticktext=xtext)
+        yvals, ytext = ticks_values(axes, 'y')
+        if yvals and ytext:
+            y_axis.update(tickmode='array', tickvals=yvals, ticktext=ytext)
+
         layout_config.update(xaxis=x_axis, yaxis=y_axis)
 
         layout = go.Layout(**layout_config)
@@ -154,10 +191,10 @@ class PlotlyHistogram1DExport(Tool):
                     for i in range(len(x)):
                         hist_info.update(
                             legendgroup=label,
-                            showlegend=i is 0,
+                            showlegend=i == 0,
                             x=[x[i]],
                             y=[y[i]],
-                            width=edges[i+1] - edges[i],
+                            width=edges[i + 1] - edges[i],
                         )
                         fig.add_bar(**hist_info)
                 else:
@@ -168,4 +205,4 @@ class PlotlyHistogram1DExport(Tool):
                     )
                     fig.add_bar(**hist_info)
 
-        plot(fig, filename=filename, auto_open=False)
+        plot(fig, include_mathjax='cdn', filename=filename, auto_open=False)
