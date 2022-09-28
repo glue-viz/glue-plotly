@@ -149,14 +149,23 @@ class PlotlyHistogram1DExport(Tool):
                 if isinstance(layer.layer, Subset):
                     label += " ({0})".format(layer.layer.data.label)
 
-                # add layer to dict
-                hist_info = dict(
-                    x=x,
-                    y=y,
-                    hoverinfo='skip',
-                    marker=marker,
-                    name=label
-                )
-                fig.add_bar(**hist_info)
+                hist_info = dict(hoverinfo="skip", marker=marker, name=label)
+                if self.viewer.state.x_log:
+                    for i in range(len(x)):
+                        hist_info.update(
+                            legendgroup=label,
+                            showlegend=i is 0,
+                            x=[x[i]],
+                            y=[y[i]],
+                            width=edges[i+1] - edges[i],
+                        )
+                        fig.add_bar(**hist_info)
+                else:
+                    hist_info.update(
+                        x=x,
+                        y=y,
+                        width=edges[1] - edges[0],
+                    )
+                    fig.add_bar(**hist_info)
 
         plot(fig, filename=filename, auto_open=False)
