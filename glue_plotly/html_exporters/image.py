@@ -104,12 +104,14 @@ class PlotlyImage2DExport(Tool):
 
         # set the aspect ratio of the axes, the tick label size, the axis label
         # sizes, and the axes limits
+        using_colormaps = viewer_state.color_mode == 'Colormaps'
+        bg_color = [256, 256, 256, 1] if using_colormaps else [0, 0, 0, 1]
         layout_config = dict(
             margin=dict(r=50, l=50, b=50, t=50),  # noqa
             width=1200,
             height=1200 * height / width,  # scale axis correctly
             paper_bgcolor=settings.BACKGROUND_COLOR,
-            plot_bgcolor=settings.BACKGROUND_COLOR,
+            plot_bgcolor='rgba{0}'.format(tuple(bg_color)),
             showlegend=True
         )
 
@@ -191,7 +193,6 @@ class PlotlyImage2DExport(Tool):
             layout = go.Layout(**layout_config)
             fig = go.Figure(layout=layout)
 
-        using_colormaps = viewer_state.color_mode == 'Colormaps'
         has_nonpixel_subset = any(not isinstance(layer.layer.subset_state, PixelSubsetState)
                                   for layer in image_subset_layers)
         if has_nonpixel_subset:
@@ -258,10 +259,11 @@ class PlotlyImage2DExport(Tool):
             else:
                 rgb_color = to_rgb(color)
                 color_space = [[t * v for v in rgb_color] for t in mapped_space]
-                color_values = [tuple([int(256 * v) for v in p]) for p in color_space]
-                colorscale = [[0, 'rgb{0}'.format(color_values[0])]] + \
-                             [[t, 'rgb{0}'.format(c)] for t, c in zip(mapped_space, color_values)] + \
-                             [[1, 'rgb{0}'.format(color_values[-1])]]
+                color_values = [tuple([int(256 * v) for v in p] + [u * layer_state.alpha])
+                                for u, p in zip(unmapped_space, color_space)]
+                colorscale = [[0, 'rgba{0}'.format(color_values[0])]] + \
+                             [[t, 'rgba{0}'.format(c)] for t, c in zip(mapped_space, color_values)] + \
+                             [[1, 'rgba{0}'.format(color_values[-1])]]
 
             image_info = dict(
                 z=img,
@@ -271,11 +273,12 @@ class PlotlyImage2DExport(Tool):
                 yaxis='y',
                 zmin=mapped_bounds[0],
                 zmax=mapped_bounds[1],
-                opacity=layer_state.alpha,
                 name=layer_state.layer.label,
                 showscale=False,
                 showlegend=True
             )
+            if using_colormaps:
+                image_info.update(opacity=layer_state.alpha)
             layers_to_add.append([fig.add_heatmap, image_info])
 
         for layer in image_subset_layers:
@@ -427,8 +430,5 @@ class PlotlyImage2DExport(Tool):
 
         for func, data in layers_to_add:
             func(**data)
-
-        bg_color = [256, 256, 256, 1] if using_colormaps else [0, 0, 0, 1]
-        fig.update_layout(plot_bgcolor='rgba{0}'.format(tuple(bg_color)))
 
         plot(fig, include_mathjax='cdn', filename=filename, auto_open=False)
