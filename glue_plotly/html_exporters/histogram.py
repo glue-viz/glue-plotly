@@ -5,7 +5,7 @@ import numpy as np
 
 from qtpy import compat
 from glue.config import viewer_tool, settings
-from glue.core import DataCollection, Data, Subset
+from glue.core import Subset
 
 try:
     from glue.viewers.common.qt.tool import Tool
@@ -55,24 +55,6 @@ class PlotlyHistogram1DExport(Tool):
     tool_tip = 'Save Plotly HTML page'
 
     def activate(self):
-
-        # grab hover info
-        dc_hover = DataCollection()
-        for layer in self.viewer.layers:
-            layer_state = layer.state
-            if layer_state.visible and layer.enabled:
-                data = Data(label=layer_state.layer.label)
-                for component in layer_state.layer.components:
-                    data[component.label] = np.ones(10)
-                dc_hover.append(data)
-
-        checked_dictionary = {}
-
-        # figure out which hover info user wants to display
-        for layer in self.viewer.layers:
-            layer_state = layer.state
-            if layer_state.visible and layer.enabled:
-                checked_dictionary[layer_state.layer.label] = np.zeros((len(layer_state.layer.components))).astype(bool)
 
         filename, _ = compat.getsavefilename(parent=self.viewer, basedir="plot.html")
 
