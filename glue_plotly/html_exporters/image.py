@@ -418,7 +418,7 @@ class PlotlyImage2DExport(Tool):
 
         # This is a hack to force plotly to show the secondary axes, if there are any
         # We just put in a transparent heatmap assigned to whatever secondary axes exist
-        if secondary_x or secondary_x:
+        if secondary_x or secondary_y:
             secondary_info = dict(z=bg,
                                   colorscale=[[0, 'rgb(0,0,0)'], [1, 'rgb(0,0,0)']],
                                   hoverinfo='skip',
