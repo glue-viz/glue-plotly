@@ -206,9 +206,10 @@ class PlotlyImage2DExport(Tool):
         # This block of code adds an all-white heatmap as the bottom layer when using colormaps
         # to match what we see in glue
         axes = sorted([viewer_state.x_att.axis, viewer_state.y_att.axis])
-        shape = [viewer_state.reference_data.shape[i] for i in axes]
-        bg = np.ones(shape)
         if using_colormaps:
+            shape = [viewer_state.reference_data.shape[i] for i in axes]
+            bg = np.ones(shape)
+            legend_groups = defaultdict(int)
             bottom_color = (256, 256, 256)
             bottom_colorstring = 'rgb{0}'.format(bottom_color)
             bottom_info = dict(z=bg,
@@ -218,68 +219,64 @@ class PlotlyImage2DExport(Tool):
                                showscale=False)
 
             layers_to_add = [[fig.add_heatmap, bottom_info]]
-        else:
-            layers_to_add = []
 
-        legend_groups = defaultdict(int)
-        for i, layer in enumerate(image_layers):
+            for i, layer in enumerate(image_layers):
 
-            layer_state = layer.state
-            color = 'gray' if layer_state.color == '0.35' else layer_state.color
+                layer_state = layer.state
 
-            interval = ManualInterval(layer_state.v_min, layer_state.v_max)
-            contrast_bias = ContrastBiasStretch(layer_state.contrast, layer_state.bias)
-            array = layer.get_image_data
-            if callable(array):
-                array = array(bounds=None)
-            if array is None:
-                continue
+                interval = ManualInterval(layer_state.v_min, layer_state.v_max)
+                contrast_bias = ContrastBiasStretch(layer_state.contrast, layer_state.bias)
+                array = layer.get_image_data
+                if callable(array):
+                    array = array(bounds=None)
+                if array is None:
+                    continue
 
-            if np.isscalar(array):
-                array = np.atleast_2d(array)
+                if np.isscalar(array):
+                    array = np.atleast_2d(array)
 
-            img = STRETCHES[layer_state.stretch]()(contrast_bias(interval(array)))
-            img[np.isnan(img)] = 0
+                img = STRETCHES[layer_state.stretch]()(contrast_bias(interval(array)))
+                img[np.isnan(img)] = 0
 
-            if layer_state.v_min > layer_state.v_max:
-                cmap = layer_state.cmap.reversed()
-                bounds = [layer_state.v_max, layer_state.v_min]
-            else:
-                cmap = layer_state.cmap
-                bounds = [layer_state.v_min, layer_state.v_max]
-            mapped_bounds = STRETCHES[layer_state.stretch]()(contrast_bias(interval(bounds)))
-            unmapped_space = np.linspace(0, 1, 60)
-            mapped_space = np.linspace(mapped_bounds[0], mapped_bounds[1], 60)
-            if using_colormaps:
+                if layer_state.v_min > layer_state.v_max:
+                    cmap = layer_state.cmap.reversed()
+                    bounds = [layer_state.v_max, layer_state.v_min]
+                else:
+                    cmap = layer_state.cmap
+                    bounds = [layer_state.v_min, layer_state.v_max]
+                mapped_bounds = STRETCHES[layer_state.stretch]()(contrast_bias(interval(bounds)))
+                unmapped_space = np.linspace(0, 1, 60)
+                mapped_space = np.linspace(mapped_bounds[0], mapped_bounds[1], 60)
                 color_space = [cmap(b)[:3] for b in mapped_space]
                 color_values = [tuple(int(256 * v) for v in p) for p in color_space]
                 colorscale = [[0, 'rgb{0}'.format(color_values[0])]] + \
                              [[u, 'rgb{0}'.format(c)] for u, c in zip(unmapped_space, color_values)] + \
                              [[1, 'rgb{0}'.format(color_values[-1])]]
-            else:
-                rgb_color = to_rgb(color)
-                color_space = [[t * v for v in rgb_color] for t in mapped_space]
-                color_values = [tuple([int(256 * v) for v in p] + [u * layer_state.alpha])
-                                for u, p in zip(unmapped_space, color_space)]
-                colorscale = [[0, 'rgba{0}'.format(color_values[0])]] + \
-                             [[t, 'rgba{0}'.format(c)] for t, c in zip(mapped_space, color_values)] + \
-                             [[1, 'rgba{0}'.format(color_values[-1])]]
 
+                image_info = dict(
+                    z=img,
+                    colorscale=colorscale,
+                    hoverinfo='skip',
+                    xaxis='x',
+                    yaxis='y',
+                    zmin=mapped_bounds[0],
+                    zmax=mapped_bounds[1],
+                    name=layer_state.layer.label,
+                    showscale=False,
+                    showlegend=True,
+                    opacity=layer_state.alpha
+                )
+                layers_to_add.append([fig.add_heatmap, image_info])
+
+        else:
+            img = self.viewer.axes._composite()
+            img[:, :, :3] *= 256
             image_info = dict(
                 z=img,
-                colorscale=colorscale,
-                hoverinfo='skip',
-                xaxis='x',
-                yaxis='y',
-                zmin=mapped_bounds[0],
-                zmax=mapped_bounds[1],
-                name=layer_state.layer.label,
-                showscale=False,
-                showlegend=True
+                opacity=1,
+                hoverinfo='skip'
             )
-            if using_colormaps:
-                image_info.update(opacity=layer_state.alpha)
-            layers_to_add.append([fig.add_heatmap, image_info])
+            layers_to_add = [[fig.add_image, image_info]]
 
         for layer in image_subset_layers:
             layer_state = layer.state
