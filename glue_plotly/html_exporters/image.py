@@ -205,9 +205,9 @@ class PlotlyImage2DExport(Tool):
 
         # This block of code adds an all-white heatmap as the bottom layer when using colormaps
         # to match what we see in glue
-        axes = sorted([viewer_state.x_att.axis, viewer_state.y_att.axis])
         if using_colormaps:
-            shape = [viewer_state.reference_data.shape[i] for i in axes]
+            xy_axes = sorted([viewer_state.x_att.axis, viewer_state.y_att.axis])
+            shape = [viewer_state.reference_data.shape[i] for i in xy_axes]
             bg = np.ones(shape)
             legend_groups = defaultdict(int)
             bottom_color = (256, 256, 256)
@@ -248,7 +248,7 @@ class PlotlyImage2DExport(Tool):
                 unmapped_space = np.linspace(0, 1, 60)
                 mapped_space = np.linspace(mapped_bounds[0], mapped_bounds[1], 60)
                 color_space = [cmap(b)[:3] for b in mapped_space]
-                color_values = [tuple(int(256 * v) for v in p) for p in color_space]
+                color_values = [tuple(256 * v for v in p) for p in color_space]
                 colorscale = [[0, 'rgb{0}'.format(color_values[0])]] + \
                              [[u, 'rgb{0}'.format(c)] for u, c in zip(unmapped_space, color_values)] + \
                              [[1, 'rgb{0}'.format(color_values[-1])]]
@@ -276,6 +276,8 @@ class PlotlyImage2DExport(Tool):
                 opacity=1,
                 hoverinfo='skip'
             )
+            bg_color = img[0][0]
+            fig.update_layout(plot_bgcolor='rgba{0}'.format(tuple(bg_color)))
             layers_to_add = [[fig.add_image, image_info]]
 
         for layer in image_subset_layers:
@@ -319,7 +321,7 @@ class PlotlyImage2DExport(Tool):
 
                 # We use alpha = 0 for the bottom of the colorscale since we don't want
                 # anything outside the subset to contribute
-                colorscale = [[0, 'rgba(0,0,0,0)'], [1, 'rgb{0}'.format(tuple(int(256 * v) for v in rgb_color))]]
+                colorscale = [[0, 'rgba(0,0,0,0)'], [1, 'rgb{0}'.format(tuple(256 * v for v in rgb_color))]]
                 image_info = dict(
                     z=img,
                     colorscale=colorscale,
