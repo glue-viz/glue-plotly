@@ -26,14 +26,9 @@ jobs:
       coverage: codecov
       libraries: |
         apt:
+          - '^libxcb.*-dev'
           - libxkbcommon-x11-0
-          - libxcb-icccm4-dev
-          - libxcb-image0-dev
-          - libxcb-keysyms1-dev
-          - libxcb-randr0-dev
-          - libxcb-render-util0-dev
-          - libxcb-xinerama0-dev
-
+          - libegl1-mesa
       envs: |
         # Standard tests
         - linux: py37-test
@@ -48,7 +43,7 @@ jobs:
     needs: tests
     uses: OpenAstronomy/github-actions-workflows/.github/workflows/publish_pure_python.yml@v1
     with:
-      libraries: 'libxkbcommon-x11-dev libxcb-icccm4-dev libxcb-image0-dev libxcb-keysyms1-dev libxcb-randr0-dev libxcb-render-util0-dev libxcb-xinerama0-dev xvfb'
+      libraries: '^libxcb.*-dev libxkbcommon-x11-dev libgl1-mesa-glx xvfb'
       test_extras: 'test,qt'
       test_command: Xvfb :99 -screen 0 1024x768x24 > /dev/null 2>&1 & sleep 3; DISPLAY=:99.0 pytest --pyargs glue_plotly
     secrets:
