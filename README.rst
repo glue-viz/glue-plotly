@@ -1,3 +1,5 @@
+|Build Status| |Coverage Status|
+
 Experimental plot.ly plugin for glue
 ------------------------------------
 
