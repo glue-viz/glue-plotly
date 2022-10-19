@@ -1,7 +1,10 @@
-|Build Status| |Coverage Status|
+|Actions Status| |Coverage Status|
 
 Experimental plot.ly plugin for glue
 ------------------------------------
 
-.. image:: https://dev.azure.com/glue-viz/glue-plotly/_apis/build/status/glue-viz.glue-plotly?branchName=master
-   :target: https://dev.azure.com/glue-viz/glue-plotly/_build/results?buildId=27&view=logs
+.. |Actions Status| image:: https://github.com/glueviz/glue-plotly/workflows/CI/badge.svg
+    :target: https://github.com/glueviz/glue-plotly/actions
+    :alt: Glue's GitHub Actions CI Status
+.. |Coverage Status| image:: https://codecov.io/gh/glue-viz/glue-plotly/branch/master/graph/badge.svg
+   :target: https://codecov.io/gh/glue-viz/glue-plotly
