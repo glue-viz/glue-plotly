@@ -26,6 +26,9 @@ def setup():
         "save": ImageViewer.subtools["save"] + ['save:plotlyimage2d']
     }
 
+    from glue.viewers.histogram.qt import HistogramViewer
+    HistogramViewer.subtools['save'] = HistogramViewer.subtools['save'] + ['save:plotlyhist']
+
     try:
         from glue_vispy_viewers.scatter.scatter_viewer import VispyScatterViewer
     except ImportError:
