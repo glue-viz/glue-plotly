@@ -5,6 +5,7 @@ Experimental plot.ly plugin for glue
 
 .. |Actions Status| image:: https://github.com/glue-viz/glue-plotly/workflows/CI%20Workflows/badge.svg
     :target: https://github.com/glue-viz/glue-plotly/actions
-    :alt: Glue's GitHub Actions CI Status
+    :alt: Glue-plotly's GitHub Actions CI Status
 .. |Coverage Status| image:: https://codecov.io/gh/glue-viz/glue-plotly/branch/master/graph/badge.svg
-   :target: https://codecov.io/gh/glue-viz/glue-plotly
+    :target: https://codecov.io/gh/glue-viz/glue-plotly
+    :alt: Glue-plotly's Coverage Status
