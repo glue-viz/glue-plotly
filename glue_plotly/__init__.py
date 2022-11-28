@@ -8,6 +8,7 @@ except DistributionNotFound:
     pass
 
 PLOTLY_LOGO = os.path.abspath(os.path.join(os.path.dirname(__file__), 'logo.png'))
+PLOTLY_ERROR_MESSAGE = "An error occurred during the export to Plotly:"
 
 
 def setup():
