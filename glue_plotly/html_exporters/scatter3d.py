@@ -5,18 +5,20 @@ import matplotlib.colors as colors
 from matplotlib.colors import Normalize
 
 from qtpy import compat
-from glue.config import viewer_tool, settings
 
+from glue.config import viewer_tool, settings
 from glue.core import DataCollection, Data
 from glue.utils import ensure_numerical
+from glue.utils.qt import messagebox_on_error
+from glue.utils.qt.threading import Worker
 
 try:
     from glue.viewers.common.qt.tool import Tool
 except ImportError:
     from glue.viewers.common.tool import Tool
 
-from glue_plotly import PLOTLY_LOGO
-from .. import save_hover
+from glue_plotly import PLOTLY_ERROR_MESSAGE, PLOTLY_LOGO
+from .. import save_hover, export_dialog
 
 from plotly.offline import plot
 import plotly.graph_objs as go
@@ -33,40 +35,8 @@ class PlotlyScatter3DStaticExport(Tool):
     action_text = 'Save Plotly HTML page'
     tool_tip = 'Save Plotly HTML page'
 
-    def activate(self):
-
-        # grab hover info
-        dc_hover = DataCollection()
-
-        for layer in self.viewer.layers:
-            layer_state = layer.state
-            if layer_state.visible and layer.enabled:
-                data = Data(label=layer_state.layer.label)
-                for component in layer_state.layer.components:
-                    data[component.label] = np.ones(10)
-                dc_hover.append(data)
-
-        checked_dictionary = {}
-
-        # figure out which hover info user wants to display
-        for layer in self.viewer.layers:
-            layer_state = layer.state
-            if layer_state.visible and layer.enabled:
-                checked_dictionary[layer_state.layer.label] = np.zeros((len(layer_state.layer.components))).astype(bool)
-
-        dialog = save_hover.SaveHoverDialog(data_collection=dc_hover, checked_dictionary=checked_dictionary)
-        proceed = warn('Scatter 3d plotly may look different',
-                       'Plotly and Matlotlib graphics differ and your graph may look different when exported. Do you '
-                       'want to proceed?',
-                       default='Cancel', setting='SHOW_WARN_PLOTLY_3D_GRAPHICS_DIFFERENT')
-        if not proceed:
-            return
-
-        dialog.exec_()
-
-        # query filename
-        filename, _ = compat.getsavefilename(
-            parent=self.viewer, basedir="plot.html")
+    @messagebox_on_error(PLOTLY_ERROR_MESSAGE)
+    def _export_to_plotly(self, filename, checked_dictionary):
 
         # when vispy viewer is in "native aspect ratio" mode, scale axes size by data
         if self.viewer.state.native_aspect:
@@ -241,14 +211,14 @@ class PlotlyScatter3DStaticExport(Tool):
                 marker['line'] = dict(width=0)
 
                 # add hover info to layer
-                if np.sum(dialog.checked_dictionary[layer_state.layer.label]) == 0:
+                if np.sum(checked_dictionary[layer_state.layer.label]) == 0:
                     hoverinfo = 'skip'
                     hovertext = None
                 else:
                     hoverinfo = 'text'
                     hovertext = ["" for i in range((indices.shape[0]))]
                     for i in range(len(layer_state.layer.components)):
-                        if dialog.checked_dictionary[layer_state.layer.label][i]:
+                        if checked_dictionary[layer_state.layer.label][i]:
                             label = layer_state.layer.components[i].label
                             hover_data = layer_state.layer[label][indices]
                             for k in range(len(hover_data)):
@@ -337,3 +307,45 @@ class PlotlyScatter3DStaticExport(Tool):
                         fig.add_cone(**cone)
 
         plot(fig, filename=filename, auto_open=False)
+
+    def activate(self):
+
+        # grab hover info
+        dc_hover = DataCollection()
+
+        for layer in self.viewer.layers:
+            layer_state = layer.state
+            if layer_state.visible and layer.enabled:
+                data = Data(label=layer_state.layer.label)
+                for component in layer_state.layer.components:
+                    data[component.label] = np.ones(10)
+                dc_hover.append(data)
+
+        checked_dictionary = {}
+
+        # figure out which hover info user wants to display
+        for layer in self.viewer.layers:
+            layer_state = layer.state
+            if layer_state.visible and layer.enabled:
+                checked_dictionary[layer_state.layer.label] = np.zeros((len(layer_state.layer.components))).astype(bool)
+
+        proceed = warn('Scatter 3d plotly may look different',
+                       'Plotly and Matlotlib graphics differ and your graph may look different when exported. Do you '
+                       'want to proceed?',
+                       default='Cancel', setting='SHOW_WARN_PLOTLY_3D_GRAPHICS_DIFFERENT')
+        if not proceed:
+            return
+
+        dialog = save_hover.SaveHoverDialog(data_collection=dc_hover, checked_dictionary=checked_dictionary)
+        dialog.exec_()
+
+        # query filename
+        filename, _ = compat.getsavefilename(
+            parent=self.viewer, basedir="plot.html")
+
+        worker = Worker(self._export_to_plotly, filename, checked_dictionary)
+        exp_dialog = export_dialog.ExportDialog(parent=self.viewer)
+        worker.result.connect(exp_dialog.close)
+        worker.error.connect(exp_dialog.close)
+        worker.start()
+        exp_dialog.exec_()
