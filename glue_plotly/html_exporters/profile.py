@@ -112,7 +112,8 @@ class PlotlyProfileExport(Tool):
             if layer_state.visible and layer.enabled:
 
                 x, y = layer_state.profile
-                line = dict(width=layer_state.linewidth)
+                line = dict(width=2*layer_state.linewidth)
+                line['shape'] = 'hvh' if layer_state.as_steps else 'linear'
 
                 if layer_state.color != '0.35':
                     line['color'] = layer_state.color
