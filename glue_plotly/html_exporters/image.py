@@ -52,7 +52,7 @@ class PlotlyImage2DExport(Tool):
 
         # grab hover info
         layers = sorted([layer for layer in self.viewer.layers if layer.state.visible and layer.enabled],
-                        key=lambda l: l.zorder)
+                        key=lambda layer: layer.zorder)
         scatter_layers, image_layers, image_subset_layers = [], [], []
         for layer in layers:
             if isinstance(layer.state, ImageLayerState):
