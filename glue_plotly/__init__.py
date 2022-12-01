@@ -27,7 +27,16 @@ def setup():
     }
 
     from glue.viewers.histogram.qt import HistogramViewer
-    HistogramViewer.subtools['save'] = HistogramViewer.subtools['save'] + ['save:plotlyhist']
+    HistogramViewer.subtools = {
+        **HistogramViewer.subtools,
+        "save": HistogramViewer.subtools["save"] + ['save:plotlyhist']
+    }
+
+    from glue.viewers.profile.qt import ProfileViewer
+    ProfileViewer.subtools = {
+        **ProfileViewer.subtools,
+        "save": ProfileViewer.subtools["save"] + ['save:plotlyprofile']
+    }
 
     try:
         from glue_vispy_viewers.scatter.scatter_viewer import VispyScatterViewer
