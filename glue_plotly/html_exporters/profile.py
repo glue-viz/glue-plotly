@@ -112,6 +112,8 @@ class PlotlyProfileExport(Tool):
             if layer_state.visible and layer.enabled:
 
                 x, y = layer_state.profile
+                if self.viewer.state.normalize:
+                    y = layer_state.normalize_values(y)
                 line = dict(width=2*layer_state.linewidth)
                 line['shape'] = 'hvh' if layer_state.as_steps else 'linear'
 
