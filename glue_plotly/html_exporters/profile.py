@@ -22,7 +22,7 @@ DEFAULT_FONT = 'Arial, sans-serif'
 
 
 @viewer_tool
-class PlotlyProfileExport(Tool):
+class PlotlyProfile1DExport(Tool):
     icon = PLOTLY_LOGO
     tool_id = 'save:plotlyprofile'
     action_text = 'Save Plotly HTML page'
