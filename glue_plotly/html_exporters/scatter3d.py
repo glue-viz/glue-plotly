@@ -5,6 +5,7 @@ import matplotlib.colors as colors
 from matplotlib.colors import Normalize
 
 from qtpy import compat
+from qtpy.QtWidgets import QDialog
 
 from glue.config import viewer_tool, settings
 from glue.core import DataCollection, Data
@@ -337,11 +338,15 @@ class PlotlyScatter3DStaticExport(Tool):
             return
 
         dialog = save_hover.SaveHoverDialog(data_collection=dc_hover, checked_dictionary=checked_dictionary)
-        dialog.exec_()
+        result = dialog.exec_()
+        if result == QDialog.Rejected:
+            return
 
         # query filename
         filename, _ = compat.getsavefilename(
             parent=self.viewer, basedir="plot.html")
+        if not filename:
+            return
 
         worker = Worker(self._export_to_plotly, filename, checked_dictionary)
         exp_dialog = export_dialog.ExportDialog(parent=self.viewer)

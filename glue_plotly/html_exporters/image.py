@@ -7,6 +7,7 @@ import numpy as np
 from matplotlib.colors import rgb2hex, to_rgb, Normalize
 
 from qtpy import compat
+from qtpy.QtWidgets import QDialog
 
 from glue.config import viewer_tool, settings
 from glue.core import DataCollection, Data
@@ -423,9 +424,13 @@ class PlotlyImage2DExport(Tool):
                         bool)
 
             dialog = save_hover.SaveHoverDialog(data_collection=dc_hover, checked_dictionary=checked_dictionary)
-            dialog.exec_()
+            result = dialog.exec_()
+            if result == QDialog.Rejected:
+                return
 
         filename, _ = compat.getsavefilename(parent=self.viewer, basedir="plot.html")
+        if not filename:
+            return
 
         worker = Worker(self._export_to_plotly, filename, scatter_layers,
                         image_layers, image_subset_layers, checked_dictionary)

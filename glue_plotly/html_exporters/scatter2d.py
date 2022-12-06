@@ -5,6 +5,7 @@ import matplotlib.colors as colors
 from matplotlib.colors import Normalize
 
 from qtpy import compat
+from qtpy.QtWidgets import QDialog
 from glue.config import viewer_tool
 
 from glue.core import DataCollection, Data
@@ -57,9 +58,13 @@ class PlotlyScatter2DStaticExport(Tool):
                 checked_dictionary[layer_state.layer.label] = np.zeros((len(layer_state.layer.components))).astype(bool)
 
         dialog = save_hover.SaveHoverDialog(data_collection=dc_hover, checked_dictionary=checked_dictionary)
-        dialog.exec_()
+        result = dialog.exec_()
+        if result == QDialog.Rejected:
+            return
 
         filename, _ = compat.getsavefilename(parent=self.viewer, basedir="plot.html")
+        if not filename:
+            return
 
         width, height = self.viewer.figure.get_size_inches()*self.viewer.figure.dpi
 

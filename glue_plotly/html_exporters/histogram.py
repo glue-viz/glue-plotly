@@ -32,6 +32,8 @@ class PlotlyHistogram1DExport(Tool):
     @messagebox_on_error(PLOTLY_ERROR_MESSAGE)
     def activate(self):
         filename, _ = compat.getsavefilename(parent=self.viewer, basedir="plot.html")
+        if not filename:
+            return
 
         width, height = self.viewer.figure.get_size_inches() * self.viewer.figure.dpi
 
