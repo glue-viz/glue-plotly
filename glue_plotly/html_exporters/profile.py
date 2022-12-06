@@ -31,6 +31,8 @@ class PlotlyProfile1DExport(Tool):
     def activate(self):
 
         filename, _ = compat.getsavefilename(parent=self.viewer, basedir="plot.html")
+        if not filename:
+            return
 
         width, height = self.viewer.figure.get_size_inches() * self.viewer.figure.dpi
 
