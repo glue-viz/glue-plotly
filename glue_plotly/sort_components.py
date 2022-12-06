@@ -14,31 +14,31 @@ from glue.core.data_combo_helper import ComboHelper
 import numpy as np
 
 
-__all__ = ['MakeSortableDialog']
+__all__ = ['SortComponentsDialog']
 
 
-class MakeSortableState(State):
+class SortComponentsState(State):
 
     component = SelectionCallbackProperty()
 
     def __init__(self, components=component):
 
-        super(MakeSortableState, self).__init__()
+        super(SortComponentsState, self).__init__()
 
         self.component_helper = ComboHelper(self, 'component')
         self.component_helper.choices = components
 
 
-class MakeSortableDialog(QDialog):
+class SortComponentsDialog(QDialog):
 
     def __init__(self, components=None, parent=None):
 
-        super(MakeSortableDialog, self).__init__(parent=parent)
+        super(SortComponentsDialog, self).__init__(parent=parent)
 
-        self.ui = load_ui('make_sortable.ui', self,
+        self.ui = load_ui('sort_components.ui', self,
                           directory=os.path.dirname(__file__))
 
-        self.state = MakeSortableState(components=components)
+        self.state = SortComponentsState(components=components)
 
         self._connections = autoconnect_callbacks_to_qt(self, self.ui)
         self.sort_components = []
@@ -94,4 +94,4 @@ class MakeSortableDialog(QDialog):
             item = self.ui.list_component.item(idx)
             if item.checkState() == Qt.Checked:
                 self.sort_components.append(item.text())
-        super(MakeSortableDialog, self).accept()
+        super(SortComponentsDialog, self).accept()

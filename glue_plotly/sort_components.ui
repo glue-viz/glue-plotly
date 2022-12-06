@@ -6,7 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>428</width>
+    <width>409</width>
     <height>472</height>
    </rect>
   </property>
@@ -85,7 +85,7 @@
    <item row="0" column="0" colspan="5">
     <widget class="QLabel" name="label_3">
      <property name="text">
-      <string>Choose components you want to be sortable in the exported table</string>
+      <string>Choose components to be able to sort by in the exported table.</string>
      </property>
     </widget>
    </item>
@@ -117,6 +117,16 @@
     <widget class="QListWidget" name="list_component">
      <property name="alternatingRowColors">
       <bool>false</bool>
+     </property>
+    </widget>
+   </item>
+   <item row="1" column="1" colspan="3">
+    <widget class="QLabel" name="label">
+     <property name="text">
+      <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; color:#cc0000;&quot;&gt;For large data sets, adding sortable components may increase export time and the size of the exported HTML.&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+     </property>
+     <property name="wordWrap">
+      <bool>true</bool>
      </property>
     </widget>
    </item>

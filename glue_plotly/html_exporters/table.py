@@ -14,7 +14,7 @@ from plotly.offline import plot
 import plotly.graph_objs as go
 from pandas import DataFrame
 
-from .. import make_sortable
+from ..sort_components import SortComponentsDialog
 
 try:
     import dask.array as da
@@ -52,7 +52,7 @@ class PlotlyTableExport(Tool):
 
         components = model.columns
         column_names = [c.label for c in model.columns]
-        dialog = make_sortable.MakeSortableDialog(components=components)
+        dialog = SortComponentsDialog(components=components)
         result = dialog.exec_()
         if result == QDialog.Rejected:
             return
