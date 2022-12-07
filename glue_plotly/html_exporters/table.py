@@ -83,34 +83,35 @@ class PlotlyTableExport(Tool):
         table = go.Table(header=header, cells=dict(values=cells, fill_color=[colors]))
         fig = go.Figure(table)
 
-        buttons = []
-        df = DataFrame({c: data[i] for i, c in enumerate(column_names)})
-        for col in sort_components:
-            scores = df.sort_values(by=[col])
-            sort_colors = [colors[i] for i in scores.index]
-            button = dict(
-                label=col,
-                method="restyle",
-                args=[
-                    dict(
-                        cells=dict(
-                            values=[[str(x) for x in scores[c].values] for c in column_names],
-                            fill=dict(color=[sort_colors])
+        if len(sort_components) > 0:
+            buttons = []
+            df = DataFrame({c: data[i] for i, c in enumerate(column_names)})
+            for col in sort_components:
+                scores = df.sort_values(by=[col])
+                sort_colors = [colors[i] for i in scores.index]
+                button = dict(
+                    label=col,
+                    method="restyle",
+                    args=[
+                        dict(
+                            cells=dict(
+                                values=[[str(x) for x in scores[c].values] for c in column_names],
+                                fill=dict(color=[sort_colors])
+                            )
                         )
-                    )
-                ],
-            )
-            buttons.append(button)
-
-        fig.update_layout(
-            updatemenus=[
-                dict(
-                    buttons=buttons,
-                    direction='down',
-                    pad={"r": 10, "t": 10},
-                    showactive=True,
-                    y=1
+                    ],
                 )
-        ])
+                buttons.append(button)
+
+            fig.update_layout(
+                updatemenus=[
+                    dict(
+                        buttons=buttons,
+                        direction='down',
+                        pad={"r": 10, "t": 10},
+                        showactive=True,
+                        y=1
+                    )
+            ])
 
         plot(fig, filename=filename, auto_open=False)
