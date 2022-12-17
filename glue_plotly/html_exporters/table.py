@@ -1,4 +1,7 @@
+from math import floor
+
 from glue.config import viewer_tool
+from glue.core import BaseData
 
 try:
     from glue.viewers.common.qt.tool import Tool
@@ -81,10 +84,33 @@ class PlotlyTableExport(Tool):
             colors.append('rgba{0}'.format(color))
 
         table = go.Table(header=header, cells=dict(values=cells, fill_color=[colors]))
-        fig = go.Figure(table)
+        fig = go.Figure(data=table)
+
+        dx, dy = 0.2, 0.03
+        x0 = 0.1 if len(sort_components) > 0 else 0
+        y0 = 1.1
+        layers = [layer for layer in self.viewer.layers if layer.state.visible and
+                  not isinstance(layer.layer, BaseData)]
+        for i, layer in enumerate(layers):
+            layer_color = layer.layer.style.color
+            color = 'gray' if layer_color == '0.35' else layer_color
+            label = layer.layer.label + " ({0})".format(layer.layer.data.label)
+
+            x = x0 + dx * floor(i / 3)
+            y = y0 - dy * (i % 3)
+            fig.add_annotation(dict(text=label,
+                                    font=dict(color=color, size=14),
+                                    xanchor="left",
+                                    yanchor="top",
+                                    showarrow=False,
+                                    x=x, y=y))
 
         if len(sort_components) > 0:
-            buttons = []
+            buttons = [dict(
+                label="None",
+                method="restyle",
+                args=[dict(cells=dict(values=cells, fill=dict(color=[colors])))]
+            )]
             df = DataFrame({c: data[i] for i, c in enumerate(column_names)})
             for col in sort_components:
                 scores = df.sort_values(by=[col])
@@ -108,10 +134,12 @@ class PlotlyTableExport(Tool):
                     dict(
                         buttons=buttons,
                         direction='down',
-                        pad={"r": 10, "t": 10},
                         showactive=True,
-                        y=1
+                        x=0,
+                        xanchor="left",
+                        y=1.1,
+                        yanchor="top"
                     )
-            ])
+                ])
 
         plot(fig, filename=filename, auto_open=False)
