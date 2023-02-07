@@ -262,7 +262,7 @@ class PlotlyScatter2DStaticExport(Tool):
                     marker['line'] = dict(width=0)
 
                 # add vectors
-                if layer_state.vector_visible:
+                if layer_state.vector_visible and layer_state.vector_scaling > 0.1:
                     proceed = warn('Arrows may look different',
                                    'Plotly and Matlotlib vector graphics differ and your graph may look different '
                                    'when exported. Do you want to proceed?',
@@ -271,12 +271,23 @@ class PlotlyScatter2DStaticExport(Tool):
                         return
                     vx = layer_state.layer[layer_state.vx_att]
                     vy = layer_state.layer[layer_state.vy_att]
-                    scale = 0.1 * layer_state.vector_scaling
+                    if layer_state.vector_mode == 'Polar':
+                        theta, r = vx, vy
+                        theta = np.radians(theta)
+                        vx = r * np.cos(theta)
+                        vy = r * np.sin(theta)
+
+                    vmax = np.nanmax(np.hypot(vx, vy))
+                    # corner = np.nanmax(x), np.nanmax(y))
+                    diag = np.hypot(self.viewer.state.x_max-self.viewer.state.x_min,
+                                      self.viewer.state.y_max-self.viewer.state.y_min)
+                    scale = 15 * (layer_state.vector_scaling / width) * (diag / vmax)
                     angle = pi / 9 if layer_state.vector_arrowhead else 0
-                    arrow_scale = 0.4 if layer_state.vector_arrowhead else 0.001
-                    vector_info = dict(scale=0.25,
+                    arrow_scale = 0.2 if layer_state.vector_arrowhead else 0.00001
+                    vector_info = dict(scale=scale,
                                        angle=angle,
-                                       arrow_scale=arrow_scale,
+                                       name='quiver',
+                                       arrow_scale=0.00001,
                                        line=dict(width=5),
                                        showlegend=False, hoverinfo='skip')
                     x_vec, y_vec = self._adjusted_vector_points(layer_state.vector_origin, scale, x, y, vx, vy)
