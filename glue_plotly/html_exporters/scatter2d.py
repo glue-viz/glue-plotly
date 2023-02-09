@@ -278,18 +278,14 @@ class PlotlyScatter2DStaticExport(Tool):
                         vy = r * np.sin(theta)
 
                     vmax = np.nanmax(np.hypot(vx, vy))
-                    vxmax = abs(np.nanmax(vx))
-                    vymax = abs(np.nanmax(vy))
-                    # corner = np.nanmax(x), np.nanmax(y))
                     diag = np.hypot(self.viewer.state.x_max-self.viewer.state.x_min,
                                       self.viewer.state.y_max-self.viewer.state.y_min)
-                    scale = 0.1 * (layer_state.vector_scaling) * (diag / vmax)
-                    angle = pi / 9 if layer_state.vector_arrowhead else 0
+                    scale = 0.05 * (layer_state.vector_scaling) * (diag / vmax) * (width / self.viewer.width())
                     xrange = abs(self.viewer.state.x_max-self.viewer.state.x_min)
                     yrange = abs(self.viewer.state.y_max-self.viewer.state.y_min)
                     minfrac = min(xrange / diag, yrange / diag)
-                    arrow_scale = 0.3 * minfrac if layer_state.vector_arrowhead else 0
-                    print(arrow_scale)
+                    arrow_scale = 0.2
+                    angle = pi * minfrac / 3 if layer_state.vector_arrowhead else 0
                     vector_info = dict(scale=scale,
                                        angle=angle,
                                        name='quiver',
