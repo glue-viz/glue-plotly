@@ -82,6 +82,7 @@ class PlotlyScatter2DStaticExport(Tool):
 
         width, height = self.viewer.figure.get_size_inches() * self.viewer.figure.dpi
 
+        rectilinear = getattr(self.viewer.state, 'using_rectilinear', True)
         polar = getattr(self.viewer.state, 'using_polar', False)
         degrees = polar and self.viewer.state.using_degrees
 
@@ -262,7 +263,7 @@ class PlotlyScatter2DStaticExport(Tool):
                     marker['line'] = dict(width=0)
 
                 # add vectors
-                if layer_state.vector_visible and layer_state.vector_scaling > 0.1:
+                if layer_state.vector_visible and layer_state.vector_scaling > 0.1 and rectilinear:
                     proceed = warn('Arrows may look different',
                                    'Plotly and Matlotlib vector graphics differ and your graph may look different '
                                    'when exported. Do you want to proceed?',
@@ -345,44 +346,45 @@ class PlotlyScatter2DStaticExport(Tool):
                     mode = 'markers'
 
                 # add error bars
+                if rectilinear:
 
-                xerr = {}
-                if layer_state.xerr_visible:
-                    xerr['type'] = 'data'
-                    xerr['array'] = ensure_numerical(layer_state.layer[layer_state.xerr_att].ravel())
-                    xerr['visible'] = True
-                    # add points with error bars here if color mode is linear
-                    if layer_state.cmap_mode == 'Linear':
-                        for i, bar in enumerate(xerr['array']):
-                            fig.add_trace(go.Scatter(
-                                x=[x[i]],
-                                y=[y[i]],
-                                mode='markers',
-                                error_x=dict(
-                                    type='data', color=marker['color'][i],
-                                    array=[bar], visible=True),
-                                marker=dict(color=marker['color'][i]),
-                                showlegend=False)
-                            )
+                    xerr = {}
+                    if layer_state.xerr_visible:
+                        xerr['type'] = 'data'
+                        xerr['array'] = ensure_numerical(layer_state.layer[layer_state.xerr_att].ravel())
+                        xerr['visible'] = True
+                        # add points with error bars here if color mode is linear
+                        if layer_state.cmap_mode == 'Linear':
+                            for i, bar in enumerate(xerr['array']):
+                                fig.add_trace(go.Scatter(
+                                    x=[x[i]],
+                                    y=[y[i]],
+                                    mode='markers',
+                                    error_x=dict(
+                                        type='data', color=marker['color'][i],
+                                        array=[bar], visible=True),
+                                    marker=dict(color=marker['color'][i]),
+                                    showlegend=False)
+                                )
 
-                yerr = {}
-                if layer_state.yerr_visible:
-                    yerr['type'] = 'data'
-                    yerr['array'] = ensure_numerical(layer_state.layer[layer_state.yerr_att].ravel())
-                    yerr['visible'] = True
-                    # add points with error bars here if color mode is linear
-                    if layer_state.cmap_mode == 'Linear':
-                        for i, bar in enumerate(yerr['array']):
-                            fig.add_trace(go.Scatter(
-                                x=[x[i]],
-                                y=[y[i]],
-                                mode='markers',
-                                error_y=dict(
-                                    type='data', color=marker['color'][i],
-                                    array=[bar], visible=True),
-                                marker=dict(color=marker['color'][i]),
-                                showlegend=False)
-                            )
+                    yerr = {}
+                    if layer_state.yerr_visible:
+                        yerr['type'] = 'data'
+                        yerr['array'] = ensure_numerical(layer_state.layer[layer_state.yerr_att].ravel())
+                        yerr['visible'] = True
+                        # add points with error bars here if color mode is linear
+                        if layer_state.cmap_mode == 'Linear':
+                            for i, bar in enumerate(yerr['array']):
+                                fig.add_trace(go.Scatter(
+                                    x=[x[i]],
+                                    y=[y[i]],
+                                    mode='markers',
+                                    error_y=dict(
+                                        type='data', color=marker['color'][i],
+                                        array=[bar], visible=True),
+                                    marker=dict(color=marker['color'][i]),
+                                    showlegend=False)
+                                )
 
                 # set log
                 if self.viewer.state.x_log:
@@ -424,7 +426,7 @@ class PlotlyScatter2DStaticExport(Tool):
                 if polar:
                     scatter_info.update(theta=x, r=y, thetaunit=angle_unit)
                     fig.add_scatterpolar(**scatter_info)
-                elif proj == 'rectilinear':
+                elif rectilinear:
                     scatter_info.update(x=x, y=y)
                     # add error bars here if the color mode was fixed
                     if layer_state.cmap_mode == 'Fixed':
@@ -432,8 +434,8 @@ class PlotlyScatter2DStaticExport(Tool):
                     fig.add_scatter(**scatter_info)
                 else:
                     if not degrees:
-                        x = x * 180 / np.pi
-                        y = y * 180 / np.pi
+                        x = np.rad2deg(x)
+                        y = np.rad2deg(y)
                     fig.add_traces(data=go.Scattergeo(lon=x, lat=y))
                     fig.update_geos(projection_type=proj_type,
                                     showland=False, showcoastlines=False, showlakes=False,
