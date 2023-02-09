@@ -281,20 +281,14 @@ class PlotlyScatter2DStaticExport(Tool):
                     # corner = np.nanmax(x), np.nanmax(y))
                     diag = np.hypot(self.viewer.state.x_max-self.viewer.state.x_min,
                                       self.viewer.state.y_max-self.viewer.state.y_min)
-                    scale = 15 * (layer_state.vector_scaling / width) * (diag / vmax)
-                    angle = pi / 9 if layer_state.vector_arrowhead else 0
-                    arrow_scale = 0.2 if layer_state.vector_arrowhead else 0.00001
+                    scale = 0.1 * (layer_state.vector_scaling) * (diag / vmax)
                     vector_info = dict(scale=scale,
-                                       angle=angle,
+                                       angle=0,
                                        name='quiver',
                                        arrow_scale=0.00001,
                                        line=dict(width=5),
                                        showlegend=False, hoverinfo='skip')
                     x_vec, y_vec = self._adjusted_vector_points(layer_state.vector_origin, scale, x, y, vx, vy)
-                    print(layer_state.vector_origin)
-                    print(scale)
-                    for i in range(x.size):
-                        print(x[i], vx[i], x_vec[i])
                     if layer_state.cmap_mode == 'Fixed':
                         fig = ff.create_quiver(x_vec, y_vec, vx, vy, **vector_info)
                         fig.update_traces(marker=dict(color=layer_color))
