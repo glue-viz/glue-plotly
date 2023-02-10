@@ -33,6 +33,7 @@ DEFAULT_FONT = 'Arial, sans-serif'
 SHOW_PLOTLY_VECTORS_2D_DIFFERENT = 'SHOW_PLOTLY_2D_VECTORS_DIFFERENT'
 settings.add(SHOW_PLOTLY_VECTORS_2D_DIFFERENT, True)
 
+
 @viewer_tool
 class PlotlyScatter2DStaticExport(Tool):
     icon = PLOTLY_LOGO
@@ -47,7 +48,7 @@ class PlotlyScatter2DStaticExport(Tool):
             return x, y
         elif origin == 'middle':
             return x - 0.5 * vx, y - 0.5 * vy
-        else: # tip
+        else:  # tip
             return x - vx, y - vy
 
     @messagebox_on_error(PLOTLY_ERROR_MESSAGE)
@@ -280,7 +281,7 @@ class PlotlyScatter2DStaticExport(Tool):
 
                     vmax = np.nanmax(np.hypot(vx, vy))
                     diag = np.hypot(self.viewer.state.x_max-self.viewer.state.x_min,
-                                      self.viewer.state.y_max-self.viewer.state.y_min)
+                                    self.viewer.state.y_max-self.viewer.state.y_min)
                     scale = 0.05 * (layer_state.vector_scaling) * (diag / vmax) * (width / self.viewer.width())
                     xrange = abs(self.viewer.state.x_max-self.viewer.state.x_min)
                     yrange = abs(self.viewer.state.y_max-self.viewer.state.y_min)
