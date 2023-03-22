@@ -18,6 +18,7 @@ from glue.viewers.image.state import ImageLayerState, ImageSubsetLayerState
 from glue.viewers.scatter.state import ScatterLayerState
 
 from .. import save_hover
+from ..utils import cleaned_labels
 
 try:
     from glue.viewers.common.qt.tool import Tool
@@ -40,15 +41,6 @@ def slice_to_bound(slc, size):
     return min, max, n + 1
 
 
-def cleaned_labels(labels):
-    cleaned = [label.replace('\\mathregular', '\\mathrm') for label in labels]
-    for j in range(len(cleaned)):
-        label = cleaned[j]
-        if '$' in label:
-            cleaned[j] = '${0}$'.format(label.replace('$', ''))
-    return cleaned
-
-
 @viewer_tool
 class PlotlyImage2DExport(Tool):
     icon = PLOTLY_LOGO
@@ -60,7 +52,7 @@ class PlotlyImage2DExport(Tool):
 
         # grab hover info
         layers = sorted([layer for layer in self.viewer.layers if layer.state.visible and layer.enabled],
-                        key=lambda l: l.zorder)
+                        key=lambda layer: layer.zorder)
         scatter_layers, image_layers, image_subset_layers = [], [], []
         for layer in layers:
             if isinstance(layer.state, ImageLayerState):
