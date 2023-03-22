@@ -22,15 +22,17 @@ DEFAULT_FONT = 'Arial, sans-serif'
 
 
 @viewer_tool
-class PlotlyHistogram1DExport(Tool):
+class PlotlyProfile1DExport(Tool):
     icon = PLOTLY_LOGO
-    tool_id = 'save:plotlyhist'
+    tool_id = 'save:plotlyprofile'
     action_text = 'Save Plotly HTML page'
     tool_tip = 'Save Plotly HTML page'
 
     def activate(self):
 
         filename, _ = compat.getsavefilename(parent=self.viewer, basedir="plot.html")
+        if not filename:
+            return
 
         width, height = self.viewer.figure.get_size_inches() * self.viewer.figure.dpi
 
@@ -111,21 +113,16 @@ class PlotlyHistogram1DExport(Tool):
 
             if layer_state.visible and layer.enabled:
 
-                # The x values should be at the midpoints between successive pairs of edge values
-                edges, y = layer_state.histogram
-                x = [0.5 * (edges[i] + edges[i + 1]) for i in range(len(edges) - 1)]
+                x, y = layer_state.profile
+                if self.viewer.state.normalize:
+                    y = layer_state.normalize_values(y)
+                line = dict(width=2*layer_state.linewidth)
+                line['shape'] = 'hvh' if layer_state.as_steps else 'linear'
 
-                marker = {}
-
-                # set all bars to be the same color
                 if layer_state.color != '0.35':
-                    marker['color'] = layer_state.color
+                    line['color'] = layer_state.color
                 else:
-                    marker['color'] = 'gray'
-
-                # set the opacity and remove bar borders
-                marker['opacity'] = layer_state.alpha
-                marker['line'] = dict(width=0)
+                    line['color'] = 'gray'
 
                 # set log
                 if self.viewer.state.x_log:
@@ -141,23 +138,7 @@ class PlotlyHistogram1DExport(Tool):
                 if isinstance(layer.layer, Subset):
                     label += " ({0})".format(layer.layer.data.label)
 
-                hist_info = dict(hoverinfo="skip", marker=marker, name=label)
-                if self.viewer.state.x_log:
-                    for i in range(len(x)):
-                        hist_info.update(
-                            legendgroup=label,
-                            showlegend=i == 0,
-                            x=[x[i]],
-                            y=[y[i]],
-                            width=edges[i + 1] - edges[i],
-                        )
-                        fig.add_bar(**hist_info)
-                else:
-                    hist_info.update(
-                        x=x,
-                        y=y,
-                        width=edges[1] - edges[0],
-                    )
-                    fig.add_bar(**hist_info)
+                profile_info = dict(hoverinfo='skip', line=line, opacity=layer_state.alpha, name=label, x=x, y=y)
+                fig.add_scatter(**profile_info)
 
         plot(fig, include_mathjax='cdn', filename=filename, auto_open=False)

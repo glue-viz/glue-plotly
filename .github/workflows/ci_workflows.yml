@@ -1,4 +1,4 @@
-name: CI Workflows
+name: CI Tests
 
 on:
   push:
@@ -29,15 +29,18 @@ jobs:
           - '^libxcb.*-dev'
           - libxkbcommon-x11-0
           - libegl1-mesa
+          - libhdf5-dev
       envs: |
         # Standard tests
         - linux: py37-test
         - linux: py39-test
+        - linux: py311-test
 
         - macos: py37-test
         - macos: py310-test
 
         - windows: py38-test
+        - windows: py39-test
 
   publish:
     needs: tests

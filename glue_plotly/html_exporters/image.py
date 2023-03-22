@@ -18,6 +18,7 @@ from glue.viewers.image.state import ImageLayerState, ImageSubsetLayerState
 from glue.viewers.scatter.state import ScatterLayerState
 
 from .. import save_hover
+from ..utils import cleaned_labels
 
 try:
     from glue.viewers.common.qt.tool import Tool
@@ -38,15 +39,6 @@ def slice_to_bound(slc, size):
     n = (max - min - 1) // step
     max = min + step * n
     return min, max, n + 1
-
-
-def cleaned_labels(labels):
-    cleaned = [label.replace('\\mathregular', '\\mathrm') for label in labels]
-    for j in range(len(cleaned)):
-        label = cleaned[j]
-        if '$' in label:
-            cleaned[j] = '${0}$'.format(label.replace('$', ''))
-    return cleaned
 
 
 @viewer_tool
