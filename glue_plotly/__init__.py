@@ -38,6 +38,9 @@ def setup():
         "save": ProfileViewer.subtools["save"] + ['save:plotlyprofile']
     }
 
+    from glue.viewers.table.qt import TableViewer
+    TableViewer.tools += ['save:plotlytable']
+
     try:
         from glue_vispy_viewers.scatter.scatter_viewer import VispyScatterViewer
     except ImportError:
