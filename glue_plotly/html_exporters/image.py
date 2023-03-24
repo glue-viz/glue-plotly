@@ -7,25 +7,28 @@ import numpy as np
 from matplotlib.colors import rgb2hex, to_rgb, Normalize
 
 from qtpy import compat
-from glue.config import viewer_tool, settings
+from qtpy.QtWidgets import QDialog
 
+from glue.config import viewer_tool, settings
 from glue.core import DataCollection, Data
 from glue.core.exceptions import IncompatibleAttribute
 from glue.utils import ensure_numerical
+from glue.utils.qt import messagebox_on_error
+from glue.utils.qt.threading import Worker
 from glue.viewers.image.pixel_selection_subset_state import PixelSubsetState
 from glue.viewers.image.composite_array import STRETCHES
 from glue.viewers.image.state import ImageLayerState, ImageSubsetLayerState
 from glue.viewers.scatter.state import ScatterLayerState
 
-from .. import save_hover
 from ..utils import cleaned_labels
+from .. import save_hover, export_dialog
 
 try:
     from glue.viewers.common.qt.tool import Tool
 except ImportError:
     from glue.viewers.common.tool import Tool
 
-from glue_plotly import PLOTLY_LOGO
+from glue_plotly import PLOTLY_ERROR_MESSAGE, PLOTLY_LOGO
 
 import plotly.graph_objects as go
 from plotly.offline import plot
@@ -48,44 +51,8 @@ class PlotlyImage2DExport(Tool):
     action_text = 'Save Plotly HTML page'
     tool_tip = 'Save Plotly HTML page'
 
-    def activate(self):
-
-        # grab hover info
-        layers = sorted([layer for layer in self.viewer.layers if layer.state.visible and layer.enabled],
-                        key=lambda layer: layer.zorder)
-        scatter_layers, image_layers, image_subset_layers = [], [], []
-        for layer in layers:
-            if isinstance(layer.state, ImageLayerState):
-                image_layers.append(layer)
-            elif isinstance(layer.state, ImageSubsetLayerState):
-                image_subset_layers.append(layer)
-            elif isinstance(layer.state, ScatterLayerState):
-                scatter_layers.append(layer)
-
-        if len(scatter_layers) > 0:
-            dc_hover = DataCollection()
-            for layer in scatter_layers:
-                layer_state = layer.state
-                if layer_state.visible and layer.enabled:
-                    data = Data(label=layer_state.layer.label)
-                    for component in layer_state.layer.components:
-                        data[component.label] = np.ones(10)
-                    dc_hover.append(data)
-
-            checked_dictionary = {}
-
-            # figure out which hover info user wants to display
-            for layer in scatter_layers:
-                layer_state = layer.state
-                if layer_state.visible and layer.enabled:
-                    checked_dictionary[layer_state.layer.label] = np.zeros((len(layer_state.layer.components))).astype(
-                        bool)
-
-            dialog = save_hover.SaveHoverDialog(data_collection=dc_hover, checked_dictionary=checked_dictionary)
-            dialog.exec_()
-
-        filename, _ = compat.getsavefilename(parent=self.viewer, basedir="plot.html")
-
+    @messagebox_on_error(PLOTLY_ERROR_MESSAGE)
+    def _export_to_plotly(self, filename, scatter_layers, image_layers, image_subset_layers, checked_dictionary):
         width, height = self.viewer.figure.get_size_inches() * self.viewer.figure.dpi
 
         xmin, xmax = self.viewer.axes.get_xlim()
@@ -380,14 +347,14 @@ class PlotlyImage2DExport(Tool):
 
             # add hover info to layer
 
-            if np.sum(dialog.checked_dictionary[layer_state.layer.label]) == 0:
+            if np.sum(checked_dictionary[layer_state.layer.label]) == 0:
                 hoverinfo = 'skip'
                 hovertext = None
             else:
                 hoverinfo = 'text'
                 hovertext = ["" for _ in range((layer_state.layer.shape[0]))]
                 for i in range(0, len(layer_state.layer.components)):
-                    if dialog.checked_dictionary[layer_state.layer.label][i]:
+                    if checked_dictionary[layer_state.layer.label][i]:
                         hover_data = layer_state.layer[layer_state.layer.components[i].label]
                         for k in range(0, len(hover_data)):
                             hovertext[k] = (hovertext[k] + "{}: {} <br>"
@@ -419,7 +386,56 @@ class PlotlyImage2DExport(Tool):
                                   yaxis='y2' if secondary_y else 'y')
             layers_to_add.append([fig.add_heatmap, secondary_info])
 
-        for func, data in layers_to_add:
+        for index, (func, data) in enumerate(layers_to_add):
             func(**data)
 
         plot(fig, include_mathjax='cdn', filename=filename, auto_open=False)
+
+    def activate(self):
+
+        # grab hover info
+        layers = sorted([layer for layer in self.viewer.layers if layer.state.visible and layer.enabled],
+                        key=lambda layer: layer.zorder)
+        scatter_layers, image_layers, image_subset_layers = [], [], []
+        for layer in layers:
+            if isinstance(layer.state, ImageLayerState):
+                image_layers.append(layer)
+            elif isinstance(layer.state, ImageSubsetLayerState):
+                image_subset_layers.append(layer)
+            elif isinstance(layer.state, ScatterLayerState):
+                scatter_layers.append(layer)
+
+        checked_dictionary = {}
+        if len(scatter_layers) > 0:
+            dc_hover = DataCollection()
+            for layer in scatter_layers:
+                layer_state = layer.state
+                if layer_state.visible and layer.enabled:
+                    data = Data(label=layer_state.layer.label)
+                    for component in layer_state.layer.components:
+                        data[component.label] = np.ones(10)
+                    dc_hover.append(data)
+
+            # figure out which hover info user wants to display
+            for layer in scatter_layers:
+                layer_state = layer.state
+                if layer_state.visible and layer.enabled:
+                    checked_dictionary[layer_state.layer.label] = np.zeros((len(layer_state.layer.components))).astype(
+                        bool)
+
+            dialog = save_hover.SaveHoverDialog(data_collection=dc_hover, checked_dictionary=checked_dictionary)
+            result = dialog.exec_()
+            if result == QDialog.Rejected:
+                return
+
+        filename, _ = compat.getsavefilename(parent=self.viewer, basedir="plot.html")
+        if not filename:
+            return
+
+        worker = Worker(self._export_to_plotly, filename, scatter_layers,
+                        image_layers, image_subset_layers, checked_dictionary)
+        exp_dialog = export_dialog.ExportDialog(parent=self.viewer)
+        worker.result.connect(exp_dialog.close)
+        worker.error.connect(exp_dialog.close)
+        worker.start()
+        exp_dialog.exec_()
