@@ -3,8 +3,8 @@ from __future__ import absolute_import, division, print_function
 import numpy as np
 
 try:
-    from plotly import plotly
-except ImportError:
+    from chart_studio import plotly
+except ImportError as error:
     plotly = None
 
 from glue.core.layout import Rectangle, snap_to_grid
@@ -15,7 +15,7 @@ SYM = {'o': 'circle', 's': 'square', '+': 'cross', '^': 'triangle-up',
 
 
 def _sanitize(*arrs):
-    mask = np.ones(arrs[0].shape, dtype=np.bool)
+    mask = np.ones(arrs[0].shape, dtype=bool)
     for a in arrs:
         try:
             mask &= (~np.isnan(a))

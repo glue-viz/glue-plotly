@@ -72,7 +72,7 @@ class QtPlotlyExporter(QtWidgets.QDialog):
         # Find out stored credentials (note that this will create the
         # credentials file if it doesn't already exist)
 
-        from plotly import plotly
+        from chart_studio import plotly
 
         credentials = plotly.get_credentials()
         config_available = credentials['username'] != "" and credentials['api_key'] != ""
@@ -117,9 +117,9 @@ class QtPlotlyExporter(QtWidgets.QDialog):
                 auth['username'] = self.username
                 auth['api_key'] = self.api_key
 
-        from plotly import plotly
-        from plotly.exceptions import PlotlyError
-        from plotly.tools import set_credentials_file
+        from chart_studio import plotly
+        from chart_studio.exceptions import PlotlyError
+        from chart_studio.tools import set_credentials_file
 
         if self.ui.radio_sharing_public.isChecked():
             self.plotly_kwargs['sharing'] = 'public'
