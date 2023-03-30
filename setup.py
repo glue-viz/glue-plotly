@@ -12,4 +12,4 @@ except (ImportError, AssertionError):
     sys.stderr.write("ERROR: setuptools 30.3 or later is required by glue-plotly\n")
     sys.exit(1)
 
-setup()
+setup(use_scm_version=True, setup_requires=['setuptools_scm'])
