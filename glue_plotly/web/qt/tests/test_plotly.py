@@ -1,21 +1,20 @@
 from __future__ import absolute_import, division, print_function
 
+import pytest
 import numpy as np
 
 from glue.config import settings
 from glue.core import Data, DataCollection
 
-from glue.app.qt import GlueApplication
-from glue.tests.helpers import make_skipper
-from glue.viewers.scatter.qt import ScatterViewer
-from glue.viewers.histogram.qt import HistogramViewer
+pytest.importorskip('qtpy')
 
-from ...export_plotly import build_plotly_call
+from glue.app.qt import GlueApplication  # noqa: E402
+from glue.viewers.scatter.qt import ScatterViewer  # noqa: E402
+from glue.viewers.histogram.qt import HistogramViewer  # noqa: E402
 
-QTPY_INSTALLED, requires_qtpy = make_skipper("qtpy")
+from ...export_plotly import build_plotly_call  # noqa: E402
 
 
-@requires_qtpy
 class TestPlotly(object):
 
     def setup_method(self, method):
@@ -54,7 +53,7 @@ class TestPlotly(object):
         layout = args[0]['layout']
         assert layout['showlegend']
 
-        viewer.close()
+        viewer.close(warn=False)
 
     def test_scatter_subset(self):
 
@@ -75,7 +74,7 @@ class TestPlotly(object):
         assert data[0]['name'] == 'data'
         assert data[1]['name'] == 'subset'
 
-        viewer.close()
+        viewer.close(warn=False)
 
     def test_axes(self):
 
@@ -103,7 +102,7 @@ class TestPlotly(object):
         for k, v in layout['yaxis'].items():
             assert yaxis.get(k, v) == v
 
-        viewer.close()
+        viewer.close(warn=False)
 
     def test_histogram(self):
 
@@ -130,7 +129,7 @@ class TestPlotly(object):
             assert expected[k] == data[0][k]
         assert args[0]['layout']['barmode'] == 'overlay'
 
-        viewer.close()
+        viewer.close(warn=False)
 
     def test_scatter_categorical(self):
 
@@ -151,7 +150,7 @@ class TestPlotly(object):
         for k, v in layout['yaxis'].items():
             assert yaxis.get(k, v) == v
 
-        viewer.close()
+        viewer.close(warn=False)
 
     def test_histogram_categorical(self):
 
@@ -171,4 +170,4 @@ class TestPlotly(object):
         for k, v in layout['yaxis'].items():
             assert yaxis.get(k, v) == v
 
-        viewer.close()
+        viewer.close(warn=False)
