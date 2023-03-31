@@ -14,6 +14,8 @@ PLOTLY_ERROR_MESSAGE = "An error occurred during the export to Plotly:"
 def setup():
 
     from . import html_exporters  # noqa
+    from .web.qt import setup
+    setup()
 
     from glue.viewers.scatter.qt import ScatterViewer
     ScatterViewer.subtools = {
