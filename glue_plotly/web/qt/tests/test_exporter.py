@@ -5,14 +5,9 @@ import json
 import mock
 import pytest
 from mock import patch
+from chart_studio.plotly import plotly
+from plotly.exceptions import PlotlyError
 
-try:
-    import plotly
-    from plotly.exceptions import PlotlyError
-except ImportError:
-    plotly = None
-
-from glue.tests.helpers import requires_plotly
 from glue.core import Data, DataCollection
 from glue.app.qt import GlueApplication
 from glue.viewers.histogram.qt import HistogramViewer
@@ -52,8 +47,7 @@ def make_credentials_file(path, username='', api_key=''):
     plotly.files.FILE_CONTENT[path] = credentials
 
 
-@requires_plotly
-class TestQtPlotlyExporter():
+class TestQtPlotlyExporter:
 
     def setup_class(self):
 
@@ -83,7 +77,7 @@ class TestQtPlotlyExporter():
 
         make_credentials_file(credentials_file)
 
-        with patch('plotly.tools.CREDENTIALS_FILE', credentials_file):
+        with patch('chart_studio.plotly.plotly.tools.CREDENTIALS_FILE', credentials_file):
 
             exporter = self.get_exporter()
 
@@ -98,7 +92,7 @@ class TestQtPlotlyExporter():
 
         make_credentials_file(credentials_file, username='batman', api_key='batmobile')
 
-        with patch('plotly.tools.CREDENTIALS_FILE', credentials_file):
+        with patch('chart_studio.plotly.plotly.tools.CREDENTIALS_FILE', credentials_file):
 
             exporter = self.get_exporter()
 
@@ -112,7 +106,7 @@ class TestQtPlotlyExporter():
 
         make_credentials_file(credentials_file, username='batman', api_key='batmobile')
 
-        with patch('plotly.tools.CREDENTIALS_FILE', credentials_file):
+        with patch('chart_studio.plotly.plotly.tools.CREDENTIALS_FILE', credentials_file):
 
             exporter = self.get_exporter()
 
@@ -131,9 +125,9 @@ class TestQtPlotlyExporter():
 
         make_credentials_file(credentials_file, username='batman', api_key='batmobile')
 
-        with patch('plotly.tools.CREDENTIALS_FILE', credentials_file):
-            with patch('plotly.plotly.plot', mock.MagicMock()):
-                with patch('plotly.plotly.sign_in', mock.MagicMock()):
+        with patch('chart_studio.plotly.plotly.tools.CREDENTIALS_FILE', credentials_file):
+            with patch('chart_studio.plotly.plot', mock.MagicMock()):
+                with patch('chart_studio.plotly.sign_in', mock.MagicMock()):
                     with patch('webbrowser.open_new_tab'):
                         exporter = self.get_exporter()
                         exporter.accept()
@@ -157,9 +151,9 @@ class TestQtPlotlyExporter():
 
         sign_in = mock.MagicMock()
 
-        with patch('plotly.tools.CREDENTIALS_FILE', credentials_file):
-            with patch('plotly.plotly.sign_in', sign_in):
-                with patch('plotly.plotly.plot', plot):
+        with patch('chart_studio.plotly.plotly.tools.CREDENTIALS_FILE', credentials_file):
+            with patch('chart_studio.plotly.sign_in', sign_in):
+                with patch('chart_studio.plotly.plot', plot):
                     with patch('webbrowser.open_new_tab'):
                         exporter = self.get_exporter()
                         exporter.accept()
@@ -171,15 +165,16 @@ class TestQtPlotlyExporter():
 
         make_credentials_file(credentials_file, username='batman', api_key='batmobile')
 
-        plot = mock.MagicMock(return_value='https://plot.ly/~batman/6?share_key=rbkWvJQn6cyj3HMMGROiqI')
+        plot = mock.MagicMock(return_value='https://chart-studio.plotly.com/'
+                                           '~batman/6/?share_key=rbkWvJQn6cyj3HMMGROiqI#/')
 
         sign_in = mock.MagicMock()
 
-        with patch('plotly.tools.CREDENTIALS_FILE', credentials_file):
-            with patch('plotly.plotly.sign_in', sign_in):
-                with patch('plotly.plotly.plot', plot):
+        with patch('chart_studio.plotly.plotly.tools.CREDENTIALS_FILE', credentials_file):
+            with patch('chart_studio.plotly.sign_in', sign_in):
+                with patch('chart_studio.plotly.plot', plot):
                     with patch('webbrowser.open_new_tab') as open_new_tab:
                         exporter = self.get_exporter()
                         exporter.accept()
-                        assert open_new_tab.called_once_with(
-                            'https://plot.ly/~batman/6/?share_key=rbkWvJQn6cyj3HMMGROiqI')
+                        open_new_tab.assert_called_once_with(
+                            'https://chart-studio.plotly.com/~batman/6/?share_key=rbkWvJQn6cyj3HMMGROiqI#/')
