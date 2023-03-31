@@ -4,7 +4,7 @@ import numpy as np
 
 try:
     from chart_studio import plotly
-except ImportError as error:
+except ImportError:
     plotly = None
 
 from glue.core.layout import Rectangle, snap_to_grid
@@ -132,15 +132,15 @@ def export_scatter(viewer):
     for layer in viewer.layers:
         if not layer.visible:
             continue
-        l = layer.layer
-        xcat |= l.data.get_kind(xatt) == 'categorical'
-        ycat |= l.data.get_kind(yatt) == 'categorical'
+        data = layer.layer
+        xcat |= data.data.get_kind(xatt) == 'categorical'
+        ycat |= data.data.get_kind(yatt) == 'categorical'
 
-        marker = dict(symbol=SYM.get(l.style.marker, 'circle'),
-                      color=_color(l.style),
-                      size=l.style.markersize)
+        marker = dict(symbol=SYM.get(data.style.marker, 'circle'),
+                      color=_color(data.style),
+                      size=data.style.markersize)
 
-        x, y = l[xatt], l[yatt]
+        x, y = data[xatt], data[yatt]
         if isinstance(x, categorical_ndarray):
             x = x.codes
         if isinstance(y, categorical_ndarray):
@@ -152,7 +152,7 @@ def export_scatter(viewer):
                      type='scatter',
                      mode='markers',
                      marker=marker,
-                     name=l.label)
+                     name=data.label)
 
         traces.append(trace)
 

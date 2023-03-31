@@ -146,8 +146,7 @@ class QtPlotlyExporter(QtWidgets.QDialog):
             print('-' * 60)
             if ('the supplied API key doesn\'t match our records' in exc.args[0] or
                     'Sign in failed' in exc.args[0]):
-                username = auth['username'] or plotly.get_credentials()['username']
-                self.set_status("Authentication failed".format(username), color='red')
+                self.set_status("Authentication failed", color='red')
             elif "filled its quota of private files" in exc.args[0]:
                 self.set_status("Maximum number of private plots reached", color='red')
             elif "Accounts on the Community Plan cannot save private files" in exc.args[0]:

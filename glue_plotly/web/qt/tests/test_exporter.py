@@ -6,8 +6,11 @@ import mock
 import pytest
 from mock import patch
 
-plotly = pytest.importorskip('plotly')
-from plotly.exceptions import PlotlyError
+try:
+    import plotly
+    from plotly.exceptions import PlotlyError
+except ImportError:
+    plotly = None
 
 from glue.tests.helpers import requires_plotly
 from glue.core import Data, DataCollection
@@ -131,7 +134,7 @@ class TestQtPlotlyExporter():
         with patch('plotly.tools.CREDENTIALS_FILE', credentials_file):
             with patch('plotly.plotly.plot', mock.MagicMock()):
                 with patch('plotly.plotly.sign_in', mock.MagicMock()):
-                    with patch('webbrowser.open_new_tab') as open_new_tab:
+                    with patch('webbrowser.open_new_tab'):
                         exporter = self.get_exporter()
                         exporter.accept()
                         assert exporter.text_status.text() == 'Exporting succeeded'
@@ -178,4 +181,5 @@ class TestQtPlotlyExporter():
                     with patch('webbrowser.open_new_tab') as open_new_tab:
                         exporter = self.get_exporter()
                         exporter.accept()
-                        assert open_new_tab.called_once_with('https://plot.ly/~batman/6/?share_key=rbkWvJQn6cyj3HMMGROiqI')
+                        assert open_new_tab.called_once_with(
+                            'https://plot.ly/~batman/6/?share_key=rbkWvJQn6cyj3HMMGROiqI')

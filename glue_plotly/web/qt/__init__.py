@@ -2,7 +2,7 @@ def setup():
 
     from glue.config import exporters
     from glue_plotly.web.export_plotly import (can_save_plotly, DISPATCH,
-                                                             export_scatter, export_histogram)
+                                               export_scatter, export_histogram)
     from glue_plotly.web.qt.exporter import save_plotly
 
     from glue.viewers.scatter.qt import ScatterViewer

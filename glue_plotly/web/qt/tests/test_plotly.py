@@ -1,20 +1,21 @@
 from __future__ import absolute_import, division, print_function
 
-import pytest
 import numpy as np
 
 from glue.config import settings
 from glue.core import Data, DataCollection
 
-pytest.importorskip('qtpy')
-
 from glue.app.qt import GlueApplication
+from glue.tests.helpers import make_skipper
 from glue.viewers.scatter.qt import ScatterViewer
 from glue.viewers.histogram.qt import HistogramViewer
 
 from ...export_plotly import build_plotly_call
 
+QTPY_INSTALLED, requires_qtpy = make_skipper("qtpy")
 
+
+@requires_qtpy
 class TestPlotly(object):
 
     def setup_method(self, method):
