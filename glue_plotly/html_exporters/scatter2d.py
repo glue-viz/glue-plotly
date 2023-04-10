@@ -23,6 +23,7 @@ except ImportError:
 from glue.core.qt.dialogs import warn
 
 from glue_plotly import PLOTLY_ERROR_MESSAGE, PLOTLY_LOGO
+from glue_plotly.common.scatter2d import cartesian_layout_config, polar_layout_config
 
 from plotly.offline import plot
 import plotly.graph_objs as go
@@ -91,105 +92,10 @@ class PlotlyScatter2DStaticExport(Tool):
         proj = self.viewer.state.plot_mode
         proj_type = 'azimuthal equal area' if proj == 'lambert' else proj
 
-        # set the aspect ratio of the axes, the tick label size, the axis label
-        # sizes, and the axes limits
-        layout_config = dict(
-            margin=dict(r=50, l=50, b=50, t=50),  # noqa
-            width=1200,
-            height=1200 * height / width,  # scale axis correctly
-            paper_bgcolor=settings.BACKGROUND_COLOR,
-            plot_bgcolor=settings.BACKGROUND_COLOR
-        )
-
         if polar:
-            angle_unit = 'degrees' if degrees else 'radians'
-            theta_prefix = ''
-            if self.viewer.state.x_axislabel:
-                theta_prefix = '{0}='.format(self.viewer.state.x_axislabel)
-            angular_axis = dict(
-                type='linear',
-                thetaunit=angle_unit,
-                showticklabels=True,
-                showtickprefix='first',
-                tickprefix=theta_prefix,
-                tickfont=dict(
-                    family=DEFAULT_FONT,
-                    size=1.5 * self.viewer.axes.xaxis.get_ticklabels()[
-                        0].get_fontsize(),
-                    color=settings.FOREGROUND_COLOR),
-                linecolor=settings.FOREGROUND_COLOR,
-                gridcolor=settings.FOREGROUND_COLOR
-            )
-            radial_axis = dict(
-                type='linear',
-                range=[self.viewer.state.y_min, self.viewer.state.y_max],
-                showticklabels=True,
-                tickmode='array',
-                tickvals=self.viewer.axes.yaxis.get_majorticklocs(),
-                ticktext=['<i>{0}</i>'.format(t.get_text()) for t in self.viewer.axes.yaxis.get_majorticklabels()],
-                angle=22.5,
-                tickangle=22.5,
-                showline=False,
-                tickfont=dict(
-                    family=DEFAULT_FONT,
-                    size=1.5 * self.viewer.axes.yaxis.get_ticklabels()[
-                        0].get_fontsize(),
-                    color=settings.FOREGROUND_COLOR),
-                linecolor=settings.FOREGROUND_COLOR,
-                gridcolor=settings.FOREGROUND_COLOR
-            )
-            polar_layout = go.layout.Polar(angularaxis=angular_axis, radialaxis=radial_axis,
-                                           bgcolor=settings.BACKGROUND_COLOR)
-            layout_config.update(polar=polar_layout)
-
+            layout_config = polar_layout_config(self.viewer)
         else:
-            angle_unit = None
-            x_axis = dict(
-                title=self.viewer.axes.get_xlabel(),
-                titlefont=dict(
-                    family=DEFAULT_FONT,
-                    size=2 * self.viewer.axes.xaxis.get_label().get_size(),
-                    color=settings.FOREGROUND_COLOR
-                ),
-                showspikes=False,
-                linecolor=settings.FOREGROUND_COLOR,
-                tickcolor=settings.FOREGROUND_COLOR,
-                zeroline=False,
-                mirror=True,
-                ticks='outside',
-                showline=True,
-                showgrid=False,
-                showticklabels=True,
-                tickfont=dict(
-                    family=DEFAULT_FONT,
-                    size=1.5 * self.viewer.axes.xaxis.get_ticklabels()[
-                        0].get_fontsize(),
-                    color=settings.FOREGROUND_COLOR),
-                range=[self.viewer.state.x_min, self.viewer.state.x_max]
-            )
-            y_axis = dict(
-                title=self.viewer.axes.get_ylabel(),
-                titlefont=dict(
-                    family=DEFAULT_FONT,
-                    size=2 * self.viewer.axes.yaxis.get_label().get_size(),
-                    color=settings.FOREGROUND_COLOR),
-                showgrid=False,
-                showspikes=False,
-                linecolor=settings.FOREGROUND_COLOR,
-                tickcolor=settings.FOREGROUND_COLOR,
-                zeroline=False,
-                mirror=True,
-                ticks='outside',
-                showline=True,
-                range=[self.viewer.state.y_min, self.viewer.state.y_max],
-                showticklabels=True,
-                tickfont=dict(
-                    family=DEFAULT_FONT,
-                    size=1.5 * self.viewer.axes.yaxis.get_ticklabels()[
-                        0].get_fontsize(),
-                    color=settings.FOREGROUND_COLOR),
-            )
-            layout_config.update(xaxis=x_axis, yaxis=y_axis)
+            layout_config = cartesian_layout_config(self.viewer)
 
         layout = go.Layout(**layout_config)
 
@@ -387,18 +293,6 @@ class PlotlyScatter2DStaticExport(Tool):
                                     showlegend=False)
                                 )
 
-                # set log
-                if self.viewer.state.x_log:
-                    fig.update_xaxes(type='log', dtick=1, minor_ticks='outside',
-                                     range=[np.log10(self.viewer.state.x_min),
-                                            np.log10(self.viewer.state.x_max)]
-                                     )
-                if self.viewer.state.y_log:
-                    fig.update_yaxes(type='log', dtick=1, minor_ticks='outside',
-                                     range=[np.log10(self.viewer.state.y_min),
-                                            np.log10(self.viewer.state.y_max)]
-                                     )
-
                 # add hover info to layer
 
                 if np.sum(dialog.checked_dictionary[layer_state.layer.label]) == 0:
@@ -425,7 +319,7 @@ class PlotlyScatter2DStaticExport(Tool):
                     name=layer_state.layer.label
                 )
                 if polar:
-                    scatter_info.update(theta=x, r=y, thetaunit=angle_unit)
+                    scatter_info.update(theta=x, r=y, thetaunit='degrees' if degrees else 'radians')
                     fig.add_scatterpolar(**scatter_info)
                 elif rectilinear:
                     scatter_info.update(x=x, y=y)

@@ -10,19 +10,10 @@ except ImportError:
 from glue.core.layout import Rectangle, snap_to_grid
 from glue.utils import categorical_ndarray
 
+from glue_plotly.common import cartesian_axis, sanitize
+
 SYM = {'o': 'circle', 's': 'square', '+': 'cross', '^': 'triangle-up',
        '*': 'cross'}
-
-
-def _sanitize(*arrs):
-    mask = np.ones(arrs[0].shape, dtype=bool)
-    for a in arrs:
-        try:
-            mask &= (~np.isnan(a))
-        except TypeError:  # non-numeric dtype
-            pass
-
-    return tuple(a[mask].ravel() for a in arrs)
 
 
 def _position_plots(viewers, layout):
@@ -87,22 +78,6 @@ def _grid_2x23(layout):
         layout[k].update(**v)
 
 
-def _axis(log=False, lo=0, hi=1, title='', categorical=False):
-    if log:
-        if lo < 0:
-            lo = 1e-3
-        if hi < 0:
-            hi = 1e-3
-        lo = np.log10(lo)
-        hi = np.log10(hi)
-
-    result = dict(type='log' if log else 'linear',
-                  rangemode='normal',
-                  range=[lo, hi], title=title)
-
-    return result
-
-
 def _fix_legend_duplicates(traces, layout):
     """Prevent repeat entries in the legend"""
     seen = set()
@@ -146,7 +121,7 @@ def export_scatter(viewer):
         if isinstance(y, categorical_ndarray):
             y = y.codes
 
-        x, y = _sanitize(x, y)
+        x, y = sanitize(x, y)
 
         trace = dict(x=x, y=y,
                      type='scatter',
@@ -156,10 +131,8 @@ def export_scatter(viewer):
 
         traces.append(trace)
 
-    xaxis = _axis(log=viewer.state.x_log, lo=viewer.state.x_min, hi=viewer.state.x_max,
-                  title=viewer.state.x_att.label, categorical=xcat)
-    yaxis = _axis(log=viewer.state.y_log, lo=viewer.state.y_min, hi=viewer.state.y_max,
-                  title=viewer.state.y_att.label, categorical=ycat)
+    xaxis = cartesian_axis(viewer, 'x')
+    yaxis = cartesian_axis(viewer, 'y')
 
     return traces, xaxis, yaxis
 
@@ -174,7 +147,7 @@ def export_histogram(viewer):
         artist.wait()
         layer = artist.layer
         edges, hist = artist.state.histogram
-        x, y = _sanitize(edges[:-1], hist)
+        x, y = sanitize(edges[:-1], hist)
         trace = dict(
             name=layer.label,
             type='bar',
@@ -184,15 +157,8 @@ def export_histogram(viewer):
         traces.append(trace)
         ymax = max(ymax, hist.max())
 
-    xlabel = att.label
-    xmin, xmax = viewer.state.x_min, viewer.state.x_max
-    if viewer.state.x_log:
-        xlabel = 'Log ' + xlabel
-        xmin = np.log10(xmin)
-        xmax = np.log10(xmax)
-    xaxis = _axis(lo=xmin, hi=xmax, title=xlabel)
-    yaxis = _axis(log=viewer.state.y_log, lo=0 if not viewer.state.y_log else 1e-3,
-                  hi=ymax * 1.05)
+    xaxis = cartesian_axis(viewer, 'x')
+    yaxis = cartesian_axis(viewer, 'y')
 
     return traces, xaxis, yaxis
 
