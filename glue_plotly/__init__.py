@@ -13,6 +13,7 @@ PLOTLY_ERROR_MESSAGE = "An error occurred during the export to Plotly:"
 
 def setup():
 
+    from . import common
     from . import html_exporters  # noqa
     from .web.qt import setup
     setup()

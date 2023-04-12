@@ -10,7 +10,7 @@ except ImportError:
 from glue.core.layout import Rectangle, snap_to_grid
 from glue.utils import categorical_ndarray
 
-from glue_plotly.common import cartesian_axis, sanitize
+from glue_plotly.common import cartesian_axis, sanitize, scatter2d
 
 SYM = {'o': 'circle', 's': 'square', '+': 'cross', '^': 'triangle-up',
        '*': 'cross'}
@@ -101,35 +101,12 @@ def export_scatter(viewer):
     """Export a scatter viewer to a list of
     plotly-formatted data dictionaries"""
     traces = []
-    xatt, yatt = viewer.state.x_att, viewer.state.y_att
-    xcat = ycat = False
 
     for layer in viewer.layers:
         if not layer.visible:
             continue
-        data = layer.layer
-        xcat |= data.data.get_kind(xatt) == 'categorical'
-        ycat |= data.data.get_kind(yatt) == 'categorical'
 
-        marker = dict(symbol=SYM.get(data.style.marker, 'circle'),
-                      color=_color(data.style),
-                      size=data.style.markersize)
-
-        x, y = data[xatt], data[yatt]
-        if isinstance(x, categorical_ndarray):
-            x = x.codes
-        if isinstance(y, categorical_ndarray):
-            y = y.codes
-
-        x, y = sanitize(x, y)
-
-        trace = dict(x=x, y=y,
-                     type='scatter',
-                     mode='markers',
-                     marker=marker,
-                     name=data.label)
-
-        traces.append(trace)
+        traces += scatter2d.traces_for_layer(viewer, layer)
 
     xaxis = cartesian_axis(viewer, 'x')
     yaxis = cartesian_axis(viewer, 'y')
