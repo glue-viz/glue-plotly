@@ -60,7 +60,7 @@ def radial_axis(viewer):
     )
 
 
-def cartesian_layout_config(viewer):
+def rectilinear_layout_config(viewer):
     layout_config = base_layout_config(viewer)
     x_axis = cartesian_axis(viewer, 'x')
     y_axis = cartesian_axis(viewer, 'y')
@@ -78,7 +78,7 @@ def polar_layout_config(viewer):
     return layout_config
 
 
-def cartesian_lines(viewer, layer, marker, x, y, ):
+def rectilinear_lines(viewer, layer, marker, x, y, ):
     layer_state = layer.state
 
     line = dict(
@@ -115,7 +115,7 @@ def cartesian_lines(viewer, layer, marker, x, y, ):
     return line, mode, traces
 
 
-def cartesian_error_bars(layer, marker, x, y, axis='x'):
+def rectilinear_error_bars(layer, marker, x, y, axis='x'):
     err = {}
     traces = []
     err_att = getattr(layer.state, f'{axis}err_att')
@@ -151,7 +151,7 @@ def _adjusted_vector_points(origin, scale, x, y, vx, vy):
         return x - vx, y - vy
 
 
-def cartesian_2d_vectors(viewer, layer, marker, x, y):
+def rectilinear_2d_vectors(viewer, layer, marker, x, y):
     width, _ = dimensions(viewer)
     layer_state = layer.state
     vx = layer_state.layer[layer_state.vx_att]
@@ -240,22 +240,22 @@ def traces_for_layer(viewer, layer, hover_data=None):
 
     # add vectors
     if rectilinear and layer.state.vector_visible and layer.state.vector_scaling > 0.1:
-        vec_traces = cartesian_2d_vectors(viewer, layer, marker, x, y)
+        vec_traces = rectilinear_2d_vectors(viewer, layer, marker, x, y)
         traces += vec_traces
 
     # add line properties
     mode = "markers"
     line = {}
     if layer_state.line_visible:
-        line, mode, line_traces = cartesian_lines(viewer, layer, marker, x, y)
+        line, mode, line_traces = rectilinear_lines(viewer, layer, marker, x, y)
         traces += line_traces
 
     if rectilinear:
         if layer_state.xerr_visible:
-            xerr, xerr_traces = cartesian_error_bars(layer, marker, x, y, 'x')
+            xerr, xerr_traces = rectilinear_error_bars(layer, marker, x, y, 'x')
             traces += xerr_traces
         if layer_state.yerr_visible:
-            yerr, yerr_traces = cartesian_error_bars(layer, marker, x, y, 'y')
+            yerr, yerr_traces = rectilinear_error_bars(layer, marker, x, y, 'y')
             traces += yerr_traces
 
     if np.sum(hover_data) == 0:

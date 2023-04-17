@@ -23,7 +23,7 @@ except ImportError:
 from glue.core.qt.dialogs import warn
 
 from glue_plotly import PLOTLY_ERROR_MESSAGE, PLOTLY_LOGO
-from glue_plotly.common.scatter2d import cartesian_layout_config,\
+from glue_plotly.common.scatter2d import rectilinear_layout_config,\
     polar_layout_config, traces_for_layer
 
 from plotly.offline import plot
@@ -78,7 +78,7 @@ class PlotlyScatter2DStaticExport(Tool):
         if polar:
             layout_config = polar_layout_config(self.viewer)
         else:
-            layout_config = cartesian_layout_config(self.viewer)
+            layout_config = rectilinear_layout_config(self.viewer)
 
         if rectilinear:
             need_vectors = any(layer.state.vector_visible and layer.state.vector_scaling > 0.1
