@@ -82,7 +82,7 @@ def _fix_legend_duplicates(traces, layout):
     """Prevent repeat entries in the legend"""
     seen = set()
     for t in traces:
-        key = (t.get('name'), t.get('marker', {}).get('color'))
+        key = (t.name, t.marker.symbol, t.marker.color)
         if key in seen:
             t['showlegend'] = False
         else:
