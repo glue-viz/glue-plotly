@@ -1,9 +1,10 @@
-from matplotlib.colors import Normalize, rgb2hex
+from matplotlib.colors import Normalize
 import numpy as np
 
 from glue.config import settings
 
 DEFAULT_FONT = 'Arial, sans-serif'
+
 
 def dimensions(viewer):
     return viewer.figure.get_size_inches() * viewer.figure.dpi
@@ -92,13 +93,13 @@ def rgb_colors(layer, mask=None):
             vmin=layer_state.cmap_vmin, vmax=layer_state.cmap_vmax)
 
     color_values = layer_state.layer[layer_state.cmap_att].copy()
+    if mask is not None:
+        color_values = color_values[mask]
     rgba_list = np.array([
         cmap(norm(point)) for point in color_values])
-    if mask is not None:
-        rgba_list = rgba_list[mask]
-    rgb_strs = [r'{}'.format(rgb2hex(
-        (rgba[0], rgba[1], rgba[2]))) for rgba in rgba_list]
-    return rgb_strs
+    rgba_list = [[int(256 * t) for t in rgba] for rgba in rgba_list]
+    rgba_strs = [f'rgba({r},{g},{b},{a})' for r, g, b, a in rgba_list]
+    return rgba_strs
 
 
 def color_info(layer, mask=None):
