@@ -1,2 +1,2 @@
-from .common import *
-from . import scatter2d
+from .common import *  # noqa
+from . import scatter2d  # noqa
