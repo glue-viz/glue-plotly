@@ -1,3 +1,5 @@
+from uuid import uuid4
+
 import numpy as np
 import plotly.graph_objs as go
 import plotly.figure_factory as ff
@@ -78,7 +80,7 @@ def polar_layout_config(viewer):
     return layout_config
 
 
-def rectilinear_lines(viewer, layer, marker, x, y, ):
+def rectilinear_lines(viewer, layer, marker, x, y, legend_group=None):
     layer_state = layer.state
 
     line = dict(
@@ -104,6 +106,7 @@ def rectilinear_lines(viewer, layer, marker, x, y, ):
                 x=[segments[i][0][0], segments[i][1][0]],
                 y=[segments[i][0][1], segments[i][1][1]],
                 mode='lines',
+                legendgroup=legend_group,
                 line=dict(
                     dash=LINESTYLES[layer_state.linestyle],
                     width=layer_state.linewidth,
@@ -115,7 +118,7 @@ def rectilinear_lines(viewer, layer, marker, x, y, ):
     return line, mode, traces
 
 
-def rectilinear_error_bars(layer, marker, mask, x, y, axis):
+def rectilinear_error_bars(layer, marker, mask, x, y, axis, legend_group=None):
     err = {}
     traces = []
     err_att = getattr(layer.state, f'{axis}err_att')
@@ -132,6 +135,7 @@ def rectilinear_error_bars(layer, marker, mask, x, y, axis):
                 mode='markers',
                 marker=dict(color=marker['color'][i]),
                 showlegend=False,
+                legendgroup=legend_group,
                 hoverinfo='skip',
                 hovertext=None
             )
@@ -154,7 +158,7 @@ def _adjusted_vector_points(origin, scale, x, y, vx, vy):
         return x - vx, y - vy
 
 
-def rectilinear_2d_vectors(viewer, layer, marker, mask, x, y):
+def rectilinear_2d_vectors(viewer, layer, marker, mask, x, y, legend_group=None):
     width, _ = dimensions(viewer)
     layer_state = layer.state
     vx = layer_state.layer[layer_state.vx_att][mask]
@@ -179,6 +183,7 @@ def rectilinear_2d_vectors(viewer, layer, marker, mask, x, y):
                        name='quiver',
                        arrow_scale=arrow_scale,
                        line=dict(width=5),
+                       legendgroup=legend_group,
                        showlegend=False, hoverinfo='skip')
     x_vec, y_vec = _adjusted_vector_points(layer_state.vector_origin, scale, x, y, vx, vy)
     if layer_state.cmap_mode == 'Fixed':
@@ -208,6 +213,8 @@ def traces_for_layer(viewer, layer, hover_data=None):
     x = layer_state.layer[viewer.state.x_att].copy()
     y = layer_state.layer[viewer.state.y_att].copy()
     mask, (x, y) = sanitize(x, y)
+
+    legend_group = uuid4().hex
 
     rectilinear = getattr(viewer.state, 'using_rectilinear', True)
 
@@ -243,22 +250,22 @@ def traces_for_layer(viewer, layer, hover_data=None):
 
     # add vectors
     if rectilinear and layer.state.vector_visible and layer.state.vector_scaling > 0.1:
-        vec_traces = rectilinear_2d_vectors(viewer, layer, marker, mask, x, y)
+        vec_traces = rectilinear_2d_vectors(viewer, layer, marker, mask, x, y, legend_group)
         traces += vec_traces
 
     # add line properties
     mode = "markers"
     line = {}
     if layer_state.line_visible:
-        line, mode, line_traces = rectilinear_lines(viewer, layer, marker, x, y)
+        line, mode, line_traces = rectilinear_lines(viewer, layer, marker, x, y, legend_group)
         traces += line_traces
 
     if rectilinear:
         if layer_state.xerr_visible:
-            xerr, xerr_traces = rectilinear_error_bars(layer, marker, mask, x, y, 'x')
+            xerr, xerr_traces = rectilinear_error_bars(layer, marker, mask, x, y, 'x', legend_group)
             traces += xerr_traces
         if layer_state.yerr_visible:
-            yerr, yerr_traces = rectilinear_error_bars(layer, marker, mask, x, y, 'y')
+            yerr, yerr_traces = rectilinear_error_bars(layer, marker, mask, x, y, 'y', legend_group)
             traces += yerr_traces
 
     if np.sum(hover_data) == 0:
@@ -282,7 +289,8 @@ def traces_for_layer(viewer, layer, hover_data=None):
         line=line,
         hoverinfo=hoverinfo,
         hovertext=hovertext,
-        name=layer_state.layer.label
+        name=layer_state.layer.label,
+        legendgroup=legend_group
     )
 
     polar = getattr(viewer.state, 'using_polar', False)
