@@ -7,6 +7,7 @@ import traceback
 import webbrowser
 
 from qtpy import QtWidgets
+from glue.config import settings
 from glue.utils import nonpartial
 from glue.utils.qt import load_ui, process_events
 from glue.utils.qt.widget_properties import TextProperty, ButtonProperty
@@ -135,6 +136,10 @@ class QtPlotlyExporter(QtWidgets.QDialog):
         # Get title and legend preferences from the window
         self.plotly_args[0]['layout']['showlegend'] = self.legend
         self.plotly_args[0]['layout']['title'] = self.title
+
+        # Get background color from settings
+        self.plotly_args[0]['layout']['paper_bgcolor'] = settings.BACKGROUND_COLOR
+        self.plotly_args[0]['layout']['plot_bgcolor'] = settings.BACKGROUND_COLOR
 
         try:
             plotly.sign_in(auth['username'], auth['api_key'])
