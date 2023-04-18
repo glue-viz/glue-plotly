@@ -1,14 +1,11 @@
 from __future__ import absolute_import, division, print_function
 
-import numpy as np
-
 try:
     from chart_studio import plotly
 except ImportError:
     plotly = None
 
 from glue.core.layout import Rectangle, snap_to_grid
-from glue.utils import categorical_ndarray
 
 from glue_plotly.common import cartesian_axis, sanitize, scatter2d
 
@@ -160,8 +157,7 @@ def build_plotly_call(app):
             if ct > 1:
                 yaxis['anchor'] = 'x' + suffix
                 for item in p:
-                    item['xaxis'] = 'x' + suffix
-                    item['yaxis'] = 'y' + suffix
+                    item.update(xaxis='x' + suffix, yaxis='y' + suffix)
             ct += 1
             args.extend(p)
 
