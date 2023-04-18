@@ -7,7 +7,7 @@ from glue.utils import ensure_numerical
 from glue.viewers.scatter.layer_artist import plot_colored_line
 
 from .common import DEFAULT_FONT, base_layout_config,\
-    cartesian_axis, color_info, dimensions, sanitize
+    rectilinear_axis, color_info, dimensions, sanitize
 
 LINESTYLES = {'solid': 'solid', 'dotted': 'dot', 'dashed': 'dash', 'dashdot': 'dashdot'}
 
@@ -62,8 +62,8 @@ def radial_axis(viewer):
 
 def rectilinear_layout_config(viewer):
     layout_config = base_layout_config(viewer)
-    x_axis = cartesian_axis(viewer, 'x')
-    y_axis = cartesian_axis(viewer, 'y')
+    x_axis = rectilinear_axis(viewer, 'x')
+    y_axis = rectilinear_axis(viewer, 'y')
     layout_config.update(xaxis=x_axis, yaxis=y_axis)
     return layout_config
 
@@ -131,11 +131,13 @@ def rectilinear_error_bars(layer, marker, mask, x, y, axis):
                 y=[y[i]],
                 mode='markers',
                 marker=dict(color=marker['color'][i]),
-                showlegend=False
+                showlegend=False,
+                hoverinfo='skip',
+                hovertext=None
             )
             scatter_info[f'error_{axis}'] = dict(
                 type='data', color=marker['color'][i],
-                array=[bar], visible=True),
+                array=[bar], visible=True)
             traces.append(go.Scatter(**scatter_info))
 
     return err, traces
@@ -209,7 +211,7 @@ def traces_for_layer(viewer, layer, hover_data=None):
 
     rectilinear = getattr(viewer.state, 'using_rectilinear', True)
 
-    marker = dict(color=color_info(layer),
+    marker = dict(color=color_info(layer, mask),
                   opacity=layer_state.alpha)
 
     # set all points to be the same size, with some arbitrary scaling
@@ -273,6 +275,7 @@ def traces_for_layer(viewer, layer, hover_data=None):
                                     .format(layer_state.layer.components[i].label,
                                             hover_values[k]))
 
+    # The <extra></extra> removes 'trace <#>' from tooltip
     scatter_info = dict(
         mode=mode,
         marker=marker,

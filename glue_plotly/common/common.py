@@ -25,7 +25,7 @@ def base_layout_config(viewer, **kwargs):
     return config
 
 
-def cartesian_axis(viewer, axis='x'):
+def rectilinear_axis(viewer, axis='x'):
     title = getattr(viewer.axes, f'get_{axis}label')()
     ax = getattr(viewer.axes, f'{axis}axis')
     range = [getattr(viewer.state, f'{axis}_min'), getattr(viewer.state, f'{axis}_max')]
@@ -80,7 +80,7 @@ def fixed_color(layer):
     return layer_color
 
 
-def rgb_colors(layer):
+def rgb_colors(layer, mask=None):
     layer_state = layer.state
     if layer_state.cmap_vmin > layer_state.cmap_vmax:
         cmap = layer_state.cmap.reversed()
@@ -91,15 +91,18 @@ def rgb_colors(layer):
         norm = Normalize(
             vmin=layer_state.cmap_vmin, vmax=layer_state.cmap_vmax)
 
-    rgba_list = [
-        cmap(norm(point)) for point in layer_state.layer[layer_state.cmap_att].copy()]
+    color_values = layer_state.layer[layer_state.cmap_att].copy()
+    rgba_list = np.array([
+        cmap(norm(point)) for point in color_values])
+    if mask is not None:
+        rgba_list = rgba_list[mask]
     rgb_strs = [r'{}'.format(rgb2hex(
         (rgba[0], rgba[1], rgba[2]))) for rgba in rgba_list]
     return rgb_strs
 
 
-def color_info(layer):
+def color_info(layer, mask=None):
     if layer.state.cmap_mode == "Fixed":
         return fixed_color(layer)
     else:
-        return rgb_colors(layer)
+        return rgb_colors(layer, mask)
