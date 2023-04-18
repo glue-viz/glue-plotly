@@ -115,27 +115,28 @@ def rectilinear_lines(viewer, layer, marker, x, y, ):
     return line, mode, traces
 
 
-def rectilinear_error_bars(layer, marker, x, y, axis='x'):
+def rectilinear_error_bars(layer, marker, mask, x, y, axis):
     err = {}
     traces = []
     err_att = getattr(layer.state, f'{axis}err_att')
     err['type'] = 'data'
-    err['array'] = ensure_numerical(layer.state.layer[err_att].ravel())
+    err['array'] = ensure_numerical(layer.state.layer[err_att][mask].ravel())
     err['visible'] = True
 
     # add points with error bars here if color mode is linear
     if layer.state.cmap_mode == 'Linear':
         for i, bar in enumerate(err['array']):
-            traces.append(go.Scatter(
+            scatter_info = dict(
                 x=[x[i]],
                 y=[y[i]],
                 mode='markers',
-                error_x=dict(
-                    type='data', color=marker['color'][i],
-                    array=[bar], visible=True),
                 marker=dict(color=marker['color'][i]),
-                showlegend=False)
+                showlegend=False
             )
+            scatter_info[f'error_{axis}'] = dict(
+                type='data', color=marker['color'][i],
+                array=[bar], visible=True),
+            traces.append(go.Scatter(**scatter_info))
 
     return err, traces
 
@@ -151,11 +152,11 @@ def _adjusted_vector_points(origin, scale, x, y, vx, vy):
         return x - vx, y - vy
 
 
-def rectilinear_2d_vectors(viewer, layer, marker, x, y):
+def rectilinear_2d_vectors(viewer, layer, marker, mask, x, y):
     width, _ = dimensions(viewer)
     layer_state = layer.state
-    vx = layer_state.layer[layer_state.vx_att]
-    vy = layer_state.layer[layer_state.vy_att]
+    vx = layer_state.layer[layer_state.vx_att][mask]
+    vy = layer_state.layer[layer_state.vy_att][mask]
     if layer_state.vector_mode == 'Polar':
         theta, r = vx, vy
         theta = np.radians(theta)
@@ -204,7 +205,7 @@ def traces_for_layer(viewer, layer, hover_data=None):
 
     x = layer_state.layer[viewer.state.x_att].copy()
     y = layer_state.layer[viewer.state.y_att].copy()
-    x, y = sanitize(x, y)
+    mask, (x, y) = sanitize(x, y)
 
     rectilinear = getattr(viewer.state, 'using_rectilinear', True)
 
@@ -240,7 +241,7 @@ def traces_for_layer(viewer, layer, hover_data=None):
 
     # add vectors
     if rectilinear and layer.state.vector_visible and layer.state.vector_scaling > 0.1:
-        vec_traces = rectilinear_2d_vectors(viewer, layer, marker, x, y)
+        vec_traces = rectilinear_2d_vectors(viewer, layer, marker, mask, x, y)
         traces += vec_traces
 
     # add line properties
@@ -252,10 +253,10 @@ def traces_for_layer(viewer, layer, hover_data=None):
 
     if rectilinear:
         if layer_state.xerr_visible:
-            xerr, xerr_traces = rectilinear_error_bars(layer, marker, x, y, 'x')
+            xerr, xerr_traces = rectilinear_error_bars(layer, marker, mask, x, y, 'x')
             traces += xerr_traces
         if layer_state.yerr_visible:
-            yerr, yerr_traces = rectilinear_error_bars(layer, marker, x, y, 'y')
+            yerr, yerr_traces = rectilinear_error_bars(layer, marker, mask, x, y, 'y')
             traces += yerr_traces
 
     if np.sum(hover_data) == 0:

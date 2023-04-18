@@ -103,10 +103,8 @@ def export_scatter(viewer):
     traces = []
 
     for layer in viewer.layers:
-        if not layer.visible:
-            continue
-
-        traces += scatter2d.traces_for_layer(viewer, layer)
+        if layer.enabled and layer.visible:
+            traces += scatter2d.traces_for_layer(viewer, layer)
 
     xaxis = cartesian_axis(viewer, 'x')
     yaxis = cartesian_axis(viewer, 'y')
@@ -116,10 +114,9 @@ def export_scatter(viewer):
 
 def export_histogram(viewer):
     traces = []
-    att = viewer.state.x_att
     ymax = 1e-3
     for artist in viewer.layers:
-        if not artist.visible:
+        if not (artist.enabled and artist.visible):
             continue
         artist.wait()
         layer = artist.layer

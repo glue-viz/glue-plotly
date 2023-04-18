@@ -95,7 +95,7 @@ class PlotlyScatter2DStaticExport(Tool):
         fig = go.Figure(layout=layout)
 
         for layer in self.viewer.layers:
-            if layer.state.visible:
+            if layer.enabled and layer.visible:
                 traces = traces_for_layer(self.viewer, layer, checked_dictionary[layer.state.layer.label])
                 for trace in traces:
                     fig.add_trace(trace)

@@ -70,7 +70,7 @@ def sanitize(*arrays):
         except TypeError:  # non-numeric dtype
             pass
 
-    return tuple(a[mask].ravel() for a in arrays)
+    return mask, tuple(a[mask].ravel() for a in arrays)
 
 
 def fixed_color(layer):
