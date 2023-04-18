@@ -5,6 +5,7 @@ import plotly.graph_objs as go
 import plotly.figure_factory as ff
 
 from glue.config import settings
+from glue.core import BaseData
 from glue.utils import ensure_numerical
 from glue.viewers.scatter.layer_artist import plot_colored_line
 
@@ -282,6 +283,10 @@ def traces_for_layer(viewer, layer, hover_data=None):
                                     .format(layer_state.layer.components[i].label,
                                             hover_values[k]))
 
+    name = layer.layer.label
+    if not isinstance(layer.layer, BaseData):
+        name += " ({0})".format(layer.layer.data.label)
+
     # The <extra></extra> removes 'trace <#>' from tooltip
     scatter_info = dict(
         mode=mode,
@@ -289,7 +294,7 @@ def traces_for_layer(viewer, layer, hover_data=None):
         line=line,
         hoverinfo=hoverinfo,
         hovertext=hovertext,
-        name=layer_state.layer.label,
+        name=name,
         legendgroup=legend_group
     )
 
