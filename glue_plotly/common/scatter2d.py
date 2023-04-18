@@ -204,7 +204,7 @@ def rectilinear_2d_vectors(viewer, layer, marker, mask, x, y, legend_group=None)
     return list(fig.data)
 
 
-def traces_for_layer(viewer, layer, hover_data=None):
+def traces_for_layer(viewer, layer, hover_data=None, add_data_label=True):
     traces = []
     if hover_data is None:
         hover_data = []
@@ -284,7 +284,7 @@ def traces_for_layer(viewer, layer, hover_data=None):
                                             hover_values[k]))
 
     name = layer.layer.label
-    if not isinstance(layer.layer, BaseData):
+    if add_data_label and not isinstance(layer.layer, BaseData):
         name += " ({0})".format(layer.layer.data.label)
 
     # The <extra></extra> removes 'trace <#>' from tooltip

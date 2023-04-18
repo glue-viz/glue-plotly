@@ -2,12 +2,24 @@ from matplotlib.colors import Normalize
 import numpy as np
 
 from glue.config import settings
+from glue.core import BaseData
 
 DEFAULT_FONT = 'Arial, sans-serif'
 
 
 def dimensions(viewer):
     return viewer.figure.get_size_inches() * viewer.figure.dpi
+
+
+def layers_to_export(viewer):
+    return list(filter(lambda artist: artist.enabled and artist.visible, viewer.layers))
+
+
+# Count the number of unique Data objects (either directly or as parents of subsets)
+# used in the set of layers
+def data_count(layers):
+    data = set(d if isinstance(d := layer.layer, BaseData) else d.data for layer in layers)
+    return len(data)
 
 
 def base_layout_config(viewer, **kwargs):

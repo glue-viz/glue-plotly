@@ -1,18 +1,13 @@
 from __future__ import absolute_import, division, print_function
 
-from math import pi
 import numpy as np
-import matplotlib.colors as colors
-from matplotlib.colors import Normalize
 
 from qtpy import compat
 from qtpy.QtWidgets import QDialog
 
 from glue.config import viewer_tool, settings
 from glue.core import DataCollection, Data
-from glue.utils import ensure_numerical
 from glue.utils.qt import messagebox_on_error
-from glue.viewers.scatter.layer_artist import plot_colored_line
 
 from .. import save_hover
 
@@ -23,6 +18,7 @@ except ImportError:
 from glue.core.qt.dialogs import warn
 
 from glue_plotly import PLOTLY_ERROR_MESSAGE, PLOTLY_LOGO
+from glue_plotly.common import data_count, layers_to_export
 from glue_plotly.common.scatter2d import rectilinear_layout_config,\
     polar_layout_config, traces_for_layer
 
@@ -94,10 +90,14 @@ class PlotlyScatter2DStaticExport(Tool):
         layout = go.Layout(**layout_config)
         fig = go.Figure(layout=layout)
 
-        for layer in self.viewer.layers:
-            if layer.enabled and layer.visible:
-                traces = traces_for_layer(self.viewer, layer, checked_dictionary[layer.state.layer.label])
-                for trace in traces:
-                    fig.add_trace(trace)
+        layers = layers_to_export(self.viewer)
+        add_data_label = data_count(layers) > 1
+        for layer in layers:
+            traces = traces_for_layer(self.viewer,
+                                      layer,
+                                      hover_data=checked_dictionary[layer.state.layer.label],
+                                      add_data_label=add_data_label)
+            for trace in traces:
+                fig.add_trace(trace)
 
         plot(fig, filename=filename, auto_open=False)

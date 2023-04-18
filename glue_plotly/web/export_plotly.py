@@ -7,7 +7,7 @@ except ImportError:
 
 from glue.core.layout import Rectangle, snap_to_grid
 
-from glue_plotly.common import rectilinear_axis, sanitize, scatter2d
+from glue_plotly.common import data_count, layers_to_export, rectilinear_axis, sanitize, scatter2d
 
 SYM = {'o': 'circle', 's': 'square', '+': 'cross', '^': 'triangle-up',
        '*': 'cross'}
@@ -99,9 +99,10 @@ def export_scatter(viewer):
     plotly-formatted data dictionaries"""
     traces = []
 
-    for layer in viewer.layers:
-        if layer.enabled and layer.visible:
-            traces += scatter2d.traces_for_layer(viewer, layer)
+    layers = layers_to_export(viewer)
+    add_data_label = data_count(layers) > 1
+    for layer in layers:
+        traces += scatter2d.traces_for_layer(viewer, layer, add_data_label=add_data_label)
 
     xaxis = rectilinear_axis(viewer, 'x')
     yaxis = rectilinear_axis(viewer, 'y')
