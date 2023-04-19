@@ -39,11 +39,12 @@ class TestPlotly(object):
         viewer.state.y_att = d.id['x']
 
         args, kwargs = build_plotly_call(self.app)
-        data = args[0]['data'][0]
+        data = args[0]['data'][0].to_plotly_json()
 
         expected = dict(type='scatter', mode='markers', name=d.label,
-                        marker=dict(size=6, color='rgba(255, 0, 0, 0.4)',
-                                    symbol='circle'))
+                        marker=dict(size=12, opacity=0.4,
+                                    color="#ff0000",
+                                    line=dict(width=0)))
         for k, v in expected.items():
             assert data[k] == v
 
@@ -161,9 +162,9 @@ class TestPlotly(object):
         args, kwargs = build_plotly_call(self.app)
 
         xaxis = dict(type='linear', rangemode='normal',
-                     range=[-0.5, 2.5], title='z', zeroline=False)
+                     range=[-0.5, 2.5], title=viewer.state.x_axislabel, zeroline=False)
         yaxis = dict(type='linear', rangemode='normal',
-                     range=[0, 1.05], title='', zeroline=False)
+                     range=[0, 1.2], title=viewer.state.y_axislabel, zeroline=False)
         layout = args[0]['layout']
         for k, v in layout['xaxis'].items():
             assert xaxis.get(k, v) == v
