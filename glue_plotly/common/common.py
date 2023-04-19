@@ -18,7 +18,7 @@ def layers_to_export(viewer):
 # Count the number of unique Data objects (either directly or as parents of subsets)
 # used in the set of layers
 def data_count(layers):
-    data = set(d if isinstance(d := layer.layer, BaseData) else d.data for layer in layers)
+    data = set(layer.layer if isinstance(layer.layer, BaseData) else layer.layer.data for layer in layers)
     return len(data)
 
 
