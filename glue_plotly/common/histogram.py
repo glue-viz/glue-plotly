@@ -7,11 +7,12 @@ from glue_plotly.common import base_layout_config, fixed_color, rectilinear_axis
 from glue_plotly.utils import ticks_values
 
 
-def axis(viewer, ax):
+def axis(viewer, ax, glue_ticks=True):
     a = rectilinear_axis(viewer, ax)
-    vals, text = ticks_values(viewer.axes, ax)
-    if vals and text:
-        a.update(tickmode='array', tickvals=vals, ticktext=text)
+    if glue_ticks:
+        vals, text = ticks_values(viewer.axes, ax)
+        if vals and text:
+            a.update(tickmode='array', tickvals=vals, ticktext=text)
     return a
 
 

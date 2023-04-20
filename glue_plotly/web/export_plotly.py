@@ -117,8 +117,10 @@ def export_histogram(viewer):
     for layer in layers:
         traces += histogram.traces_for_layer(viewer, layer, add_data_label=add_data_label)
 
-    xaxis = histogram.axis(viewer, 'x')
-    yaxis = histogram.axis(viewer, 'y')
+    # For now, set glue_ticks to False
+    # TODO: Can we use MathJax (or some other LaTeX formatting) inside Chart Studio?
+    xaxis = histogram.axis(viewer, 'x', glue_ticks=False)
+    yaxis = histogram.axis(viewer, 'y', glue_ticks=False)
 
     return traces, xaxis, yaxis
 
