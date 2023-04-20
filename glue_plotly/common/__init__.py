@@ -1,2 +1,3 @@
 from .common import *  # noqa
+from . import histogram  # noqa
 from . import scatter2d  # noqa
