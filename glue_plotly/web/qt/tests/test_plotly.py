@@ -3,7 +3,6 @@ from __future__ import absolute_import, division, print_function
 import pytest
 import numpy as np
 
-from glue.config import settings
 from glue.core import Data, DataCollection
 
 pytest.importorskip('qtpy')
