@@ -38,7 +38,7 @@ def base_layout_config(viewer, **kwargs):
     return config
 
 
-def rectilinear_axis(viewer, axis='x'):
+def rectilinear_axis(viewer, axis):
     title = getattr(viewer.axes, f'get_{axis}label')()
     ax = getattr(viewer.axes, f'{axis}axis')
     range = [getattr(viewer.state, f'{axis}_min'), getattr(viewer.state, f'{axis}_max')]

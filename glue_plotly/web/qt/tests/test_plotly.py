@@ -122,13 +122,19 @@ class TestPlotly(object):
             name='data',
             type='bar',
             marker=dict(
-                color='rgba(0, 0, 0, {0:0.1f})'.format(float(settings.DATA_ALPHA))
+                color='#000000',
+                opacity=0.8,
+                line=dict(width=0)
             ),
         )
         data = args[0]['data']
+        trace_data = data[0].to_plotly_json()
         for k in expected:
-            assert expected[k] == data[0][k]
-        assert args[0]['layout']['barmode'] == 'overlay'
+            assert expected[k] == trace_data[k]
+
+        layout = args[0]['layout']
+        assert layout['barmode'] == 'overlay'
+        assert layout['bargap'] == 0
 
         viewer.close(warn=False)
 
