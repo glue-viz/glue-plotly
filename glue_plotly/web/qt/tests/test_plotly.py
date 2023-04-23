@@ -3,24 +3,47 @@ from __future__ import absolute_import, division, print_function
 import pytest
 import numpy as np
 
-from glue.core import Data, DataCollection
+from glue.core import Coordinates, Data, DataCollection
 
 pytest.importorskip('qtpy')
 
 from glue.app.qt import GlueApplication  # noqa: E402
 from glue.viewers.scatter.qt import ScatterViewer  # noqa: E402
 from glue.viewers.histogram.qt import HistogramViewer  # noqa: E402
+from glue.viewers.profile.qt import ProfileViewer  # noqa: E402
 
 from ...export_plotly import build_plotly_call  # noqa: E402
+
+
+class SimpleCoordinates(Coordinates):
+
+    def __init__(self):
+        super().__init__(pixel_n_dim=3, world_n_dim=3)
+
+    def pixel_to_world_values(self, *args):
+        return tuple([2.0 * p for p in args])
+
+    def world_to_pixel_values(self, *args):
+        return tuple([0.5 * w for w in args])
+
+    @property
+    def axis_correlation_matrix(self):
+        matrix = np.zeros((self.world_n_dim, self.pixel_n_dim), dtype=bool)
+        matrix[2, 2] = True
+        matrix[0:2, 0:2] = True
+        return matrix
 
 
 class TestPlotly(object):
 
     def setup_method(self, method):
         d = Data(x=[1, 2, 3], y=[2, 3, 4], z=['a', 'b', 'c'], label='data')
-        dc = DataCollection([d])
+        pd = Data(label='profile', w=np.arange(24).reshape((3, 4, 2)).astype(float))
+        pd.coords = SimpleCoordinates()
+        dc = DataCollection([d, pd])
         self.app = GlueApplication(dc)
         self.data = d
+        self.profile_data = pd
 
     def teardown_method(self, method):
         self.app.close()
@@ -125,6 +148,38 @@ class TestPlotly(object):
                 opacity=0.8,
                 line=dict(width=0)
             ),
+        )
+        data = args[0]['data']
+        trace_data = data[0].to_plotly_json()
+        for k in expected:
+            assert expected[k] == trace_data[k]
+
+        layout = args[0]['layout']
+        assert layout['barmode'] == 'overlay'
+        assert layout['bargap'] == 0
+
+        viewer.close(warn=False)
+
+    def test_profile(self):
+
+        d = self.profile_data
+        d.style.color = '#000000'
+
+        viewer = self.app.new_data_viewer(ProfileViewer, data=d)
+        viewer.state.reference_data = d
+
+        args, kwargs = build_plotly_call(self.app)
+
+        expected = dict(
+            name='profile',
+            type='scatter',
+            opacity=0.8,
+            hoverinfo='skip',
+            line=dict(
+                width=2,
+                shape='hvh',
+                color='#000000'
+            )
         )
         data = args[0]['data']
         trace_data = data[0].to_plotly_json()
