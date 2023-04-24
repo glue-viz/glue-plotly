@@ -7,7 +7,8 @@ except ImportError:
 
 from glue.core.layout import Rectangle, snap_to_grid
 
-from glue_plotly.common import data_count, histogram, layers_to_export, rectilinear_axis, scatter2d
+from glue_plotly.common import histogram, profile, scatter2d, \
+    data_count, layers_to_export, rectilinear_axis
 
 SYM = {'o': 'circle', 's': 'square', '+': 'cross', '^': 'triangle-up',
        '*': 'cross'}
@@ -121,6 +122,21 @@ def export_histogram(viewer):
     # TODO: Can we use MathJax (or some other LaTeX formatting) inside Chart Studio?
     xaxis = histogram.axis(viewer, 'x', glue_ticks=False)
     yaxis = histogram.axis(viewer, 'y', glue_ticks=False)
+
+    return traces, xaxis, yaxis
+
+
+def export_profile(viewer):
+    traces = []
+    layers = layers_to_export(viewer)
+    add_data_label = data_count(layers) > 1
+    for layer in layers:
+        traces += profile.traces_for_layer(viewer, layer, add_data_label=add_data_label)
+
+    # For now, set glue_ticks to False
+    # TODO: Can we use MathJax (or some other LaTeX formatting) inside Chart Studio?
+    xaxis = profile.axis(viewer, 'x', glue_ticks=False)
+    yaxis = profile.axis(viewer, 'y', glue_ticks=False)
 
     return traces, xaxis, yaxis
 

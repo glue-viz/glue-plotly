@@ -37,7 +37,7 @@ class PlotlyHistogram1DExport(Tool):
         fig = go.Figure(layout=layout)
 
         layers = layers_to_export(self.viewer)
-        add_data_label = data_count(layers) > 0
+        add_data_label = data_count(layers) > 1
         for layer in layers:
             traces = traces_for_layer(self.viewer, layer, add_data_label=add_data_label)
             for trace in traces:
