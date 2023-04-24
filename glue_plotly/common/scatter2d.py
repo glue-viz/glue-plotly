@@ -281,14 +281,14 @@ def traces_for_layer(viewer, layer, hover_data=None, add_data_label=True):
         hovertext = None
     else:
         hoverinfo = 'text'
-        hovertext = ["" for _ in range((layer_state.layer.shape[0]))]
-        for i in range(0, len(layer_state.layer.components)):
+        hovertext = ["" for _ in range((mask.shape[0]))]
+        for i in range(len(layer_state.layer.components)):
             if hover_data[i]:
-                hover_values = layer_state.layer[layer_state.layer.components[i].label][mask]
-                for k in range(0, len(hover_values)):
+                label = layer_state.layer.components[i].label
+                hover_values = layer_state.layer[label][mask]
+                for k in range(len(hover_values)):
                     hovertext[k] = (hovertext[k] + "{}: {} <br>"
-                                    .format(layer_state.layer.components[i].label,
-                                            hover_values[k]))
+                                    .format(label, hover_values[k]))
 
     name = layer.layer.label
     if add_data_label and not isinstance(layer.layer, BaseData):
