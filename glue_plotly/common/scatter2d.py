@@ -15,7 +15,8 @@ from .common import DEFAULT_FONT, base_layout_config,\
 LINESTYLES = {'solid': 'solid', 'dotted': 'dot', 'dashed': 'dash', 'dashdot': 'dashdot'}
 
 
-def projection_type(proj):
+def projection_type(viewer):
+    proj = viewer.state.plot_mode
     return 'azimuthal equal area' if proj == 'lambert' else proj
 
 
@@ -204,6 +205,28 @@ def rectilinear_2d_vectors(viewer, layer, marker, mask, x, y, legend_group=None)
     return list(fig.data)
 
 
+def size_info(layer, mask):
+    state = layer.state
+
+    # set all points to be the same size, with some arbitrary scaling
+    if state.size_mode == 'Fixed':
+        return 2 * state.size_scaling * state.size
+
+    # scale size of points by set size scaling
+    else:
+        s = ensure_numerical(state.layer[state.size_att][mask].ravel())
+        s = ((s - state.size_vmin) /
+             (state.size_vmax - state.size_vmin))
+        # The following ensures that the sizes are in the
+        # range 3 to 30 before the final size scaling.
+        np.clip(s, 0, 1, out=s)
+        s *= 0.95
+        s += 0.05
+        s *= (45 * state.size_scaling)
+        s[np.isnan(s)] = 0
+        return s
+
+
 def traces_for_layer(viewer, layer, hover_data=None, add_data_label=True):
     traces = []
     if hover_data is None:
@@ -220,24 +243,8 @@ def traces_for_layer(viewer, layer, hover_data=None, add_data_label=True):
     rectilinear = getattr(viewer.state, 'using_rectilinear', True)
 
     marker = dict(color=color_info(layer, mask),
+                  size=size_info(layer, mask),
                   opacity=layer_state.alpha)
-
-    # set all points to be the same size, with some arbitrary scaling
-    if layer_state.size_mode == 'Fixed':
-        marker['size'] = 2 * layer_state.size_scaling * layer_state.size
-
-    # scale size of points by set size scaling
-    else:
-        s = ensure_numerical(layer_state.layer[layer_state.size_att].ravel())
-        s = ((s - layer_state.size_vmin) /
-             (layer_state.size_vmax - layer_state.size_vmin))
-        # The following ensures that the sizes are in the
-        # range 3 to 30 before the final size scaling.
-        np.clip(s, 0, 1, out=s)
-        s *= 0.95
-        s += 0.05
-        s *= (30 * layer_state.size_scaling)
-        marker['size'] = s
 
     # check whether to fill circles
     if not layer_state.fill:
@@ -300,7 +307,7 @@ def traces_for_layer(viewer, layer, hover_data=None, add_data_label=True):
 
     polar = getattr(viewer.state, 'using_polar', False)
     degrees = viewer.state.using_degrees
-    proj = projection_type(viewer.state.plot_mode)
+    proj = projection_type(viewer)
     if polar:
         scatter_info.update(theta=x, r=y, thetaunit='degrees' if degrees else 'radians')
         traces.append(go.Scatterpolar(**scatter_info))
