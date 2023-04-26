@@ -1,15 +1,12 @@
 from __future__ import absolute_import, division, print_function
 
 import numpy as np
-import matplotlib.colors as colors
-from matplotlib.colors import Normalize
 
 from qtpy import compat
 from qtpy.QtWidgets import QDialog
 
 from glue.config import viewer_tool, settings
 from glue.core import DataCollection, Data
-from glue.utils import ensure_numerical
 from glue.utils.qt import messagebox_on_error
 from glue.utils.qt.threading import Worker
 
