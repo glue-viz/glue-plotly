@@ -93,7 +93,7 @@ def fixed_color(layer):
     return layer_color
 
 
-def rgb_colors(layer, mask=None):
+def rgb_colors(layer, mask, cmap_att):
     layer_state = layer.state
     if layer_state.cmap_vmin > layer_state.cmap_vmax:
         cmap = layer_state.cmap.reversed()
@@ -104,7 +104,7 @@ def rgb_colors(layer, mask=None):
         norm = Normalize(
             vmin=layer_state.cmap_vmin, vmax=layer_state.cmap_vmax)
 
-    color_values = layer_state.layer[layer_state.cmap_att].copy()
+    color_values = layer_state.layer[getattr(layer_state, cmap_att)].copy()
     if mask is not None:
         color_values = color_values[mask]
     rgba_list = np.array([
@@ -114,8 +114,10 @@ def rgb_colors(layer, mask=None):
     return rgba_strs
 
 
-def color_info(layer, mask=None):
-    if layer.state.cmap_mode == "Fixed":
+def color_info(layer, mask=None,
+               mode_att="cmap_mode",
+               cmap_att="cmap_att"):
+    if getattr(layer.state, mode_att) == "Fixed":
         return fixed_color(layer)
     else:
-        return rgb_colors(layer, mask)
+        return rgb_colors(layer, mask, cmap_att)
