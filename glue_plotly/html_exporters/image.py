@@ -17,8 +17,6 @@ from glue.utils.qt import messagebox_on_error
 from glue.utils.qt.threading import Worker
 from glue.viewers.image.pixel_selection_subset_state import PixelSubsetState
 from glue.viewers.image.composite_array import STRETCHES
-from glue.viewers.image.state import ImageLayerState, ImageSubsetLayerState
-from glue.viewers.scatter.state import ScatterLayerState
 
 from ..utils import cleaned_labels
 from .. import save_hover, export_dialog
@@ -29,19 +27,13 @@ except ImportError:
     from glue.viewers.common.tool import Tool
 
 from glue_plotly import PLOTLY_ERROR_MESSAGE, PLOTLY_LOGO
+from glue_plotly.common.image import layers_by_type, slice_to_bound
 
 import plotly.graph_objects as go
 from plotly.offline import plot
 from plotly.subplots import make_subplots
 
 DEFAULT_FONT = 'Arial, sans-serif'
-
-
-def slice_to_bound(slc, size):
-    min, max, step = slc.indices(size)
-    n = (max - min - 1) // step
-    max = min + step * n
-    return min, max, n + 1
 
 
 @viewer_tool
@@ -52,7 +44,7 @@ class PlotlyImage2DExport(Tool):
     tool_tip = 'Save Plotly HTML page'
 
     @messagebox_on_error(PLOTLY_ERROR_MESSAGE)
-    def _export_to_plotly(self, filename, scatter_layers, image_layers, image_subset_layers, checked_dictionary):
+    def _export_to_plotly(self, filename, layers, checked_dictionary):
         width, height = self.viewer.figure.get_size_inches() * self.viewer.figure.dpi
 
         xmin, xmax = self.viewer.axes.get_xlim()
@@ -151,6 +143,10 @@ class PlotlyImage2DExport(Tool):
         else:
             layout = go.Layout(**layout_config)
             fig = go.Figure(layout=layout)
+
+        image_layers = layers["image"]
+        image_subset_layers = layers["image_subset"]
+        scatter_layers = layers["scatter"]
 
         has_nonpixel_subset = any(not isinstance(layer.layer.subset_state, PixelSubsetState)
                                   for layer in image_subset_layers)
@@ -393,17 +389,8 @@ class PlotlyImage2DExport(Tool):
 
     def activate(self):
 
-        # grab hover info
-        layers = sorted([layer for layer in self.viewer.layers if layer.state.visible and layer.enabled],
-                        key=lambda layer: layer.zorder)
-        scatter_layers, image_layers, image_subset_layers = [], [], []
-        for layer in layers:
-            if isinstance(layer.state, ImageLayerState):
-                image_layers.append(layer)
-            elif isinstance(layer.state, ImageSubsetLayerState):
-                image_subset_layers.append(layer)
-            elif isinstance(layer.state, ScatterLayerState):
-                scatter_layers.append(layer)
+        layers = layers_by_type(self.viewer)
+        scatter_layers = layers["scatter"]
 
         checked_dictionary = {}
         if len(scatter_layers) > 0:
@@ -432,8 +419,8 @@ class PlotlyImage2DExport(Tool):
         if not filename:
             return
 
-        worker = Worker(self._export_to_plotly, filename, scatter_layers,
-                        image_layers, image_subset_layers, checked_dictionary)
+        worker = Worker(self._export_to_plotly, filename, 
+                        layers, checked_dictionary)
         exp_dialog = export_dialog.ExportDialog(parent=self.viewer)
         worker.result.connect(exp_dialog.close)
         worker.error.connect(exp_dialog.close)
