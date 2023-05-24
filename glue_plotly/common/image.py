@@ -1,4 +1,3 @@
-from inspect import cleandoc
 from uuid import uuid4
 
 from astropy.visualization import ManualInterval, ContrastBiasStretch
@@ -125,7 +124,7 @@ def shape(viewer):
 def size_info(layer):
     state = layer.state
     if state.size_mode == 'Fixed':
-       return state.size 
+       return state.size
     else:
         s = ensure_numerical(state.layer[state.size_att].ravel())
         size = 25 * (s - state.size_vmin) / (
@@ -153,7 +152,6 @@ def colorscale_info(layer, interval, contrast_bias):
     return mapped_bounds, colorscale
 
 
-
 def layers_by_type(viewer):
     layers = sorted(layers_to_export(viewer), key=lambda lyr: lyr.zorder)
     scatter_layers, image_layers, image_subset_layers = [], [], []
@@ -167,6 +165,7 @@ def layers_by_type(viewer):
 
     return dict(scatter=scatter_layers, image=image_layers, image_subset=image_subset_layers)
 
+
 def full_view_transpose(viewer):
     state = viewer.state
     full_view, _agg_func, transpose = state.numpy_slice_aggregation_transpose
@@ -175,12 +174,12 @@ def full_view_transpose(viewer):
     for i in range(state.reference_data.ndim):
         if isinstance(full_view[i], slice):
             full_view[i] = slice_to_bound(full_view[i], state.reference_data.shape[i])
-    
+
     return full_view, transpose
 
 
-def empty_secondary_layer(shape, secondary_x, secondary_y):
-    bg = np.ones(shape)
+def empty_secondary_layer(viewer, secondary_x, secondary_y):
+    bg = np.ones(shape(viewer))
     secondary_info = dict(z=bg,
                           colorscale=[[0, 'rgb(0,0,0)'], [1, 'rgb(0,0,0)']],
                           hoverinfo='skip',
@@ -220,7 +219,7 @@ def traces_for_pixel_subset_layer(viewer, layer):
             ),
             opacity = state.alpha * 0.5,
             name = state.layer.label,
-            legendgroup=uuid4()
+            legendgroup=uuid4().hex
         )
 
         x_line_data = {**line_data, 'x': [x, x], 'y': [ymin, ymax], 'showlegend': True}
@@ -278,7 +277,7 @@ def traces_for_scatter_layer(viewer, layer, hover_data=None, add_data_label=True
                   size=size_info(layer),
                   sizemin=1
             )
-    
+
     if np.sum(hover_data) == 0:
         hoverinfo = 'skip'
         hovertext = None
@@ -303,7 +302,7 @@ def traces_for_scatter_layer(viewer, layer, hover_data=None, add_data_label=True
                         xaxis='x',
                         yaxis='y',
                         hoverinfo=hoverinfo,
-                        hovertext=hovertext
+                        hovertext=hovertext,
                         name=name
                     )
 
@@ -365,6 +364,7 @@ def traces(viewer, secondary_x=False, secondary_y=False, hover_selections=None, 
         full_view, transpose = full_view_transpose(viewer)
 
     if using_colormaps:
+        traces.append(background_heatmap_layer(viewer))
         for layer in layers['image']:
             traces += traces_for_image_layer(layer)
     else:
@@ -381,7 +381,6 @@ def traces(viewer, secondary_x=False, secondary_y=False, hover_selections=None, 
         traces += traces_for_scatter_layer(viewer, layer,
                                            hover_data=hover_selections[layer.state.layer.label],
                                            add_data_label=add_data_label)
-
 
     if secondary_x or secondary_y:
         traces.append(empty_secondary_layer(viewer, secondary_x, secondary_y))
