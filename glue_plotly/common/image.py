@@ -13,8 +13,8 @@ from glue.viewers.scatter.state import IncompatibleAttribute, ScatterLayerState
 
 from plotly.graph_objects import Heatmap, Image, Scatter
 
-from glue_plotly.common import base_layout_config, color_info, fixed_color, layers_to_export
-from glue_plotly.common.common import DEFAULT_FONT
+from glue_plotly.common import DEFAULT_FONT, base_layout_config, color_info, fixed_color, layers_to_export, sanitize
+from glue_plotly.common.scatter2d import size_info as scatter_size_info
 from glue_plotly.utils import cleaned_labels
 
 
@@ -121,7 +121,7 @@ def shape(viewer):
     return [viewer.state.reference_data.shape[i] for i in xy_axes]
 
 
-def size_info(layer):
+def image_size_info(layer):
     state = layer.state
     if state.size_mode == 'Fixed':
        return state.size
@@ -133,6 +133,12 @@ def size_info(layer):
         size[size< 0] = 0
         return size
 
+
+def size_info(layer):
+    if isinstance(layer, ScatterLayerState):
+        return scatter_size_info(layer)
+    else:
+        return image_size_info(layer)
 
 def colorscale_info(layer, interval, contrast_bias):
     if layer.state.v_min > layer.state.v_max:
@@ -268,13 +274,14 @@ def traces_for_scatter_layer(viewer, layer, hover_data=None, add_data_label=True
     viewer_state = viewer.state
     layer_state = layer.state
 
-    x = layer_state.layer[viewer_state.x_att]
-    y = layer_state.layer[viewer_state.y_att]
-
+    x = layer_state.layer[viewer_state.x_att].copy()
+    y = layer_state.layer[viewer_state.y_att].copy()
+    mask, (x, y) = sanitize(x, y)
+    
     marker = dict(color=color_info(layer),
                   opacity = layer_state.alpha,
                   line=dict(width=0),
-                  size=size_info(layer),
+                  size=scatter_size_info(layer, mask),
                   sizemin=1
             )
 
