@@ -37,7 +37,7 @@ class PlotlyImage2DExport(Tool):
 
     @messagebox_on_error(PLOTLY_ERROR_MESSAGE)
     def _export_to_plotly(self, filename, checked_dictionary):
-        
+
         layers = layers_to_export(self.viewer)
         add_data_label = data_count(layers) > 1
 

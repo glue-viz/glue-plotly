@@ -36,6 +36,7 @@ def background_color(viewer):
             bg_color[i] *= 256
         return bg_color
 
+
 def layout_config(viewer):
     bg_color = background_color(viewer)
     return base_layout_config(viewer,
@@ -124,21 +125,15 @@ def shape(viewer):
 def image_size_info(layer):
     state = layer.state
     if state.size_mode == 'Fixed':
-       return state.size
+        return state.size
     else:
         s = ensure_numerical(state.layer[state.size_att].ravel())
         size = 25 * (s - state.size_vmin) / (
                         state.size_vmax - state.size_vmin)
         size[np.isnan(size)] = 0
-        size[size< 0] = 0
+        size[size < 0] = 0
         return size
 
-
-def size_info(layer):
-    if isinstance(layer, ScatterLayerState):
-        return scatter_size_info(layer)
-    else:
-        return image_size_info(layer)
 
 def colorscale_info(layer, interval, contrast_bias):
     if layer.state.v_min > layer.state.v_max:
@@ -192,8 +187,7 @@ def empty_secondary_layer(viewer, secondary_x, secondary_y):
                           opacity=0,
                           showscale=False,
                           xaxis='x2' if secondary_x else 'x',
-                          yaxis='y2' if secondary_y else 'y'
-                    )
+                          yaxis='y2' if secondary_y else 'y')
     return Heatmap(**secondary_info)
 
 
@@ -223,8 +217,8 @@ def traces_for_pixel_subset_layer(viewer, layer):
             marker=dict(
                 color=state.color
             ),
-            opacity = state.alpha * 0.5,
-            name = state.layer.label,
+            opacity=state.alpha * 0.5,
+            name=state.layer.label,
             legendgroup=uuid4().hex
         )
 
@@ -240,11 +234,8 @@ def traces_for_nonpixel_subset_layer(viewer, layer, full_view, transpose):
     subset_state = layer.layer.subset_state
     ref_data = viewer.state.reference_data
     color = fixed_color(layer)
-    buffer = ref_data \
-            .compute_fixed_resolution_buffer(full_view,
-                                             target_data=ref_data,
-                                             broadcast=False,
-                                             subset_state=subset_state)
+    buffer = ref_data.compute_fixed_resolution_buffer(full_view, target_data=ref_data,
+                                                      broadcast=False, subset_state=subset_state)
     if transpose:
         buffer = buffer.transpose()
 
@@ -277,13 +268,12 @@ def traces_for_scatter_layer(viewer, layer, hover_data=None, add_data_label=True
     x = layer_state.layer[viewer_state.x_att].copy()
     y = layer_state.layer[viewer_state.y_att].copy()
     mask, (x, y) = sanitize(x, y)
-    
+
     marker = dict(color=color_info(layer),
-                  opacity = layer_state.alpha,
+                  opacity=layer_state.alpha,
                   line=dict(width=0),
                   size=scatter_size_info(layer, mask),
-                  sizemin=1
-            )
+                  sizemin=1)
 
     if np.sum(hover_data) == 0:
         hoverinfo = 'skip'
@@ -293,7 +283,8 @@ def traces_for_scatter_layer(viewer, layer, hover_data=None, add_data_label=True
         hovertext = ['' for _ in range(layer_state.layer.shape[0])]
         for i in range(len(layer_state.layer.components)):
             if hover_data[i]:
-                hover_values = layer_state.layer.components[i].label
+                label = layer_state.layer.components[i].label
+                hover_values = layer_state.layer[label][mask]
                 for k in range(len(hover_values)):
                     hovertext[k] = (hovertext[k] + '{}: {} <br>'
                                     .format(layer_state.layer.components[i].label,
@@ -310,8 +301,7 @@ def traces_for_scatter_layer(viewer, layer, hover_data=None, add_data_label=True
                         yaxis='y',
                         hoverinfo=hoverinfo,
                         hovertext=hovertext,
-                        name=name
-                    )
+                        name=name)
 
     return [Scatter(**scatter_info)]
 
@@ -344,8 +334,7 @@ def traces_for_image_layer(layer):
                       name=layer_state.layer.label,
                       showscale=False,
                       showlegend=True,
-                      opacity=layer_state.alpha
-                )
+                      opacity=layer_state.alpha)
     return [Heatmap(**image_info)]
 
 
@@ -354,8 +343,7 @@ def single_color_trace(viewer):
     img[:, :, :3] *= 256
     image_info = dict(z=img,
                       opacity=1,
-                      hoverinfo='skip'
-                )
+                      hoverinfo='skip')
 
     return Image(**image_info)
 
