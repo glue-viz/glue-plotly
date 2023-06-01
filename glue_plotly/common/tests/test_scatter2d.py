@@ -1,6 +1,7 @@
 from itertools import product
 
 from numpy import nan
+from plotly.graph_objs import Scatter
 import pytest
 
 from glue.app.qt import GlueApplication
@@ -9,7 +10,7 @@ from glue.core import Data
 from glue.viewers.scatter.qt import ScatterViewer
 
 from glue_plotly.common.common import DEFAULT_FONT, data_count, layers_to_export, rectilinear_axis
-from glue_plotly.common.scatter2d import traces_for_layer
+from glue_plotly.common.scatter2d import trace_data_for_layer 
 
 class TestScatter2D:
 
@@ -95,15 +96,19 @@ class TestScatter2D:
         layer1.state.linewidth = 2
         layer1.state.linestyle = 'dashed'
         layer1.state.alpha = 0.64
+        layer.state.color = '#ff0000'
         layer1.state.xerr_visible = True
         layer1.state.yerr_visible = True
         layer1.state.xerr_att = self.data.id['x']
         layer1.state.yerr_att = self.data.id['y']
 
-        traces1 = traces_for_layer(self.viewer, layer1, hover_data=None, add_data_label=True)
-        assert len(traces1) == 1 + 2 * self.data1.size
-        error_traces = 
-
+        traces1 = trace_data_for_layer(self.viewer, layer1, hover_data=None, add_data_label=True)
+        assert set(traces1.keys()) == {'scatter', 'xerr', 'yerr'}
+        scatter1 = traces1['scatter'][0]
+        assert isinstance(scatter1, Scatter) 
+        assert scatter1['mode'] == 'lines+markers'
+        assert scatter1['name'] == 'd1'
+        assert scatter1['marker'] == dict(color='#ff0000', size=6, opacity=0.64)
 
         
         layer2 = self.viewer.layers[1]

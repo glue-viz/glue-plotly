@@ -227,8 +227,8 @@ def size_info(layer, mask):
         return s
 
 
-def traces_for_layer(viewer, layer, hover_data=None, add_data_label=True):
-    traces = []
+def trace_data_for_layer(viewer, layer, hover_data=None, add_data_label=True):
+    traces = {}
     if hover_data is None:
         hover_data = []
 
@@ -259,22 +259,22 @@ def traces_for_layer(viewer, layer, hover_data=None, add_data_label=True):
     # add vectors
     if rectilinear and layer.state.vector_visible and layer.state.vector_scaling > 0.1:
         vec_traces = rectilinear_2d_vectors(viewer, layer, marker, mask, x, y, legend_group)
-        traces += vec_traces
+        traces['vector'] = vec_traces
 
     # add line properties
     mode = "markers"
     line = {}
     if layer_state.line_visible:
         line, mode, line_traces = rectilinear_lines(viewer, layer, marker, x, y, legend_group)
-        traces += line_traces
+        traces['line'] = line_traces
 
     if rectilinear:
         if layer_state.xerr_visible:
             xerr, xerr_traces = rectilinear_error_bars(layer, marker, mask, x, y, 'x', legend_group)
-            traces += xerr_traces
+            traces['xerr'] = xerr_traces
         if layer_state.yerr_visible:
             yerr, yerr_traces = rectilinear_error_bars(layer, marker, mask, x, y, 'y', legend_group)
-            traces += yerr_traces
+            traces['yerr'] = yerr_traces 
 
     if np.sum(hover_data) == 0:
         hoverinfo = 'skip'
@@ -310,7 +310,7 @@ def traces_for_layer(viewer, layer, hover_data=None, add_data_label=True):
     proj = projection_type(viewer)
     if polar:
         scatter_info.update(theta=x, r=y, thetaunit='degrees' if degrees else 'radians')
-        traces.append(go.Scatterpolar(**scatter_info))
+        traces['scatter'] = [go.Scatterpolar(**scatter_info)]
     elif rectilinear:
         scatter_info.update(x=x, y=y)
         if layer_state.cmap_mode == 'Fixed':
@@ -319,15 +319,20 @@ def traces_for_layer(viewer, layer, hover_data=None, add_data_label=True):
                 scatter_info.update(error_x=xerr)
             if layer_state.yerr_visible:
                 scatter_info.update(error_y=yerr)
-        traces.append(go.Scatter(**scatter_info))
+        traces['scatter'] = [go.Scatter(**scatter_info)]
     else:
         if not degrees:
             x = np.rad2deg(x)
             y = np.rad2deg(y)
-        traces.append(go.Scattergeo(lon=x, lat=y, projection_type=proj,
+        traces['scatter'] = [go.Scattergeo(lon=x, lat=y, projection_type=proj,
                                     showland=False, showcoastlines=False, showlakes=False,
                                     lataxis_showgrid=False, lonaxis_showgrid=False,
                                     bgcolor=settings.BACKGROUND_COLOR,
-                                    framecolor=settings.FOREGROUND_COLOR))
+                                    framecolor=settings.FOREGROUND_COLOR)]
 
     return traces
+
+
+def traces_for_layer(*args, **kwargs):
+    trace_data = trace_data_for_layer(*args, **kwargs)
+    return [trace for traces in trace_data for trace in traces]
