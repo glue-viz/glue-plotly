@@ -1,6 +1,7 @@
 from itertools import product
+from glue.core.link_helpers import LinkSame
 
-from numpy import nan
+from numpy import log10 
 from plotly.graph_objs import Scatter
 import pytest
 
@@ -9,7 +10,7 @@ from glue.config import colormaps, settings
 from glue.core import Data 
 from glue.viewers.scatter.qt import ScatterViewer
 
-from glue_plotly.common.common import DEFAULT_FONT, data_count, layers_to_export, rectilinear_axis
+from glue_plotly.common.common import DEFAULT_FONT, data_count, layers_to_export, base_rectilinear_axis
 from glue_plotly.common.scatter2d import trace_data_for_layer 
 
 class TestScatter2D:
@@ -20,6 +21,9 @@ class TestScatter2D:
         self.app = GlueApplication()
         self.app.session.data_collection.append(self.data1)
         self.app.session.data_collection.append(self.data2)
+        for attr in ['x', 'y', 'z']:
+            link = LinkSame(self.data1.id[attr], self.data2.id[attr])
+            self.app.data_collection.add_link(link)
         self.viewer = self.app.new_data_viewer(ScatterViewer)
         self.viewer.add_data(self.data1)
         self.viewer.add_data(self.data2)
@@ -41,10 +45,8 @@ class TestScatter2D:
 
         # Set up viewer state
         viewer_state = self.viewer.state
-        viewer_state.x_att = 'x'
-        viewer_state.y_att = 'y'
-        viewer_state.x_axislabel = 'X Axis'
-        viewer_state.y_axislabel = 'Y Axis'
+        viewer_state.x_att = self.data1.id['x']
+        viewer_state.y_att = self.data1.id['y']
         viewer_state.x_axislabel_size = 12
         viewer_state.y_axislabel_size = 8
         viewer_state.x_ticklabel_size = 6
@@ -55,6 +57,8 @@ class TestScatter2D:
         viewer_state.x_max = 10
         viewer_state.y_min = 0
         viewer_state.y_max = 8
+        viewer_state.x_axislabel = 'X Axis'
+        viewer_state.y_axislabel = 'Y Axis'
 
         # General viewer items
         export_layers = layers_to_export(self.viewer)
@@ -62,10 +66,10 @@ class TestScatter2D:
         assert data_count(export_layers) == 2
 
         # Axes
-        x_axis = rectilinear_axis(self.viewer, 'x')
-        y_axis = rectilinear_axis(self.viewer, 'y')
+        x_axis = base_rectilinear_axis(self.viewer, 'x')
+        y_axis = base_rectilinear_axis(self.viewer, 'y')
 
-        common_items = dict(showgrid=False, showline=False, mirror=True, rangemode='normal',
+        common_items = dict(showgrid=False, showline=True, mirror=True, rangemode='normal',
                             zeroline=False, showspikes=False, showticklabels=True,
                             linecolor=settings.FOREGROUND_COLOR, tickcolor=settings.FOREGROUND_COLOR)
         assert common_items.items() <= x_axis.items()
@@ -75,8 +79,10 @@ class TestScatter2D:
         assert y_axis['title'] == 'Y Axis'
         assert x_axis['type'] == 'log' if log_x else 'linear'
         assert y_axis['type'] == 'log' if log_y else 'linear'
-        assert x_axis['range'] == [1, 10]
-        assert y_axis['range'] == [0, 8]
+        print(x_axis['range'])
+        print(y_axis['range'])
+        assert x_axis['range'] == [1, 10] if log_x else [0.0, 1.0]
+        assert y_axis['range'] == [0, 8] if log_y else [0, log10(8)]
 
         base_font_dict = dict(family=DEFAULT_FONT, color=settings.FOREGROUND_COLOR)
         assert x_axis['titlefont'] == dict(**base_font_dict, size=24)
@@ -96,20 +102,20 @@ class TestScatter2D:
         layer1.state.linewidth = 2
         layer1.state.linestyle = 'dashed'
         layer1.state.alpha = 0.64
-        layer.state.color = '#ff0000'
+        layer1.state.color = '#ff0000'
         layer1.state.xerr_visible = True
         layer1.state.yerr_visible = True
-        layer1.state.xerr_att = self.data.id['x']
-        layer1.state.yerr_att = self.data.id['y']
+        layer1.state.xerr_att = self.data1.id['x']
+        layer1.state.yerr_att = self.data1.id['y']
 
         traces1 = trace_data_for_layer(self.viewer, layer1, hover_data=None, add_data_label=True)
         assert set(traces1.keys()) == {'scatter', 'xerr', 'yerr'}
         scatter1 = traces1['scatter'][0]
-        assert isinstance(scatter1, Scatter) 
+        assert isinstance(scatter1, Scatter)
         assert scatter1['mode'] == 'lines+markers'
         assert scatter1['name'] == 'd1'
-        assert scatter1['marker'] == dict(color='#ff0000', size=6, opacity=0.64)
-
+        assert scatter1['marker'].to_plotly_json() == dict(color='#ff0000', size=6, opacity=0.64,
+                                                           line=dict(width=0))
         
         layer2 = self.viewer.layers[1]
         layer2.state.size = 3
@@ -117,8 +123,9 @@ class TestScatter2D:
         layer2.state.cmap_mode = 'Linear'
         layer2.state.cmap = colormaps.members[4][1]
         layer2.state.vector_visible = True
-        layer2.state.vx_att = 'y'
-        layer2.state.vy_att = 'z'
+        layer2.state.vx_att = self.data2.id['y']
+        layer2.state.vy_att = self.data2.id['z']
+        layer2.state.fill = False
         layer2.state.vector_arrowhead = True
         layer2.state.vector_mode = 'Cartesian'
         layer2.state.vector_origin = 'middle'

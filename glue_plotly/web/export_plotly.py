@@ -8,7 +8,7 @@ except ImportError:
 from glue.core.layout import Rectangle, snap_to_grid
 
 from glue_plotly.common import histogram, profile, scatter2d, \
-    data_count, layers_to_export, rectilinear_axis
+    data_count, layers_to_export, base_rectilinear_axis
 
 SYM = {'o': 'circle', 's': 'square', '+': 'cross', '^': 'triangle-up',
        '*': 'cross'}
@@ -105,8 +105,8 @@ def export_scatter(viewer):
     for layer in layers:
         traces += scatter2d.traces_for_layer(viewer, layer, add_data_label=add_data_label)
 
-    xaxis = rectilinear_axis(viewer, 'x')
-    yaxis = rectilinear_axis(viewer, 'y')
+    xaxis = base_rectilinear_axis(viewer, 'x')
+    yaxis = base_rectilinear_axis(viewer, 'y')
 
     return traces, xaxis, yaxis
 

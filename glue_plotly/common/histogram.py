@@ -3,12 +3,12 @@ from uuid import uuid4
 from glue.core import BaseData
 from plotly.graph_objs import Bar
 
-from glue_plotly.common import base_layout_config, fixed_color, rectilinear_axis
+from glue_plotly.common import base_layout_config, fixed_color, base_rectilinear_axis
 from glue_plotly.utils import ticks_values
 
 
 def axis(viewer, ax, glue_ticks=True):
-    a = rectilinear_axis(viewer, ax)
+    a = base_rectilinear_axis(viewer, ax)
     if glue_ticks:
         vals, text = ticks_values(viewer.axes, ax)
         if vals and text:

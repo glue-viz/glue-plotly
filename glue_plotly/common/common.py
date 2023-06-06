@@ -38,13 +38,11 @@ def base_layout_config(viewer, **kwargs):
     return config
 
 
-def rectilinear_axis(viewer, axis):
+def base_rectilinear_axis(viewer, axis):
     title = getattr(viewer.axes, f'get_{axis}label')()
     ax = getattr(viewer.axes, f'{axis}axis')
     range = [getattr(viewer.state, f'{axis}_min'), getattr(viewer.state, f'{axis}_max')]
     log = getattr(viewer.state, f'{axis}_log')
-    if log:
-        range = [np.log10(b) for b in range]
     axis_dict = dict(
         title=title,
         titlefont=dict(

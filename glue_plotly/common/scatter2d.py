@@ -10,7 +10,7 @@ from glue.utils import ensure_numerical
 from glue.viewers.scatter.layer_artist import plot_colored_line
 
 from .common import DEFAULT_FONT, base_layout_config,\
-    rectilinear_axis, color_info, dimensions, sanitize
+    base_rectilinear_axis, color_info, dimensions, sanitize
 
 LINESTYLES = {'solid': 'solid', 'dotted': 'dot', 'dashed': 'dash', 'dashdot': 'dashdot'}
 
@@ -18,6 +18,15 @@ LINESTYLES = {'solid': 'solid', 'dotted': 'dot', 'dashed': 'dash', 'dashdot': 'd
 def projection_type(viewer):
     proj = viewer.state.plot_mode
     return 'azimuthal equal area' if proj == 'lambert' else proj
+
+
+def rectilinear_axis(viewer, axis):
+    ax = base_rectilinear_axis(viewer, axis)
+    helper = getattr(viewer.state, f'{axis}_lim_helper')
+    log = getattr(viewer.state, f'{axis}_log')
+    if log:
+        ax['range'] = [helper.lower, helper.upper]
+    return ax
 
 
 def angular_axis(viewer):
@@ -66,8 +75,8 @@ def radial_axis(viewer):
 
 def rectilinear_layout_config(viewer):
     layout_config = base_layout_config(viewer)
-    x_axis = rectilinear_axis(viewer, 'x')
-    y_axis = rectilinear_axis(viewer, 'y')
+    x_axis = base_rectilinear_axis(viewer, 'x')
+    y_axis = base_rectilinear_axis(viewer, 'y')
     layout_config.update(xaxis=x_axis, yaxis=y_axis)
     return layout_config
 
@@ -266,7 +275,8 @@ def trace_data_for_layer(viewer, layer, hover_data=None, add_data_label=True):
     line = {}
     if layer_state.line_visible:
         line, mode, line_traces = rectilinear_lines(viewer, layer, marker, x, y, legend_group)
-        traces['line'] = line_traces
+        if line_traces:
+            traces['line'] = line_traces
 
     if rectilinear:
         if layer_state.xerr_visible:
