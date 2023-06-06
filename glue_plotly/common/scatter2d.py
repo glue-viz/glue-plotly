@@ -200,15 +200,15 @@ def rectilinear_2d_vectors(viewer, layer, marker, mask, x, y, legend_group=None)
     if layer_state.cmap_mode == 'Fixed':
         fig = ff.create_quiver(x_vec, y_vec, vx, vy, **vector_info)
         fig.update_traces(marker=dict(color=marker['color']))
-
     else:
         # start with the first quiver to add the rest
+        color = marker['color'] if layer.state.fill else marker['line']['color']
         fig = ff.create_quiver([x[0]], [y[0]], [vx[0]], [vy[0]],
-                               **vector_info, line_color=marker['color'][0])
-        for i in range(1, len(marker['color'])):
+                               **vector_info, line_color=color[0])
+        for i in range(1, len(color)):
             fig1 = ff.create_quiver([x[i]], [y[i]], [vx[i]], [vy[i]],
                                     **vector_info,
-                                    line_color=marker['color'][i])
+                                    line_color=color[i])
             fig.add_traces(data=fig1.data)
 
     return list(fig.data)
@@ -219,7 +219,7 @@ def size_info(layer, mask):
 
     # set all points to be the same size, with some arbitrary scaling
     if state.size_mode == 'Fixed':
-        return 2 * state.size_scaling * state.size
+        return state.size_scaling * state.size
 
     # scale size of points by set size scaling
     else:
@@ -251,16 +251,15 @@ def trace_data_for_layer(viewer, layer, hover_data=None, add_data_label=True):
 
     rectilinear = getattr(viewer.state, 'using_rectilinear', True)
 
-    marker = dict(color=color_info(layer, mask),
+    color = color_info(layer, mask)
+    marker = dict(color=color,
                   size=size_info(layer, mask),
                   opacity=layer_state.alpha)
 
     # check whether to fill circles
     if not layer_state.fill:
         marker['color'] = 'rgba(0,0,0,0)'
-        marker['line'] = dict(width=1,
-                              color=layer_state.color)
-
+        marker['line'] = dict(width=1, color=color)
     else:
         # remove default white border around points
         marker['line'] = dict(width=0)
@@ -345,4 +344,4 @@ def trace_data_for_layer(viewer, layer, hover_data=None, add_data_label=True):
 
 def traces_for_layer(*args, **kwargs):
     trace_data = trace_data_for_layer(*args, **kwargs)
-    return [trace for traces in trace_data for trace in traces]
+    return [trace for traces in trace_data.values() for trace in traces]
