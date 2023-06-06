@@ -1,12 +1,13 @@
 from itertools import product
 from glue.core.link_helpers import LinkSame
 
+from matplotlib import colormaps
 from numpy import log10 
 from plotly.graph_objs import Scatter
 import pytest
 
 from glue.app.qt import GlueApplication
-from glue.config import colormaps, settings
+from glue.config import settings
 from glue.core import Data 
 from glue.viewers.scatter.qt import ScatterViewer
 
@@ -121,7 +122,8 @@ class TestScatter2D:
         layer2.state.size = 3
         layer2.state.size_mode = 'Linear'
         layer2.state.cmap_mode = 'Linear'
-        layer2.state.cmap = colormaps.members[4][1]
+        layer2.state.alpha = 0.9
+        layer2.state.cmap = colormaps.get_cmap('magma')
         layer2.state.vector_visible = True
         layer2.state.vx_att = self.data2.id['y']
         layer2.state.vy_att = self.data2.id['z']
@@ -130,5 +132,14 @@ class TestScatter2D:
         layer2.state.vector_mode = 'Cartesian'
         layer2.state.vector_origin = 'middle'
         layer2.state.vector_scaling = 0.5
+
+        hover_components = [self.data2.id['x'], self.data2.id['y']]
+        hover_data = [cid in hover_components for cid in layer2.layer.components]
+        traces2 = trace_data_for_layer(self.viewer, layer2, hover_data=hover_data, add_data_label=True)
+        assert set(traces2.keys()) == {'scatter', 'vector'}
+        scatter2 = traces2['scatter'][0]
+        assert isinstance(scatter2, Scatter)
+        assert scatter2['mode'] == 'markers'
+        assert scatter2['name'] == 'd2'
 
 
