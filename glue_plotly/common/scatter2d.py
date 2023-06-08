@@ -280,10 +280,12 @@ def trace_data_for_layer(viewer, layer, hover_data=None, add_data_label=True):
     if rectilinear:
         if layer_state.xerr_visible:
             xerr, xerr_traces = rectilinear_error_bars(layer, marker, mask, x, y, 'x', legend_group)
-            traces['xerr'] = xerr_traces
+            if xerr_traces:
+                traces['xerr'] = xerr_traces
         if layer_state.yerr_visible:
             yerr, yerr_traces = rectilinear_error_bars(layer, marker, mask, x, y, 'y', legend_group)
-            traces['yerr'] = yerr_traces 
+            if yerr_traces:
+                traces['yerr'] = yerr_traces
 
     if np.sum(hover_data) == 0:
         hoverinfo = 'skip'

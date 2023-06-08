@@ -1,8 +1,9 @@
 from itertools import product
 from glue.core.link_helpers import LinkSame
+from glue.core.visual import cmap
 
+import numpy as np
 from matplotlib import colormaps
-from numpy import log10 
 from plotly.graph_objs import Scatter
 import pytest
 
@@ -11,7 +12,7 @@ from glue.config import settings
 from glue.core import Data 
 from glue.viewers.scatter.qt import ScatterViewer
 
-from glue_plotly.common.common import DEFAULT_FONT, data_count, layers_to_export, base_rectilinear_axis
+from glue_plotly.common.common import DEFAULT_FONT, data_count, layers_to_export, base_rectilinear_axis, sanitize
 from glue_plotly.common.scatter2d import trace_data_for_layer 
 
 class TestScatter2D:
@@ -41,10 +42,12 @@ class TestScatter2D:
         self.app.close()
         self.app = None
 
-    @pytest.mark.parametrize('log_x, log_y', product([True, False], repeat=2))
-    def test_rectilinear_plot(self, log_x, log_y):
 
-        # Set up viewer state
+class TestScatter2DRectilinear(TestScatter2D):
+    
+    def setup_method(self, method):
+        super().setup_method(method)
+
         viewer_state = self.viewer.state
         viewer_state.x_att = self.data1.id['x']
         viewer_state.y_att = self.data1.id['y']
@@ -52,8 +55,6 @@ class TestScatter2D:
         viewer_state.y_axislabel_size = 8
         viewer_state.x_ticklabel_size = 6
         viewer_state.y_ticklabel_size = 12
-        viewer_state.x_log = log_x
-        viewer_state.y_log = log_y
         viewer_state.x_min = 1
         viewer_state.x_max = 10
         viewer_state.y_min = 0
@@ -61,12 +62,60 @@ class TestScatter2D:
         viewer_state.x_axislabel = 'X Axis'
         viewer_state.y_axislabel = 'Y Axis'
 
-        # General viewer items
+        # Set up first layer
+        self.layer1 = self.viewer.layers[0]
+        self.layer1.state.line_visible = True
+        self.layer1.state.linewidth = 2
+        self.layer1.state.linestyle = 'dashed'
+        self.layer1.state.alpha = 0.64
+        self.layer1.state.color = '#ff0000'
+        self.layer1.state.xerr_visible = True
+        self.layer1.state.yerr_visible = True
+        self.layer1.state.xerr_att = self.data1.id['x']
+        self.layer1.state.yerr_att = self.data1.id['y']
+
+        # Set up second layer
+        self.layer2 = self.viewer.layers[1]
+        self.layer2.state.size = 3
+        self.layer2.state.size_mode = 'Linear'
+        self.layer2.state.cmap_mode = 'Linear'
+        self.layer2.state.alpha = 0.9
+        self.layer2.state.cmap = colormaps.get_cmap('magma')
+        self.layer2.state.vector_visible = True
+        self.layer2.state.vx_att = self.data2.id['y']
+        self.layer2.state.vy_att = self.data2.id['z']
+        self.layer2.state.fill = False
+        self.layer2.state.vector_arrowhead = True
+        self.layer2.state.vector_mode = 'Cartesian'
+        self.layer2.state.vector_origin = 'middle'
+        self.layer2.state.vector_scaling = 0.5
+
+    def test_basic(self):
         export_layers = layers_to_export(self.viewer)
         assert len(export_layers) == 2
         assert data_count(export_layers) == 2
 
-        # Axes
+        x1 = self.data1['x']
+        y1 = self.data1['y']
+        mask1, (x1_san, y1_san) = sanitize(x1, y1)
+        assert np.sum(mask1) == 3
+        assert len(x1_san) == 3
+        assert len(y1_san) == 3
+
+        x2 = self.data2['x']
+        y2 = self.data2['y']
+        mask2, (x2_san, y2_san) = sanitize(x2, y2)
+        assert np.sum(mask2) == 3
+        assert len(x2_san) == 3
+        assert len(y2_san) == 3
+
+    @pytest.mark.parametrize('log_x, log_y', product([True, False], repeat=2))
+    def test_axes(self, log_x, log_y):
+        self.viewer.state.x_log = log_x
+        self.viewer.state.y_log = log_y
+        self.viewer.state.x_axislabel = 'X Axis'
+        self.viewer.state.y_axislabel = 'Y Axis'
+
         x_axis = base_rectilinear_axis(self.viewer, 'x')
         y_axis = base_rectilinear_axis(self.viewer, 'y')
 
@@ -80,10 +129,8 @@ class TestScatter2D:
         assert y_axis['title'] == 'Y Axis'
         assert x_axis['type'] == 'log' if log_x else 'linear'
         assert y_axis['type'] == 'log' if log_y else 'linear'
-        print(x_axis['range'])
-        print(y_axis['range'])
         assert x_axis['range'] == [1, 10] if log_x else [0.0, 1.0]
-        assert y_axis['range'] == [0, 8] if log_y else [0, log10(8)]
+        assert y_axis['range'] == [0, 8] if log_y else [0, np.log10(8)]
 
         base_font_dict = dict(family=DEFAULT_FONT, color=settings.FOREGROUND_COLOR)
         assert x_axis['titlefont'] == dict(**base_font_dict, size=24)
@@ -98,44 +145,42 @@ class TestScatter2D:
             assert y_axis['dtick'] == 1
             assert y_axis['minor_ticks'] == 'outside'
 
-        layer1 = self.viewer.layers[0]
-        layer1.state.line_visible = True
-        layer1.state.linewidth = 2
-        layer1.state.linestyle = 'dashed'
-        layer1.state.alpha = 0.64
-        layer1.state.color = '#ff0000'
-        layer1.state.xerr_visible = True
-        layer1.state.yerr_visible = True
-        layer1.state.xerr_att = self.data1.id['x']
-        layer1.state.yerr_att = self.data1.id['y']
+    @pytest.mark.parametrize('cmap_mode', ['Fixed', 'Linear'])
+    def test_error_bars(self, cmap_mode):
+        self.viewer.state.cmap_mode = cmap_mode
 
-        traces1 = trace_data_for_layer(self.viewer, layer1, hover_data=None, add_data_label=True)
-        assert set(traces1.keys()) == {'scatter', 'xerr', 'yerr'}
+
+    @pytest.mark.parametrize('log_x, log_y', product([True, False], repeat=2))
+    def test_rectilinear_plot(self, log_x, log_y):
+
+        traces1 = trace_data_for_layer(self.viewer, self.layer1, hover_data=None, add_data_label=True)
+        print(traces1)
+        assert set(traces1.keys()) == {'scatter'}
         scatter1 = traces1['scatter'][0]
         assert isinstance(scatter1, Scatter)
         assert scatter1['mode'] == 'lines+markers'
         assert scatter1['name'] == 'd1'
-        assert scatter1['marker'].to_plotly_json() == dict(color='#ff0000', size=6, opacity=0.64,
+        assert scatter1['marker'].to_plotly_json() == dict(color='#ff0000', size=3, opacity=0.64,
                                                            line=dict(width=0))
+        print(traces1['xerr']) 
+        xerr = traces1['xerr']
+        yerr = traces1['yerr']
+        assert len(xerr) == 3
+        assert len(yerr) == 3
+        for arr in [xerr, yerr]:
+            for err in arr:
+                assert isinstance(err, Scatter)
+                assert err['marker'] == dict(color="#ff0000")
+                assert err['hoverinfo'] == 'skip'
+                assert err['hovertext'] is None
+                assert err['mode'] == 'markers'
+
         
-        layer2 = self.viewer.layers[1]
-        layer2.state.size = 3
-        layer2.state.size_mode = 'Linear'
-        layer2.state.cmap_mode = 'Linear'
-        layer2.state.alpha = 0.9
-        layer2.state.cmap = colormaps.get_cmap('magma')
-        layer2.state.vector_visible = True
-        layer2.state.vx_att = self.data2.id['y']
-        layer2.state.vy_att = self.data2.id['z']
-        layer2.state.fill = False
-        layer2.state.vector_arrowhead = True
-        layer2.state.vector_mode = 'Cartesian'
-        layer2.state.vector_origin = 'middle'
-        layer2.state.vector_scaling = 0.5
+
 
         hover_components = [self.data2.id['x'], self.data2.id['y']]
-        hover_data = [cid in hover_components for cid in layer2.layer.components]
-        traces2 = trace_data_for_layer(self.viewer, layer2, hover_data=hover_data, add_data_label=True)
+        hover_data = [cid in hover_components for cid in self.layer2.layer.components]
+        traces2 = trace_data_for_layer(self.viewer, self.layer2, hover_data=hover_data, add_data_label=True)
         assert set(traces2.keys()) == {'scatter', 'vector'}
         scatter2 = traces2['scatter'][0]
         assert isinstance(scatter2, Scatter)
