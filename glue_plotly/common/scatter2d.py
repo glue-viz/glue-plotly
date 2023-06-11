@@ -236,6 +236,21 @@ def size_info(layer, mask):
         return s
 
 
+def base_marker(layer, mask):
+    color = color_info(layer, mask)
+    marker = dict(size=size_info(layer, mask),
+                  color=color,
+                  opacity=layer.state.alpha)
+
+    if layer.state.fill:
+        marker['line'] = dict(width=0)
+    else:
+        marker['color'] = 'rgba(0,0,0,0)'
+        marker['line'] = dict(width=1, color=color)
+
+    return marker
+
+
 def trace_data_for_layer(viewer, layer, hover_data=None, add_data_label=True):
     traces = {}
     if hover_data is None:
@@ -251,18 +266,7 @@ def trace_data_for_layer(viewer, layer, hover_data=None, add_data_label=True):
 
     rectilinear = getattr(viewer.state, 'using_rectilinear', True)
 
-    color = color_info(layer, mask)
-    marker = dict(color=color,
-                  size=size_info(layer, mask),
-                  opacity=layer_state.alpha)
-
-    # check whether to fill circles
-    if not layer_state.fill:
-        marker['color'] = 'rgba(0,0,0,0)'
-        marker['line'] = dict(width=1, color=color)
-    else:
-        # remove default white border around points
-        marker['line'] = dict(width=0)
+    marker = base_marker(layer, mask)
 
     # add vectors
     if rectilinear and layer.state.vector_visible and layer.state.vector_scaling > 0.1:
