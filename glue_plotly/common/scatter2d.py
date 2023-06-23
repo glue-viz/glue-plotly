@@ -9,6 +9,8 @@ from glue.core import BaseData
 from glue.utils import ensure_numerical
 from glue.viewers.scatter.layer_artist import plot_colored_line
 
+from glue_plotly.utils import rgba_string_to_values
+
 from .common import DEFAULT_FONT, base_layout_config,\
     base_rectilinear_axis, color_info, dimensions, sanitize
 
@@ -106,8 +108,9 @@ def rectilinear_lines(viewer, layer, marker, x, y, legend_group=None):
     else:
         # set mode to markers and plot the colored line over it
         mode = 'markers'
-        rgb_strs = marker['color']
-        lc = plot_colored_line(viewer.axes, x, y, rgb_strs)
+        rgba_strs = marker['color']
+        rgba_values = [rgba_string_to_values(s) for s in rgba_strs]
+        lc = plot_colored_line(viewer.axes, x, y, rgba_values)
         segments = lc.get_segments()
         # generate list of indices to parse colors over
         indices = np.repeat(range(len(x)), 2)
@@ -121,7 +124,7 @@ def rectilinear_lines(viewer, layer, marker, x, y, legend_group=None):
                 line=dict(
                     dash=LINESTYLES[layer_state.linestyle],
                     width=layer_state.linewidth,
-                    color=rgb_strs[indices[i]]),
+                    color=rgba_strs[indices[i]]),
                 showlegend=False,
                 hoverinfo='skip')
             )

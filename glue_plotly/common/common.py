@@ -4,6 +4,8 @@ import numpy as np
 from glue.config import settings
 from glue.core import BaseData
 
+from glue_plotly.utils import opacity_value_string
+
 DEFAULT_FONT = 'Arial, sans-serif'
 
 
@@ -107,8 +109,8 @@ def rgb_colors(layer, mask, cmap_att):
         color_values = color_values[mask]
     rgba_list = np.array([
         cmap(norm(point)) for point in color_values])
-    rgba_list = [[int(256 * t) for t in rgba] for rgba in rgba_list]
-    rgba_strs = [f'rgba({r},{g},{b},{a})' for r, g, b, a in rgba_list]
+    rgba_list = [[int(256 * t) for t in rgba[:3]] + [rgba[3]] for rgba in rgba_list]
+    rgba_strs = [f'rgba({r},{g},{b},{opacity_value_string(a)})' for r, g, b, a in rgba_list]
     return rgba_strs
 
 

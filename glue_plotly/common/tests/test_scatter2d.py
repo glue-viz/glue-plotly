@@ -131,7 +131,7 @@ class TestScatter2DRectilinear(TestScatter2D):
             assert marker['color'] == 'rgba(0,0,0,0)'
             assert marker['line'] == dict(width=1, color="#ff0000")
 
-    def test_rectilinear_error_bars_linear(self):
+    def test_rectilinear_error_bars_cmap(self):
         self.layer.state.cmap_mode = 'Linear'
         self.layer.state.xerr_visible = True
         self.layer.state.yerr_visible = True
@@ -154,7 +154,7 @@ class TestScatter2DRectilinear(TestScatter2D):
                 assert bar['hovertext'] is None
                 assert bar['marker']['color'] == color[i]
 
-    def test_rectilinear_error_bars_fixed(self):
+    def test_rectilinear_error_bars_fixed_color(self):
         self.layer.state.cmap_mode = 'Fixed'
         self.layer.state.xerr_visible = True
         self.layer.state.yerr_visible = True
@@ -169,7 +169,7 @@ class TestScatter2DRectilinear(TestScatter2D):
         assert len(xerr_traces) == 0
         assert len(yerr_traces) == 0
 
-    def test_rectilinear_lines_fixed(self):
+    def test_rectilinear_lines_fixed_color(self):
         self.layer.state.cmap_mode = "Fixed"
         self.layer.state.line_visible = True
         self.layer.state.linestyle = 'dashed'
@@ -181,7 +181,7 @@ class TestScatter2DRectilinear(TestScatter2D):
         assert line['width'] == 4
         assert len(traces) == 0
 
-    def test_rectilinear_lines_linear(self):
+    def test_rectilinear_lines_cmap(self):
         self.layer.state.cmap_mode = "Linear"
         self.layer.state.line_visible = True
         self.layer.state.linestyle = "dotted"
