@@ -1,19 +1,18 @@
 from itertools import product
-from glue.core.link_helpers import LinkSame
-from glue.core.visual import cmap
 
-import numpy as np
-from matplotlib import colormaps
 from plotly.graph_objs import Scatter
 import pytest
 
 from glue.app.qt import GlueApplication
 from glue.config import settings
-from glue.core import Data 
+from glue.core import Data
 from glue.viewers.scatter.qt import ScatterViewer
 
-from glue_plotly.common.common import DEFAULT_FONT, color_info, data_count, layers_to_export, base_rectilinear_axis, sanitize
-from glue_plotly.common.scatter2d import base_marker, rectilinear_2d_vectors, rectilinear_error_bars, rectilinear_lines, trace_data_for_layer 
+from glue_plotly.common.common import DEFAULT_FONT, color_info, data_count, layers_to_export, \
+                                      base_rectilinear_axis, sanitize
+from glue_plotly.common.scatter2d import base_marker, rectilinear_2d_vectors, rectilinear_error_bars, \
+                                         rectilinear_lines, trace_data_for_layer
+
 
 class TestScatter2D:
 
@@ -38,7 +37,7 @@ class TestScatter2D:
 
 
 class TestScatter2DRectilinear(TestScatter2D):
-    
+
     def setup_method(self, method):
         super().setup_method(method)
 
@@ -98,7 +97,7 @@ class TestScatter2DRectilinear(TestScatter2D):
         assert y_axis['title'] == 'Y Axis'
         assert x_axis['type'] == 'log' if log_x else 'linear'
         assert y_axis['type'] == 'log' if log_y else 'linear'
-        
+
         x_lim_helper = self.viewer.state.x_lim_helper
         y_lim_helper = self.viewer.state.y_lim_helper
         assert x_axis['range'] == [x_lim_helper.lower, x_lim_helper.upper]
@@ -116,7 +115,6 @@ class TestScatter2DRectilinear(TestScatter2D):
         if log_y:
             assert y_axis['dtick'] == 1
             assert y_axis['minor_ticks'] == 'outside'
-
 
     @pytest.mark.parametrize('fill', [True, False])
     def test_base_marker(self, fill):
@@ -136,13 +134,13 @@ class TestScatter2DRectilinear(TestScatter2D):
         self.layer.state.xerr_visible = True
         self.layer.state.yerr_visible = True
         marker = base_marker(self.layer, self.mask)
-        xerr, xerr_traces = rectilinear_error_bars(self.layer, marker, self.mask, self.x, self.y, 'x') 
+        xerr, xerr_traces = rectilinear_error_bars(self.layer, marker, self.mask, self.x, self.y, 'x')
         yerr, yerr_traces = rectilinear_error_bars(self.layer, marker, self.mask, self.x, self.y, 'y')
 
         mask_size = sum(self.mask)
         assert len(xerr['array']) == mask_size
         assert len(yerr['array']) == mask_size
-        
+
         color = color_info(self.layer, self.mask)
         for traces in [xerr_traces, yerr_traces]:
             for i, bar in enumerate(traces):
@@ -159,13 +157,13 @@ class TestScatter2DRectilinear(TestScatter2D):
         self.layer.state.xerr_visible = True
         self.layer.state.yerr_visible = True
         marker = base_marker(self.layer, self.mask)
-        xerr, xerr_traces = rectilinear_error_bars(self.layer, marker, self.mask, self.x, self.y, 'x') 
+        xerr, xerr_traces = rectilinear_error_bars(self.layer, marker, self.mask, self.x, self.y, 'x')
         yerr, yerr_traces = rectilinear_error_bars(self.layer, marker, self.mask, self.x, self.y, 'y')
 
         mask_size = sum(self.mask)
         assert len(xerr['array']) == mask_size
         assert len(yerr['array']) == mask_size
-        
+
         assert len(xerr_traces) == 0
         assert len(yerr_traces) == 0
 
@@ -177,7 +175,7 @@ class TestScatter2DRectilinear(TestScatter2D):
         marker = base_marker(self.layer, self.mask)
         line, mode, traces = rectilinear_lines(self.viewer, self.layer, marker, self.x, self.y)
         assert mode == "lines+markers"
-        assert line['dash'] == "dash" 
+        assert line['dash'] == "dash"
         assert line['width'] == 4
         assert len(traces) == 0
 
@@ -206,8 +204,6 @@ class TestScatter2DRectilinear(TestScatter2D):
         self.layer.state.vector_arrowhead = True
         self.layer.state.cmap_mode = cmap_mode
 
-        vx = self.layer.state.layer[self.layer.state.vx_att][self.mask]
-        vy = self.layer.state.layer[self.layer.state.vy_att][self.mask]
         marker = base_marker(self.layer, self.mask)
         traces = rectilinear_2d_vectors(self.viewer, self.layer, marker, self.mask, self.x, self.y)
         color = color_info(self.layer, self.mask)
@@ -228,8 +224,7 @@ class TestScatter2DRectilinear(TestScatter2D):
         hover_components = [self.data.id['x'], self.data.id['z']]
         hover_data = [cid in hover_components for cid in self.layer.layer.components]
         traces = trace_data_for_layer(self.viewer, self.layer, hover_data=hover_data, add_data_label=True)
-        assert(set(traces.keys())) == {'scatter', 'vector'}
+        assert set(traces.keys()) == {'scatter', 'vector'}
         scatter = traces['scatter'][0]
         assert scatter['hoverinfo'] == 'text'
         assert len(scatter['hovertext']) == len(self.layer.layer.main_components)
-

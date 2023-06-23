@@ -343,10 +343,10 @@ def trace_data_for_layer(viewer, layer, hover_data=None, add_data_label=True):
             x = np.rad2deg(x)
             y = np.rad2deg(y)
         traces['scatter'] = [go.Scattergeo(lon=x, lat=y, projection_type=proj,
-                                    showland=False, showcoastlines=False, showlakes=False,
-                                    lataxis_showgrid=False, lonaxis_showgrid=False,
-                                    bgcolor=settings.BACKGROUND_COLOR,
-                                    framecolor=settings.FOREGROUND_COLOR)]
+                                           showland=False, showcoastlines=False, showlakes=False,
+                                           lataxis_showgrid=False, lonaxis_showgrid=False,
+                                           bgcolor=settings.BACKGROUND_COLOR,
+                                           framecolor=settings.FOREGROUND_COLOR)]
 
     return traces
 
