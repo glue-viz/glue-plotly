@@ -71,7 +71,8 @@ def base_rectilinear_axis(viewer, axis):
         rangemode='normal',
     )
     if log:
-        axis_dict.update(dtick=1, minor_ticks='outside')
+        axis_dict.update(dtick=1, minor_ticks='outside',
+                         range=list(np.log10(range)))
     return axis_dict
 
 

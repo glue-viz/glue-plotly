@@ -1,5 +1,6 @@
 from itertools import product
 
+from numpy import log10
 from plotly.graph_objs import Scatter
 import pytest
 
@@ -100,8 +101,14 @@ class TestScatter2DRectilinear(TestScatter2D):
 
         x_lim_helper = self.viewer.state.x_lim_helper
         y_lim_helper = self.viewer.state.y_lim_helper
-        assert x_axis['range'] == [x_lim_helper.lower, x_lim_helper.upper]
-        assert y_axis['range'] == [y_lim_helper.lower, y_lim_helper.upper]
+        expected_x_range = [x_lim_helper.lower, x_lim_helper.upper]
+        expected_y_range = [y_lim_helper.lower, y_lim_helper.upper]
+        if log_x:
+            expected_x_range = list(log10(expected_x_range))
+        if log_y:
+            expected_y_range = list(log10(expected_y_range))
+        assert x_axis['range'] == expected_x_range
+        assert y_axis['range'] == expected_y_range
 
         base_font_dict = dict(family=DEFAULT_FONT, color=settings.FOREGROUND_COLOR)
         assert x_axis['titlefont'] == dict(**base_font_dict, size=24)

@@ -64,7 +64,7 @@ class TestPlotly(object):
         data = args[0]['data'][0].to_plotly_json()
 
         expected = dict(type='scatter', mode='markers', name=d.label,
-                        marker=dict(size=12, opacity=0.4,
+                        marker=dict(size=6, opacity=0.4,
                                     color="#ff0000",
                                     line=dict(width=0)))
         for k, v in expected.items():
