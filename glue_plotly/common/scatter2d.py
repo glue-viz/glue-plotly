@@ -22,15 +22,6 @@ def projection_type(viewer):
     return 'azimuthal equal area' if proj == 'lambert' else proj
 
 
-def rectilinear_axis(viewer, axis):
-    ax = base_rectilinear_axis(viewer, axis)
-    helper = getattr(viewer.state, f'{axis}_lim_helper')
-    log = getattr(viewer.state, f'{axis}_log')
-    if log:
-        ax['range'] = [helper.lower, helper.upper]
-    return ax
-
-
 def angular_axis(viewer):
     degrees = viewer.state.using_degrees
     angle_unit = 'degrees' if degrees else 'radians'
