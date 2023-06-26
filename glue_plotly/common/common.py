@@ -4,6 +4,8 @@ import numpy as np
 from glue.config import settings
 from glue.core import BaseData
 
+from glue_plotly.utils import opacity_value_string
+
 DEFAULT_FONT = 'Arial, sans-serif'
 
 
@@ -38,13 +40,11 @@ def base_layout_config(viewer, **kwargs):
     return config
 
 
-def rectilinear_axis(viewer, axis):
+def base_rectilinear_axis(viewer, axis):
     title = getattr(viewer.axes, f'get_{axis}label')()
     ax = getattr(viewer.axes, f'{axis}axis')
     range = [getattr(viewer.state, f'{axis}_min'), getattr(viewer.state, f'{axis}_max')]
     log = getattr(viewer.state, f'{axis}_log')
-    if log:
-        range = [np.log10(b) for b in range]
     axis_dict = dict(
         title=title,
         titlefont=dict(
@@ -71,7 +71,8 @@ def rectilinear_axis(viewer, axis):
         rangemode='normal',
     )
     if log:
-        axis_dict.update(dtick=1, minor_ticks='outside')
+        axis_dict.update(dtick=1, minor_ticks='outside',
+                         range=list(np.log10(range)))
     return axis_dict
 
 
@@ -109,8 +110,8 @@ def rgb_colors(layer, mask, cmap_att):
         color_values = color_values[mask]
     rgba_list = np.array([
         cmap(norm(point)) for point in color_values])
-    rgba_list = [[int(256 * t) for t in rgba] for rgba in rgba_list]
-    rgba_strs = [f'rgba({r},{g},{b},{a})' for r, g, b, a in rgba_list]
+    rgba_list = [[int(256 * t) for t in rgba[:3]] + [rgba[3]] for rgba in rgba_list]
+    rgba_strs = [f'rgba({r},{g},{b},{opacity_value_string(a)})' for r, g, b, a in rgba_list]
     return rgba_strs
 
 

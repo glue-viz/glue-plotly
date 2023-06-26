@@ -9,8 +9,10 @@ from glue.core import BaseData
 from glue.utils import ensure_numerical
 from glue.viewers.scatter.layer_artist import plot_colored_line
 
+from glue_plotly.utils import rgba_string_to_values
+
 from .common import DEFAULT_FONT, base_layout_config,\
-    rectilinear_axis, color_info, dimensions, sanitize
+    base_rectilinear_axis, color_info, dimensions, sanitize
 
 LINESTYLES = {'solid': 'solid', 'dotted': 'dot', 'dashed': 'dash', 'dashdot': 'dashdot'}
 
@@ -66,8 +68,8 @@ def radial_axis(viewer):
 
 def rectilinear_layout_config(viewer):
     layout_config = base_layout_config(viewer)
-    x_axis = rectilinear_axis(viewer, 'x')
-    y_axis = rectilinear_axis(viewer, 'y')
+    x_axis = base_rectilinear_axis(viewer, 'x')
+    y_axis = base_rectilinear_axis(viewer, 'y')
     layout_config.update(xaxis=x_axis, yaxis=y_axis)
     return layout_config
 
@@ -97,8 +99,9 @@ def rectilinear_lines(viewer, layer, marker, x, y, legend_group=None):
     else:
         # set mode to markers and plot the colored line over it
         mode = 'markers'
-        rgb_strs = marker['color']
-        lc = plot_colored_line(viewer.axes, x, y, rgb_strs)
+        rgba_strs = marker['color']
+        rgba_values = [rgba_string_to_values(s) for s in rgba_strs]
+        lc = plot_colored_line(viewer.axes, x, y, rgba_values)
         segments = lc.get_segments()
         # generate list of indices to parse colors over
         indices = np.repeat(range(len(x)), 2)
@@ -112,7 +115,7 @@ def rectilinear_lines(viewer, layer, marker, x, y, legend_group=None):
                 line=dict(
                     dash=LINESTYLES[layer_state.linestyle],
                     width=layer_state.linewidth,
-                    color=rgb_strs[indices[i]]),
+                    color=rgba_strs[indices[i]]),
                 showlegend=False,
                 hoverinfo='skip')
             )
@@ -191,15 +194,15 @@ def rectilinear_2d_vectors(viewer, layer, marker, mask, x, y, legend_group=None)
     if layer_state.cmap_mode == 'Fixed':
         fig = ff.create_quiver(x_vec, y_vec, vx, vy, **vector_info)
         fig.update_traces(marker=dict(color=marker['color']))
-
     else:
         # start with the first quiver to add the rest
+        color = marker['color'] if layer.state.fill else marker['line']['color']
         fig = ff.create_quiver([x[0]], [y[0]], [vx[0]], [vy[0]],
-                               **vector_info, line_color=marker['color'][0])
-        for i in range(1, len(marker['color'])):
+                               **vector_info, line_color=color[0])
+        for i in range(1, len(color)):
             fig1 = ff.create_quiver([x[i]], [y[i]], [vx[i]], [vy[i]],
                                     **vector_info,
-                                    line_color=marker['color'][i])
+                                    line_color=color[i])
             fig.add_traces(data=fig1.data)
 
     return list(fig.data)
@@ -210,7 +213,7 @@ def size_info(layer, mask):
 
     # set all points to be the same size, with some arbitrary scaling
     if state.size_mode == 'Fixed':
-        return 2 * state.size_scaling * state.size
+        return state.size_scaling * state.size
 
     # scale size of points by set size scaling
     else:
@@ -227,8 +230,23 @@ def size_info(layer, mask):
         return s
 
 
-def traces_for_layer(viewer, layer, hover_data=None, add_data_label=True):
-    traces = []
+def base_marker(layer, mask):
+    color = color_info(layer, mask)
+    marker = dict(size=size_info(layer, mask),
+                  color=color,
+                  opacity=layer.state.alpha)
+
+    if layer.state.fill:
+        marker['line'] = dict(width=0)
+    else:
+        marker['color'] = 'rgba(0,0,0,0)'
+        marker['line'] = dict(width=1, color=color)
+
+    return marker
+
+
+def trace_data_for_layer(viewer, layer, hover_data=None, add_data_label=True):
+    traces = {}
     if hover_data is None:
         hover_data = []
 
@@ -242,39 +260,30 @@ def traces_for_layer(viewer, layer, hover_data=None, add_data_label=True):
 
     rectilinear = getattr(viewer.state, 'using_rectilinear', True)
 
-    marker = dict(color=color_info(layer, mask),
-                  size=size_info(layer, mask),
-                  opacity=layer_state.alpha)
-
-    # check whether to fill circles
-    if not layer_state.fill:
-        marker['color'] = 'rgba(0,0,0,0)'
-        marker['line'] = dict(width=1,
-                              color=layer_state.color)
-
-    else:
-        # remove default white border around points
-        marker['line'] = dict(width=0)
+    marker = base_marker(layer, mask)
 
     # add vectors
     if rectilinear and layer.state.vector_visible and layer.state.vector_scaling > 0.1:
         vec_traces = rectilinear_2d_vectors(viewer, layer, marker, mask, x, y, legend_group)
-        traces += vec_traces
+        traces['vector'] = vec_traces
 
     # add line properties
     mode = "markers"
     line = {}
     if layer_state.line_visible:
         line, mode, line_traces = rectilinear_lines(viewer, layer, marker, x, y, legend_group)
-        traces += line_traces
+        if line_traces:
+            traces['line'] = line_traces
 
     if rectilinear:
         if layer_state.xerr_visible:
             xerr, xerr_traces = rectilinear_error_bars(layer, marker, mask, x, y, 'x', legend_group)
-            traces += xerr_traces
+            if xerr_traces:
+                traces['xerr'] = xerr_traces
         if layer_state.yerr_visible:
             yerr, yerr_traces = rectilinear_error_bars(layer, marker, mask, x, y, 'y', legend_group)
-            traces += yerr_traces
+            if yerr_traces:
+                traces['yerr'] = yerr_traces
 
     if np.sum(hover_data) == 0:
         hoverinfo = 'skip'
@@ -310,7 +319,7 @@ def traces_for_layer(viewer, layer, hover_data=None, add_data_label=True):
     proj = projection_type(viewer)
     if polar:
         scatter_info.update(theta=x, r=y, thetaunit='degrees' if degrees else 'radians')
-        traces.append(go.Scatterpolar(**scatter_info))
+        traces['scatter'] = [go.Scatterpolar(**scatter_info)]
     elif rectilinear:
         scatter_info.update(x=x, y=y)
         if layer_state.cmap_mode == 'Fixed':
@@ -319,15 +328,20 @@ def traces_for_layer(viewer, layer, hover_data=None, add_data_label=True):
                 scatter_info.update(error_x=xerr)
             if layer_state.yerr_visible:
                 scatter_info.update(error_y=yerr)
-        traces.append(go.Scatter(**scatter_info))
+        traces['scatter'] = [go.Scatter(**scatter_info)]
     else:
         if not degrees:
             x = np.rad2deg(x)
             y = np.rad2deg(y)
-        traces.append(go.Scattergeo(lon=x, lat=y, projection_type=proj,
-                                    showland=False, showcoastlines=False, showlakes=False,
-                                    lataxis_showgrid=False, lonaxis_showgrid=False,
-                                    bgcolor=settings.BACKGROUND_COLOR,
-                                    framecolor=settings.FOREGROUND_COLOR))
+        traces['scatter'] = [go.Scattergeo(lon=x, lat=y, projection_type=proj,
+                                           showland=False, showcoastlines=False, showlakes=False,
+                                           lataxis_showgrid=False, lonaxis_showgrid=False,
+                                           bgcolor=settings.BACKGROUND_COLOR,
+                                           framecolor=settings.FOREGROUND_COLOR)]
 
     return traces
+
+
+def traces_for_layer(*args, **kwargs):
+    trace_data = trace_data_for_layer(*args, **kwargs)
+    return [trace for traces in trace_data.values() for trace in traces]

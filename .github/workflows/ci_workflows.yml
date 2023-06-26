@@ -36,7 +36,10 @@ jobs:
         - linux: py39-test
         - linux: py311-test
 
-        - macos: py37-test
+        # Disable Python 3.7 tests on MacOS until https://github.com/actions/setup-python/issues/682
+        # has been resolved
+        # - macos: py37-test
+        - macos: py38-test
         - macos: py310-test
 
         - windows: py38-test
