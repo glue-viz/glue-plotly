@@ -9,7 +9,7 @@ from glue.config import settings
 from glue.core import Data
 from glue.viewers.scatter.qt import ScatterViewer
 
-from glue_plotly.common.common import DEFAULT_FONT, color_info, data_count, layers_to_export, \
+from glue_plotly.common import DEFAULT_FONT, color_info, data_count, layers_to_export, \
                                       base_rectilinear_axis, sanitize
 from glue_plotly.common.scatter2d import base_marker, rectilinear_2d_vectors, rectilinear_error_bars, \
                                          rectilinear_lines, trace_data_for_layer
@@ -23,12 +23,6 @@ class TestScatter2D:
         self.app.session.data_collection.append(self.data)
         self.viewer = self.app.new_data_viewer(ScatterViewer)
         self.viewer.add_data(self.data)
-        for subtool in self.viewer.toolbar.tools['save'].subtools:
-            if subtool.tool_id == 'save:plotly2d':
-                self.tool = subtool
-                break
-        else:
-            raise Exception("Could not find save:plotly2d tool in viewer")
 
     def teardown_method(self, method):
         self.viewer.close(warn=False)
