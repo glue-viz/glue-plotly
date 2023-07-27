@@ -46,6 +46,16 @@ def setup():
     TableViewer.tools += ['save:plotlytable']
 
     try:
+        from glue.plugins.dendro_viewer.qt import DendrogramViewer
+    except ImportError:
+        pass
+    else:
+        DendrogramViewer.subtools = {
+            **DendrogramViewer.subtools,
+            "save": DendrogramViewer.subtools["save"] + ['save:plotlydendro']
+        }
+
+    try:
         from glue_vispy_viewers.scatter.scatter_viewer import VispyScatterViewer
     except ImportError:
         pass
