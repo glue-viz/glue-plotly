@@ -55,10 +55,11 @@ def traces_for_layer(viewer, layer, add_data_label=True):
             )
             traces.append(Bar(**hist_info))
     else:
+        width = edges[1] - edges[0]
         hist_info.update(
             x=x,
             y=y,
-            width=edges[1] - edges[0],
+            width=width,
         )
         traces.append(Bar(**hist_info))
 
