@@ -72,5 +72,5 @@ class TestDendrogram:
         assert trace['hoverinfo'] == 'skip'
         assert trace['opacity'] == 0.86
         line = trace['line']
-        assert line['width'] == 4
+        assert line['width'] == 6
         assert line['color'] == '#729fcf'

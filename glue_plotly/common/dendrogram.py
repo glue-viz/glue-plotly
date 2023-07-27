@@ -31,7 +31,7 @@ def trace_for_layer(layer, data, add_data_label=True):
         y=data[:, 1],
         name=name,
         hoverinfo='skip',
-        line=dict(width=layer.state.linewidth,
+        line=dict(width=1.5 * layer.state.linewidth,
                   color=fixed_color(layer)),
         opacity=layer.state.alpha
     )
