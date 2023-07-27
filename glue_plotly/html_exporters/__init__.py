@@ -4,3 +4,4 @@ from . import image # noqa
 from . import histogram  # noqa
 from . import profile  # noqa
 from . import table  # noqa
+from . import dendrogram  # noqa
