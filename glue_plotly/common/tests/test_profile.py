@@ -1,7 +1,6 @@
 from itertools import product
 
 from numpy import arange, log10
-from glue_plotly.common.common import DEFAULT_FONT
 import pytest
 
 from glue.app.qt import GlueApplication
@@ -9,10 +8,10 @@ from glue.config import settings
 from glue.core import Data
 from glue.viewers.profile.qt import ProfileViewer
 
-from glue_plotly.common import data_count, layers_to_export, sanitize
+from glue_plotly.common import DEFAULT_FONT, data_count, layers_to_export, sanitize
 from glue_plotly.common.profile import axis, traces_for_layer
 
-from .utils import SimpleCoordinates
+from glue_plotly.common.tests.utils import SimpleCoordinates
 
 
 class TestProfile:
@@ -102,7 +101,7 @@ class TestProfile:
     @pytest.mark.parametrize('as_steps', [True, False])
     def test_trace(self, as_steps):
         self.layer.state.as_steps = as_steps
-        traces = traces_for_layer(self.viewer, self.layer, add_data_label=False)
+        traces = traces_for_layer(self.viewer, self.layer)
         assert len(traces) == 1
         trace = traces[0]
         line = trace['line']
