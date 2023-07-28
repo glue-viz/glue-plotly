@@ -208,7 +208,7 @@ def rectilinear_2d_vectors(viewer, layer, marker, mask, x, y, legend_group=None)
     return list(fig.data)
 
 
-def size_info(layer, mask):
+def size_info(layer, mask=None):
     state = layer.state
 
     # set all points to be the same size, with some arbitrary scaling
@@ -217,7 +217,10 @@ def size_info(layer, mask):
 
     # scale size of points by set size scaling
     else:
-        s = ensure_numerical(state.layer[state.size_att][mask].ravel())
+        data = state.layer[state.size_att]
+        if mask is not None:
+            data = data[mask]
+        s = ensure_numerical(data.ravel())
         s = ((s - state.size_vmin) /
              (state.size_vmax - state.size_vmin))
         # The following ensures that the sizes are in the

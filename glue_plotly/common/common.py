@@ -89,7 +89,7 @@ def sanitize(*arrays):
 
 def fixed_color(layer):
     layer_color = layer.state.color
-    if layer_color == '0.35':
+    if layer_color == '0.35' or layer_color == '0.75':
         layer_color = 'gray'
     return layer_color
 
