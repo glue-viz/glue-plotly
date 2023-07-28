@@ -111,7 +111,18 @@ class PlotlyScatterLayerArtist(LayerArtist):
             if force or \
                 any(prop in changed for prop in CMAP_PROPERTIES) or \
                 any(prop in changed for prop in ["color", "fill"]):
-                scatter.marker['color'] = color_info(self) 
+                    
+                color = color_info(self)
+                if self.state.fill:
+                    scatter.marker.update(color=color,
+                                          line=dict(width=0),
+                                          opacity=self.state.alpha)
+                else:
+                    scatter.marker.update(color='rgba(0, 0, 0, 0)',
+                                          opacity=self.state.alpha,
+                                          line=dict(width=1,
+                                                    color=color)
+                                          )
 
             if force or any(prop in changed for prop in MARKER_PROPERTIES):
                 scatter.marker['size'] = size_info(self)

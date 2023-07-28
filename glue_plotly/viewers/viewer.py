@@ -3,6 +3,10 @@ from glue_jupyter.view import IPyWidgetView
 
 import plotly.graph_objects as go
 
+
+INTERACT_COLOR = "#cbcbcb"
+
+
 class PlotlyBaseView(IPyWidgetView):
 
     allow_duplicate_data = False
@@ -10,8 +14,6 @@ class PlotlyBaseView(IPyWidgetView):
     is2d = True
 
     def __init__(self, session, state=None):
-
-        go.Figure
 
         super(PlotlyBaseView, self).__init__(session, state=state)
 
@@ -24,8 +26,12 @@ class PlotlyBaseView(IPyWidgetView):
                                        paper_bgcolor=settings.BACKGROUND_COLOR,
                                        plot_bgcolor=settings.BACKGROUND_COLOR,
                                        xaxis=x_axis,
-                                       yaxis=y_axis)
+                                       yaxis=y_axis,
+                                       dragmode=False,
+                                       newselection=dict(line=dict(color=INTERACT_COLOR), mode='immediate'),
+                                       modebar=dict(remove=['toimage', 'zoom', 'pan', 'lasso', 'zoomIn2d', 'zoomOut2d', 'select']))
         self.figure = go.FigureWidget(layout=self.plotly_layout)
+        self.figure.for_each_selection
 
         self.state.add_callback('x_axislabel', self.update_x_axislabel)
         self.state.add_callback('y_axislabel', self.update_y_axislabel)
@@ -33,6 +39,10 @@ class PlotlyBaseView(IPyWidgetView):
         self.state.add_callback('x_max', self._update_plotly_limits)
         self.state.add_callback('y_min', self._update_plotly_limits)
         self.state.add_callback('y_max', self._update_plotly_limits)
+        self.state.add_callback('show_axes', self._update_axes_visible)
+
+        self._update_plotly_limits()
+        self._update_axes_visible()
 
         self.create_layout()
 
@@ -58,8 +68,12 @@ class PlotlyBaseView(IPyWidgetView):
             if self.state.y_min is not None and self.state.y_max is not None:
                 self.axis_y['range'] = [self.state.y_min, self.state.y_max]
 
+    def _update_axes_visible(self, *args):
+        with self.figure.batch_update():
+            self.axis_x.visible = self.state.show_axes
+            self.axis_y.visible = self.state.show_axes
+
     @property
     def figure_widget(self):
         return self.figure
-
 
