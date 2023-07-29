@@ -25,7 +25,18 @@ class PlotlyZoomMode(PlotlyDragMode):
 
     def __init__(self, viewer):
         super().__init__(viewer, 'zoom')
-        self.viewer = viewer
+
+
+@viewer_tool
+class PlotlyPanMode(PlotlyDragMode):
+
+    icon = 'glue_move'
+    tool_id = 'plotly:pan'
+    action_text = 'Pan'
+    tool_tip = 'Interactively pan'
+
+    def __init__(self, viewer):
+        super().__init__(viewer, 'pan')
 
 
 @viewer_tool

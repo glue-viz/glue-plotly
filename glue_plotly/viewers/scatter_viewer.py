@@ -10,7 +10,7 @@ from .viewer import PlotlyBaseView
 @viewer_registry("plotly_scatter")
 class PlotlyScatterView(PlotlyBaseView):
 
-    tools = ['plotly:zoom', 'plotly:rectangle', 'plotly:lasso']
+    tools = ['plotly:zoom', 'plotly:pan', 'plotly:rectangle', 'plotly:lasso']
 
     allow_duplicate_data = False
     allow_duplicate_subset = False
