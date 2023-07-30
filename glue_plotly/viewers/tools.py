@@ -1,6 +1,6 @@
 from contextlib import nullcontext
 from glue.config import viewer_tool
-from glue.core.subset import PolygonalROI, RectangularROI
+from glue.core.subset import PolygonalROI, RectangularROI, XRangeROI, YRangeROI
 from glue.viewers.common.tool import CheckableTool, Tool
 
 
@@ -72,6 +72,50 @@ class PlotlyPanMode(PlotlyDragMode):
 
 
 @viewer_tool
+class PlotlyHRangeSelectionMode(PlotlySelectionMode):
+
+    icon = 'glue_xrange_select'
+    tool_id = 'plotly:xrange'
+    action_text = 'X range'
+    tool_tip = 'Select a range of x values'
+
+    def __init__(self, viewer):
+        super().__init__(viewer, 'select')
+
+    def activate(self):
+        super().activate()
+        self.viewer.figure.update_layout(selectdirection="h")
+
+    def _on_selection(self, _trace, _points, selector):
+        xmin, xmax = selector.xrange
+        roi = XRangeROI(xmin, xmax)
+        with self.viewer._output_widget or nullcontext():
+            self.viewer.apply_roi(roi)
+
+
+@viewer_tool
+class PlotlyVRangeSelectionMode(PlotlySelectionMode):
+
+    icon = 'glue_yrange_select'
+    tool_id = 'plotly:yrange'
+    action_text = 'Y range'
+    tool_tip = 'Select a range of y values'
+
+    def __init__(self, viewer):
+        super().__init__(viewer, 'select')
+
+    def activate(self):
+        super().activate()
+        self.viewer.figure.update_layout(selectdirection="v")
+
+    def _on_selection(self, _trace, _points, selector):
+        ymin, ymax = selector.yrange
+        roi = YRangeROI(ymin, ymax)
+        with self.viewer._output_widget or nullcontext():
+            self.viewer.apply_roi(roi)
+
+
+@viewer_tool
 class PlotlyRectangleSelectionMode(PlotlySelectionMode):
 
     icon = 'glue_square'
@@ -81,6 +125,10 @@ class PlotlyRectangleSelectionMode(PlotlySelectionMode):
 
     def __init__(self, viewer):
         super().__init__(viewer, 'select')
+
+    def activate(self):
+        super().activate()
+        self.viewer.figure.update_layout(selectdirection="any")
 
     def _on_selection(self, _trace, _points, selector):
         xmin, xmax = selector.xrange

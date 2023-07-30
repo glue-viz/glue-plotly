@@ -10,7 +10,8 @@ from .viewer import PlotlyBaseView
 @viewer_registry("plotly_scatter")
 class PlotlyScatterView(PlotlyBaseView):
 
-    tools = ['plotly:home', 'plotly:zoom', 'plotly:pan', 'plotly:rectangle', 'plotly:lasso']
+    tools = ['plotly:home', 'plotly:zoom', 'plotly:pan', 'plotly:xrange',
+             'plotly:yrange', 'plotly:rectangle', 'plotly:lasso']
 
     allow_duplicate_data = False
     allow_duplicate_subset = False
@@ -21,7 +22,6 @@ class PlotlyScatterView(PlotlyBaseView):
     _data_artist_cls = PlotlyScatterLayerArtist
     _subset_artist_cls = PlotlyScatterLayerArtist
     _layer_style_widget_cls = ScatterLayerStateWidget
-
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
