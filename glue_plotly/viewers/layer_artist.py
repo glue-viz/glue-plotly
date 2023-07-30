@@ -74,6 +74,7 @@ class PlotlyScatterLayerArtist(LayerArtist):
         self.scatter_id = uuid4().hex
         scatter = Scatter(x=[0, 1], y=[0, 1],
                           mode="markers",
+                          unselected=dict(marker=dict(opacity=self.state.alpha)),
                           meta=self.scatter_id)
         self.view.figure.add_trace(scatter)
 
@@ -81,9 +82,6 @@ class PlotlyScatterLayerArtist(LayerArtist):
         return next(self.view.figure.select_traces(dict(meta=self.scatter_id)))
 
     def _update_data(self):
-
-        print("Updating data")
-        print(self.layer)
 
         x = ensure_numerical(self.layer[self._viewer_state.x_att].ravel())
         y = ensure_numerical(self.layer[self._viewer_state.y_att].ravel())
@@ -131,7 +129,9 @@ class PlotlyScatterLayerArtist(LayerArtist):
                 scatter.marker['size'] = size_info(self)
 
         if force or "alpha" in changed:
-            scatter.marker['opacity'] = self.state.alpha
+            opacity_dict = dict(opacity=self.state.alpha)
+            scatter.update(marker=opacity_dict,
+                           unselected=dict(marker=opacity_dict))
 
         if force or "visible" in changed:
             scatter.visible = self.state.visible

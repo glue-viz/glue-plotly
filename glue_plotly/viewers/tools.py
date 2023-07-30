@@ -11,6 +11,13 @@ class PlotlyDragMode(CheckableTool):
         self.mode = mode
 
     def activate(self):
+
+        # Disable any active tool in other viewers
+        if self.viewer.session.application.get_setting('single_global_active_tool'):
+            for viewer in self.viewer.session.application.viewers:
+                if viewer is not self.viewer:
+                    viewer.toolbar.active_tool = None
+
         self.viewer.figure.update_layout(dragmode=self.mode)
 
     def deactivate(self):
@@ -25,12 +32,18 @@ class PlotlySelectionMode(PlotlyDragMode):
         self.viewer.set_selection_callback(self.on_selection)
 
     def deactivate(self):
-        super().deactivate()
+        print("Deactivating")
         self.viewer.set_selection_callback(None)
         self.viewer.set_selection_active(False)
+        self.viewer.figure.on_edits_completed(self._clear_selection)
+
+    def _clear_selection(self):
+        self.viewer.figure.plotly_relayout({'selections':[], 'dragmode': False})
 
     def on_selection(self, trace, points, selector):
+        print("In on_selection")
         self._on_selection(trace, points, selector)
+        self.viewer.toolbar.active_tool = None
         self.deactivate()
 
 
@@ -73,9 +86,7 @@ class PlotlyRectangleSelectionMode(PlotlySelectionMode):
         xmin, xmax = selector.xrange
         ymin, ymax = selector.yrange
         roi = RectangularROI(xmin, xmax, ymin, ymax)
-        print(roi)
         with self.viewer._output_widget or nullcontext():
-            print("About to apply ROI")
             self.viewer.apply_roi(roi)
 
 @viewer_tool
