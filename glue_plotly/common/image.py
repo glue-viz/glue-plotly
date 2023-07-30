@@ -233,7 +233,7 @@ def traces_for_nonpixel_subset_layer(viewer, layer, full_view, transpose):
     layer_state = layer.state
     subset_state = layer.layer.subset_state
     ref_data = viewer.state.reference_data
-    color = fixed_color(layer)
+    color = fixed_color(layer_state)
     buffer = ref_data.compute_fixed_resolution_buffer(full_view, target_data=ref_data,
                                                       broadcast=False, subset_state=subset_state)
     if transpose:
@@ -269,7 +269,7 @@ def traces_for_scatter_layer(viewer, layer, hover_data=None, add_data_label=True
     y = layer_state.layer[viewer_state.y_att].copy()
     mask, (x, y) = sanitize(x, y)
 
-    marker = dict(color=color_info(layer),
+    marker = dict(color=color_info(layer_state),
                   opacity=layer_state.alpha,
                   line=dict(width=0),
                   size=scatter_size_info(layer, mask),

@@ -84,21 +84,20 @@ def polar_layout_config(viewer):
     return layout_config
 
 
-def rectilinear_lines(viewer, layer, marker, x, y, legend_group=None):
-    layer_state = layer.state
-
-    line = dict(
-        dash=LINESTYLES[layer_state.linestyle],
-        width=layer_state.linewidth
-    )
-
-    traces = []
-
-    if layer_state.cmap_mode == 'Fixed':
-        mode = 'lines+markers'
+def scatter_mode(layer_state):
+    if layer_state.line_visible and layer_state.cmap_mode == 'Fixed':
+        return 'lines+markers'
     else:
+        return 'markers'
+
+
+def rectilinear_lines(viewer, layer_state, marker, x, y, legend_group=None):
+    traces = []
+    
+    line = dict(dash=LINESTYLES[layer_state.linestyle], width=layer_state.linewidth)
+    
+    if layer_state.cmap_mode == 'Linear':
         # set mode to markers and plot the colored line over it
-        mode = 'markers'
         rgba_strs = marker['color']
         rgba_values = [rgba_string_to_values(s) for s in rgba_strs]
         lc = plot_colored_line(viewer.axes, x, y, rgba_values)
@@ -120,19 +119,19 @@ def rectilinear_lines(viewer, layer, marker, x, y, legend_group=None):
                 hoverinfo='skip')
             )
 
-    return line, mode, traces
+    return line, traces
 
 
-def rectilinear_error_bars(layer, marker, mask, x, y, axis, legend_group=None):
+def rectilinear_error_bars(layer_state, marker, mask, x, y, axis, legend_group=None):
     err = {}
     traces = []
-    err_att = getattr(layer.state, f'{axis}err_att')
+    err_att = getattr(layer_state, f'{axis}err_att')
     err['type'] = 'data'
-    err['array'] = ensure_numerical(layer.state.layer[err_att][mask].ravel())
+    err['array'] = ensure_numerical(layer_state.layer[err_att][mask].ravel())
     err['visible'] = True
 
     # add points with error bars here if color mode is linear
-    if layer.state.cmap_mode == 'Linear':
+    if layer_state.cmap_mode == 'Linear':
         for i, bar in enumerate(err['array']):
             scatter_info = dict(
                 x=[x[i]],
@@ -234,7 +233,7 @@ def size_info(layer, mask=None):
 
 
 def base_marker(layer, mask):
-    color = color_info(layer, mask)
+    color = color_info(layer.state, mask)
     marker = dict(size=size_info(layer, mask),
                   color=color,
                   opacity=layer.state.alpha)
@@ -271,20 +270,21 @@ def trace_data_for_layer(viewer, layer, hover_data=None, add_data_label=True):
         traces['vector'] = vec_traces
 
     # add line properties
-    mode = "markers"
-    line = {}
+    mode = scatter_mode(layer_state)
     if layer_state.line_visible:
-        line, mode, line_traces = rectilinear_lines(viewer, layer, marker, x, y, legend_group)
+        line, line_traces = rectilinear_lines(viewer, layer, marker, x, y, legend_group)
         if line_traces:
             traces['line'] = line_traces
+    else:
+        line = {}
 
     if rectilinear:
         if layer_state.xerr_visible:
-            xerr, xerr_traces = rectilinear_error_bars(layer, marker, mask, x, y, 'x', legend_group)
+            xerr, xerr_traces = rectilinear_error_bars(layer_state, marker, mask, x, y, 'x', legend_group)
             if xerr_traces:
                 traces['xerr'] = xerr_traces
         if layer_state.yerr_visible:
-            yerr, yerr_traces = rectilinear_error_bars(layer, marker, mask, x, y, 'y', legend_group)
+            yerr, yerr_traces = rectilinear_error_bars(layer_state, marker, mask, x, y, 'y', legend_group)
             if yerr_traces:
                 traces['yerr'] = yerr_traces
 

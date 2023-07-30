@@ -37,7 +37,7 @@ def traces_for_layer(viewer, layer, add_data_label=True):
     # set all bars to be the same color
     marker = dict(opacity=layer_state.alpha,
                   line=dict(width=0),
-                  color=fixed_color(layer))
+                  color=fixed_color(layer_state))
 
     name = layer.layer.label
     if add_data_label and not isinstance(layer.layer, BaseData):

@@ -187,7 +187,7 @@ def traces_for_layer(viewer, layer, hover_data=None, add_data_label=True):
     layer_state = layer.state
 
     x, y, z, mask = clipped_data(viewer, layer)
-    marker = dict(color=color_info(layer, mask=mask,
+    marker = dict(color=color_info(layer.state, mask=mask,
                                    mode_att="color_mode",
                                    cmap_att="cmap_attribute"),
                   size=size_info(layer, mask),
