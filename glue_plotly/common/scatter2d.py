@@ -7,7 +7,7 @@ import plotly.figure_factory as ff
 from glue.config import settings
 from glue.core import BaseData
 from glue.utils import ensure_numerical
-from glue.viewers.scatter.layer_artist import plot_colored_line
+from glue.viewers.scatter.layer_artist import ColoredLineCollection, plot_colored_line
 
 from glue_plotly.utils import rgba_string_to_values
 
@@ -91,7 +91,7 @@ def scatter_mode(layer_state):
         return 'markers'
 
 
-def rectilinear_lines(viewer, layer_state, marker, x, y, legend_group=None):
+def rectilinear_lines(layer_state, marker, x, y, legend_group=None):
     traces = []
     
     line = dict(dash=LINESTYLES[layer_state.linestyle], width=layer_state.linewidth)
@@ -99,8 +99,7 @@ def rectilinear_lines(viewer, layer_state, marker, x, y, legend_group=None):
     if layer_state.cmap_mode == 'Linear':
         # set mode to markers and plot the colored line over it
         rgba_strs = marker['color']
-        rgba_values = [rgba_string_to_values(s) for s in rgba_strs]
-        lc = plot_colored_line(viewer.axes, x, y, rgba_values)
+        lc = ColoredLineCollection(x, y)
         segments = lc.get_segments()
         # generate list of indices to parse colors over
         indices = np.repeat(range(len(x)), 2)
@@ -207,27 +206,26 @@ def rectilinear_2d_vectors(viewer, layer, marker, mask, x, y, legend_group=None)
     return list(fig.data)
 
 
-def size_info(layer, mask=None):
-    state = layer.state
+def size_info(layer_state, mask=None):
 
     # set all points to be the same size, with some arbitrary scaling
-    if state.size_mode == 'Fixed':
-        return state.size_scaling * state.size
+    if layer_state.size_mode == 'Fixed':
+        return layer_state.size_scaling * layer_state.size
 
     # scale size of points by set size scaling
     else:
-        data = state.layer[state.size_att]
+        data = layer_state.layer[layer_state.size_att]
         if mask is not None:
             data = data[mask]
         s = ensure_numerical(data.ravel())
-        s = ((s - state.size_vmin) /
-             (state.size_vmax - state.size_vmin))
+        s = ((s - layer_state.size_vmin) /
+             (layer_state.size_vmax - layer_state.size_vmin))
         # The following ensures that the sizes are in the
         # range 3 to 30 before the final size scaling.
         np.clip(s, 0, 1, out=s)
         s *= 0.95
         s += 0.05
-        s *= (45 * state.size_scaling)
+        s *= (45 * layer_state.size_scaling)
         s[np.isnan(s)] = 0
         return s
 
@@ -272,7 +270,7 @@ def trace_data_for_layer(viewer, layer, hover_data=None, add_data_label=True):
     # add line properties
     mode = scatter_mode(layer_state)
     if layer_state.line_visible:
-        line, line_traces = rectilinear_lines(viewer, layer, marker, x, y, legend_group)
+        line, line_traces = rectilinear_lines(layer_state, marker, x, y, legend_group)
         if line_traces:
             traces['line'] = line_traces
     else:

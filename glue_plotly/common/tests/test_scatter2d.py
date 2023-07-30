@@ -178,7 +178,7 @@ class TestScatter2DRectilinear(TestScatter2D):
         layer_state.linewidth = 4
         marker = base_marker(self.layer, self.mask)
         mode = scatter_mode(layer_state)
-        line, traces = rectilinear_lines(self.viewer, layer_state, marker, self.x, self.y)
+        line, traces = rectilinear_lines(layer_state, marker, self.x, self.y)
         assert mode == "lines+markers"
         assert line['dash'] == "dash"
         assert line['width'] == 4
@@ -192,7 +192,7 @@ class TestScatter2DRectilinear(TestScatter2D):
         layer_state.linewidth = 6
         marker = base_marker(self.layer, self.mask)
         mode = scatter_mode(layer_state)
-        line, traces = rectilinear_lines(self.viewer, layer_state, marker, self.x, self.y)
+        line, traces = rectilinear_lines(layer_state, marker, self.x, self.y)
         assert mode == "markers"
         assert line['dash'] == 'dot'
         assert line['width'] == 6

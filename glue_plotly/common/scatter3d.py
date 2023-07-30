@@ -190,7 +190,7 @@ def traces_for_layer(viewer, layer, hover_data=None, add_data_label=True):
     marker = dict(color=color_info(layer.state, mask=mask,
                                    mode_att="color_mode",
                                    cmap_att="cmap_attribute"),
-                  size=size_info(layer, mask),
+                  size=size_info(layer_state, mask),
                   opacity=layer_state.alpha,
                   line=dict(width=0))
 
