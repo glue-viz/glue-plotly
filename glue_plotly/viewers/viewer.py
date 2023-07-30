@@ -34,6 +34,7 @@ class PlotlyBaseView(IPyWidgetView):
                                        xaxis=x_axis,
                                        yaxis=y_axis,
                                        dragmode=False,
+                                       showlegend=False,
                                        newselection=dict(line=dict(color=INTERACT_COLOR), mode='immediate'),
                                        modebar=dict(remove=['toimage', 'zoom', 'pan', 'lasso', 'zoomIn2d',
                                                             'zoomOut2d', 'select', 'autoscale', 'resetScale2d'])

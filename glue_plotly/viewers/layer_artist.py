@@ -2,6 +2,7 @@ from uuid import uuid4
 
 from glue_plotly.common import color_info
 from glue_plotly.common.scatter2d import size_info
+from glue.core import BaseData
 from glue.utils import ensure_numerical
 from glue.viewers.common.layer_artist import LayerArtist
 from glue.viewers.scatter.state import ScatterLayerState
@@ -63,6 +64,11 @@ class PlotlyScatterLayerArtist(LayerArtist):
 
         self.view = view
 
+        if isinstance(layer, BaseData):
+            name = layer.label
+        else:
+            name = f"{layer.label} ({layer.data.label})"
+
         # Somewhat annoyingly, the trace that we pass in to be added
         # is NOT the same instance that ends up living in the figure.
         # (see basedatatypes.py line 2251 in the Plotly package)
@@ -74,6 +80,7 @@ class PlotlyScatterLayerArtist(LayerArtist):
         self.scatter_id = uuid4().hex
         scatter = Scatter(x=[0, 1], y=[0, 1],
                           mode="markers",
+                          name=name,
                           unselected=dict(marker=dict(opacity=self.state.alpha)),
                           meta=self.scatter_id)
         self.view.figure.add_trace(scatter)
