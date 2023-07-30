@@ -82,6 +82,9 @@ class PlotlyScatterLayerArtist(LayerArtist):
 
     def _update_data(self):
 
+        print("Updating data")
+        print(self.layer)
+
         x = ensure_numerical(self.layer[self._viewer_state.x_att].ravel())
         y = ensure_numerical(self.layer[self._viewer_state.y_att].ravel())
 
@@ -134,6 +137,6 @@ class PlotlyScatterLayerArtist(LayerArtist):
             scatter.visible = self.state.visible
 
     def update(self):
-        self._update_scatter()
+        self._update_scatter(force=True)
         
         
