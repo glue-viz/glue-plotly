@@ -10,7 +10,7 @@ except ImportError:
 
 from glue_plotly import PLOTLY_ERROR_MESSAGE, PLOTLY_LOGO
 from glue_plotly.common import data_count, layers_to_export
-from glue_plotly.common.dendrogram import layout_config, trace_for_layer
+from glue_plotly.common.dendrogram import layout_config_from_mpl, trace_for_layer
 
 from plotly.offline import plot
 import plotly.graph_objs as go
@@ -33,13 +33,13 @@ class PlotlyDendrogramStaticExport(Tool):
         layers = layers_to_export(self.viewer)
         add_data_label = data_count(layers) > 1
 
-        config = layout_config(self.viewer)
+        config = layout_config_from_mpl(self.viewer)
         layout = go.Layout(**config)
         fig = go.Figure(layout=layout)
 
         for layer in layers:
             data = layer.mpl_artists[0].get_xydata()
-            trace = trace_for_layer(layer, data, add_data_label=add_data_label)
+            trace = trace_for_layer(layer.state, data, add_data_label=add_data_label)
             fig.add_trace(trace)
 
         plot(fig, filename=filename, auto_open=False)

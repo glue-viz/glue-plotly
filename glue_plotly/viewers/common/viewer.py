@@ -2,12 +2,14 @@ from contextlib import nullcontext
 from uuid import uuid4
 
 from echo import delay_callback
-from glue.config import settings
 from glue.core.command import ApplySubsetState
 from glue.core.subset import roi_to_subset_state
 from glue_jupyter.view import IPyWidgetView
 
 import plotly.graph_objects as go
+
+from glue_plotly.common.common import base_layout_config
+from glue_plotly.common.scatter2d import polar_layout_config
 
 
 __all__ = ['PlotlyBaseView']
@@ -27,31 +29,31 @@ class PlotlyBaseView(IPyWidgetView):
 
         x_axis = go.layout.XAxis(showgrid=False)
         y_axis = go.layout.YAxis(showgrid=False)
-        layout = go.Layout(margin=dict(r=50, l=50, b=50, t=50),
-                                       width=1200,
-                                       height=600,
-                                       grid=None,
-                                       paper_bgcolor=settings.BACKGROUND_COLOR,
-                                       plot_bgcolor=settings.BACKGROUND_COLOR,
-                                       xaxis=x_axis,
-                                       yaxis=y_axis,
-                                       dragmode=False,
-                                       showlegend=False,
-                                       newselection=dict(line=dict(color=INTERACT_COLOR), mode='immediate'),
-                                       modebar=dict(remove=['toimage', 'zoom', 'pan', 'lasso', 'zoomIn2d',
-                                                            'zoomOut2d', 'select', 'autoscale', 'resetScale2d'])
-                           )
+        layout_settings = dict(
+                dragmode=False,
+                showlegend=False,
+                xaxis=x_axis,
+                yaxis=y_axis,
+                grid=None,
+                newselection=dict(line=dict(color=INTERACT_COLOR), mode='immediate'),
+                modebar=dict(remove=['toimage', 'zoom', 'pan', 'lasso', 'zoomIn2d',
+                                     'zoomOut2d', 'select', 'autoscale', 'resetScale2d'])
+        )
+        if self.state.using_rectilinear:
+            layout_config = base_layout_config(self, include_dimensions=False, **layout_settings)
+        else:  # for now, this means polar
+            layout_config = polar_layout_config(self, include_dimensions=False, **layout_settings)
+        layout = go.Layout(**layout_config)
         self.figure = go.FigureWidget(layout=layout)
 
         self.selection_layer_id = uuid4().hex
         selection_layer = go.Image(x0=0.5,
-                                        dx=1,
-                                        y0=0,
-                                        dy=1,
-                                        meta=self.selection_layer_id,
-                                        z=[[[0,0,0,0]]],
-                                        visible=False
-                                    )
+                                   dx=1,
+                                   y0=0,
+                                   dy=1,
+                                   meta=self.selection_layer_id,
+                                   z=[[[0, 0, 0, 0]]],
+                                   visible=False)
         self.figure.add_trace(selection_layer)
 
         self.state.add_callback('x_axislabel', self.update_x_axislabel)
@@ -125,7 +127,6 @@ class PlotlyBaseView(IPyWidgetView):
         with delay_callback(self.state, 'x_min', 'x_max'):
             self.state.x_min = x_range[0]
             self.state.x_max = x_range[1]
-
 
     def _set_y_state_bounds(self, y_range):
         with delay_callback(self.state, 'y_min', 'y_max'):

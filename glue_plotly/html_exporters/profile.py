@@ -10,7 +10,7 @@ except ImportError:
 
 from glue_plotly import PLOTLY_LOGO
 from glue_plotly.common import data_count, layers_to_export
-from glue_plotly.common.profile import layout_config, traces_for_layer
+from glue_plotly.common.profile import layout_config_from_mpl, traces_for_layer
 
 from plotly.offline import plot
 import plotly.graph_objs as go
@@ -31,7 +31,7 @@ class PlotlyProfile1DExport(Tool):
         if not filename:
             return
 
-        config = layout_config(self.viewer)
+        config = layout_config_from_mpl(self.viewer)
         layout = go.Layout(**config)
         fig = go.Figure(layout=layout)
 

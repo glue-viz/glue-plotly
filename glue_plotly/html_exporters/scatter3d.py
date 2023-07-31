@@ -38,14 +38,14 @@ class PlotlyScatter3DStaticExport(Tool):
     @messagebox_on_error(PLOTLY_ERROR_MESSAGE)
     def _export_to_plotly(self, filename, checked_dictionary):
 
-        config = layout_config(self.viewer)
+        config = layout_config(self.viewer.state)
         layout = go.Layout(**config)
         fig = go.Figure(layout=layout)
 
         layers = layers_to_export(self.viewer)
         add_data_label = data_count(layers) > 1
         for layer in layers:
-            traces = traces_for_layer(self.viewer, layer,
+            traces = traces_for_layer(self.viewer.state, layer.state,
                                       hover_data=checked_dictionary[layer.state.layer.label],
                                       add_data_label=add_data_label)
             for trace in traces:

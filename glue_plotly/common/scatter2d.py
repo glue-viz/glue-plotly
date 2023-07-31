@@ -7,9 +7,7 @@ import plotly.figure_factory as ff
 from glue.config import settings
 from glue.core import BaseData
 from glue.utils import ensure_numerical
-from glue.viewers.scatter.layer_artist import ColoredLineCollection, plot_colored_line
-
-from glue_plotly.utils import rgba_string_to_values
+from glue.viewers.scatter.layer_artist import ColoredLineCollection
 
 from .common import DEFAULT_FONT, base_layout_config,\
     base_rectilinear_axis, color_info, dimensions, sanitize
@@ -17,17 +15,17 @@ from .common import DEFAULT_FONT, base_layout_config,\
 LINESTYLES = {'solid': 'solid', 'dotted': 'dot', 'dashed': 'dash', 'dashdot': 'dashdot'}
 
 
-def projection_type(viewer):
-    proj = viewer.state.plot_mode
+def projection_type(viewer_state):
+    proj = viewer_state.plot_mode
     return 'azimuthal equal area' if proj == 'lambert' else proj
 
 
-def angular_axis(viewer):
-    degrees = viewer.state.using_degrees
+def angular_axis(viewer_state):
+    degrees = viewer_state.using_degrees
     angle_unit = 'degrees' if degrees else 'radians'
     theta_prefix = ''
-    if viewer.state.x_axislabel:
-        theta_prefix = '{0}='.format(viewer.state.x_axislabel)
+    if viewer_state.x_axislabel:
+        theta_prefix = '{0}='.format(viewer_state.x_axislabel)
 
     return dict(
         type='linear',
@@ -37,51 +35,62 @@ def angular_axis(viewer):
         tickprefix=theta_prefix,
         tickfont=dict(
             family=DEFAULT_FONT,
-            size=1.5 * viewer.axes.xaxis.get_ticklabels()[
-                0].get_fontsize(),
+            size=1.5 * viewer_state.x_ticklabel_size,
             color=settings.FOREGROUND_COLOR),
         linecolor=settings.FOREGROUND_COLOR,
         gridcolor=settings.FOREGROUND_COLOR
     )
 
 
-def radial_axis(viewer):
-    return dict(
+def radial_axis(viewer_state, tickvals=None, ticklabels=None):
+    axis = dict(
         type='linear',
-        range=[viewer.state.y_min, viewer.state.y_max],
+        range=[viewer_state.y_min, viewer_state.y_max],
         showticklabels=True,
         tickmode='array',
-        tickvals=viewer.axes.yaxis.get_majorticklocs(),
-        ticktext=['<i>{0}</i>'.format(t.get_text()) for t in viewer.axes.yaxis.get_majorticklabels()],
         angle=22.5,
         tickangle=22.5,
         showline=False,
         tickfont=dict(
             family=DEFAULT_FONT,
-            size=1.5 * viewer.axes.yaxis.get_ticklabels()[
-                0].get_fontsize(),
+            size=1.5 * viewer_state.y_ticklabel_size,
             color=settings.FOREGROUND_COLOR),
         linecolor=settings.FOREGROUND_COLOR,
         gridcolor=settings.FOREGROUND_COLOR
     )
 
+    if tickvals is not None and ticklabels is not None:
+        axis.update(tickvals=tickvals,
+                    ticktext=['<i>{0}</i>'.format(t) for t in ticklabels])
+        return axis
 
-def rectilinear_layout_config(viewer):
-    layout_config = base_layout_config(viewer)
-    x_axis = base_rectilinear_axis(viewer, 'x')
-    y_axis = base_rectilinear_axis(viewer, 'y')
+
+def mpl_radial_axis(viewer):
+    tickvals = viewer.axes.yaxis.get_majorticklocs()
+    ticklabels = [t.get_text() for t in viewer.axes.yaxis.get_majorticklabels()]
+    return radial_axis(viewer.state, tickvals, ticklabels)
+
+
+def rectilinear_layout_config(viewer, **kwargs):
+    layout_config = base_layout_config(viewer, **kwargs)
+    x_axis = base_rectilinear_axis(viewer.state, 'x')
+    y_axis = base_rectilinear_axis(viewer.state, 'y')
     layout_config.update(xaxis=x_axis, yaxis=y_axis)
     return layout_config
 
 
-def polar_layout_config(viewer):
-    layout_config = base_layout_config(viewer)
-    theta_axis = angular_axis(viewer)
-    r_axis = radial_axis(viewer)
+def polar_layout_config(viewer, radial_axis_maker, **kwargs):
+    layout_config = base_layout_config(viewer, **kwargs)
+    theta_axis = angular_axis(viewer.state)
+    r_axis = radial_axis_maker(viewer)
     polar = go.layout.Polar(angularaxis=theta_axis, radialaxis=r_axis,
                             bgcolor=settings.BACKGROUND_COLOR)
     layout_config.update(polar=polar)
     return layout_config
+
+
+def polar_layout_config_from_mpl(viewer, **kwargs):
+    return polar_layout_config(viewer, mpl_radial_axis, **kwargs)
 
 
 def scatter_mode(layer_state):
@@ -93,9 +102,9 @@ def scatter_mode(layer_state):
 
 def rectilinear_lines(layer_state, marker, x, y, legend_group=None):
     traces = []
-    
+
     line = dict(dash=LINESTYLES[layer_state.linestyle], width=layer_state.linewidth)
-    
+
     if layer_state.cmap_mode == 'Linear':
         line_id = uuid4().hex
         # set mode to markers and plot the colored line over it
@@ -251,12 +260,10 @@ def base_marker(layer_state, mask):
     return marker
 
 
-def trace_data_for_layer(viewer, layer, hover_data=None, add_data_label=True):
+def trace_data_for_layer(viewer, layer_state, hover_data=None, add_data_label=True):
     traces = {}
     if hover_data is None:
         hover_data = []
-
-    layer_state = layer.state
 
     x = layer_state.layer[viewer.state.x_att].copy()
     y = layer_state.layer[viewer.state.y_att].copy()
@@ -269,8 +276,8 @@ def trace_data_for_layer(viewer, layer, hover_data=None, add_data_label=True):
     marker = base_marker(layer_state, mask)
 
     # add vectors
-    if rectilinear and layer.state.vector_visible and layer.state.vector_scaling > 0.1:
-        vec_traces = rectilinear_2d_vectors(viewer, layer.state, marker, mask, x, y, legend_group)
+    if rectilinear and layer_state.vector_visible and layer_state.vector_scaling > 0.1:
+        vec_traces = rectilinear_2d_vectors(viewer, layer_state, marker, mask, x, y, legend_group)
         traces['vector'] = vec_traces
 
     # add line properties
@@ -306,9 +313,9 @@ def trace_data_for_layer(viewer, layer, hover_data=None, add_data_label=True):
                     hovertext[k] = (hovertext[k] + "{}: {} <br>"
                                     .format(label, hover_values[k]))
 
-    name = layer.layer.label
-    if add_data_label and not isinstance(layer.layer, BaseData):
-        name += " ({0})".format(layer.layer.data.label)
+    name = layer_state.layer.label
+    if add_data_label and not isinstance(layer_state.layer, BaseData):
+        name += " ({0})".format(layer_state.layer.data.label)
 
     # The <extra></extra> removes 'trace <#>' from tooltip
     scatter_info = dict(
@@ -323,7 +330,7 @@ def trace_data_for_layer(viewer, layer, hover_data=None, add_data_label=True):
 
     polar = getattr(viewer.state, 'using_polar', False)
     degrees = viewer.state.using_degrees
-    proj = projection_type(viewer)
+    proj = projection_type(viewer.state)
     if polar:
         scatter_info.update(theta=x, r=y, thetaunit='degrees' if degrees else 'radians')
         traces['scatter'] = [go.Scatterpolar(**scatter_info)]

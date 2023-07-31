@@ -50,6 +50,7 @@ DATA_PROPERTIES = {
 }
 LINE_PROPERTIES = {"line_visible", "cmap_mode", "linestyle", "linewidth", "color"}
 
+
 class PlotlyScatterLayerArtist(LayerArtist):
 
     _layer_state_cls = ScatterLayerState
@@ -117,7 +118,7 @@ class PlotlyScatterLayerArtist(LayerArtist):
 
     def _update_display(self, force=False, **kwargs):
         changed = self.pop_changed_properties()
-        
+
         if force or len(changed & DATA_PROPERTIES) > 0:
             self._update_data()
             force = True
@@ -147,17 +148,17 @@ class PlotlyScatterLayerArtist(LayerArtist):
                     if lines:
                         self._lines_id = lines[0].meta
                     self.view.figure.add_traces(lines)
-                    
+
                     # The newly-created line traces already have the correct properties, so we can return
                     return
 
                 elif fixed_color and lines:
                     line_traces_visible = False
-        
+
             if (force or "line_visible" in changed) or not line_traces_visible:
                 visible = False if not line_traces_visible else self.state.line_visible
                 self.view.figure.for_each_trace(lambda t: t.update(visible=visible), dict(meta=self._lines_id))
-    
+
             if force or (changed & {"linestyle", "linewidth", "color"}) > 0:
                 linestyle = LINESTYLES[self.state.linestyle]
                 if fixed_color:
@@ -183,9 +184,9 @@ class PlotlyScatterLayerArtist(LayerArtist):
 
         if self.state.markers_visible:
             if force or \
-                any(prop in changed for prop in CMAP_PROPERTIES) or \
-                any(prop in changed for prop in ["color", "fill"]):
-                    
+                    any(prop in changed for prop in CMAP_PROPERTIES) or \
+                    any(prop in changed for prop in ["color", "fill"]):
+
                 color = color_info(self.state)
                 if self.state.fill:
                     scatter.marker.update(color=color,
@@ -211,5 +212,4 @@ class PlotlyScatterLayerArtist(LayerArtist):
 
     def update(self):
         self._update_display(force=True)
-        
-        
+

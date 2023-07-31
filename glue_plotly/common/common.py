@@ -32,32 +32,35 @@ def data_count(layers):
     return len(data)
 
 
-def base_layout_config(viewer, **kwargs):
+def base_layout_config(viewer, include_dimensions=True, **kwargs):
     # set the aspect ratio of the axes, the tick label size, the axis label
     # sizes, and the axes limits
-    width, height = dimensions(viewer)
 
     config = dict(
         margin=dict(r=50, l=50, b=50, t=50),  # noqa
-        width=1200,
-        height=1200 * height / width,  # scale axis correctly
         paper_bgcolor=settings.BACKGROUND_COLOR,
         plot_bgcolor=settings.BACKGROUND_COLOR
     )
+
+    if include_dimensions:
+        width, height = dimensions(viewer)
+        config.update(width=1200, height=1200 * height / width)
+
     config.update(kwargs)
     return config
 
 
-def base_rectilinear_axis(viewer, axis):
-    title = getattr(viewer.axes, f'get_{axis}label')()
-    ax = getattr(viewer.axes, f'{axis}axis')
-    range = [getattr(viewer.state, f'{axis}_min'), getattr(viewer.state, f'{axis}_max')]
-    log = getattr(viewer.state, f'{axis}_log')
+def base_rectilinear_axis(viewer_state, axis):
+    title = getattr(viewer_state, f'{axis}_axislabel')
+    axislabel_size = getattr(viewer_state, f'{axis}_axislabel_size')
+    ticklabel_size = getattr(viewer_state, f'{axis}_ticklabel_size')
+    range = [getattr(viewer_state, f'{axis}_min'), getattr(viewer_state, f'{axis}_max')]
+    log = getattr(viewer_state, f'{axis}_log')
     axis_dict = dict(
         title=title,
         titlefont=dict(
             family=DEFAULT_FONT,
-            size=2 * ax.get_label().get_size(),
+            size=2 * axislabel_size,
             color=settings.FOREGROUND_COLOR
         ),
         showspikes=False,
@@ -71,8 +74,7 @@ def base_rectilinear_axis(viewer, axis):
         showticklabels=True,
         tickfont=dict(
             family=DEFAULT_FONT,
-            size=1.5 * ax.get_ticklabels()[
-                0].get_fontsize(),
+            size=1.5 * ticklabel_size,
             color=settings.FOREGROUND_COLOR),
         range=range,
         type='log' if log else 'linear',

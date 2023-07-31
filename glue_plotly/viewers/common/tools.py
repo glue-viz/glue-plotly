@@ -38,7 +38,7 @@ class PlotlySelectionMode(PlotlyDragMode):
         self.viewer.figure.on_edits_completed(self._clear_selection)
 
     def _clear_selection(self):
-        self.viewer.figure.plotly_relayout({'selections':[], 'dragmode': False})
+        self.viewer.figure.plotly_relayout({'selections': [], 'dragmode': False})
 
     def on_selection(self, trace, points, selector):
         print("In on_selection")
@@ -137,6 +137,7 @@ class PlotlyRectangleSelectionMode(PlotlySelectionMode):
         with self.viewer._output_widget or nullcontext():
             self.viewer.apply_roi(roi)
 
+
 @viewer_tool
 class PlotlyLassoSelectionMode(PlotlySelectionMode):
 
@@ -147,7 +148,6 @@ class PlotlyLassoSelectionMode(PlotlySelectionMode):
 
     def __init__(self, viewer):
         super().__init__(viewer, "lasso")
-
 
     def _on_selection(self, _trace, _points, selector):
         roi = PolygonalROI(selector.xs, selector.ys)

@@ -6,6 +6,7 @@ from glue_jupyter.registries import viewer_registry
 from .layer_artist import PlotlyScatterLayerArtist
 from glue_plotly.viewers import PlotlyBaseView
 
+
 @viewer_registry("plotly_scatter")
 class PlotlyScatterView(PlotlyBaseView):
 

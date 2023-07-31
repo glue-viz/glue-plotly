@@ -19,8 +19,8 @@ from glue.core.qt.dialogs import warn
 
 from glue_plotly import PLOTLY_ERROR_MESSAGE, PLOTLY_LOGO
 from glue_plotly.common import data_count, layers_to_export
-from glue_plotly.common.scatter2d import rectilinear_layout_config,\
-    polar_layout_config, traces_for_layer
+from glue_plotly.common.scatter2d import polar_layout_config_from_mpl, rectilinear_layout_config,\
+    traces_for_layer
 
 from plotly.offline import plot
 import plotly.graph_objs as go
@@ -72,7 +72,7 @@ class PlotlyScatter2DStaticExport(Tool):
         polar = getattr(self.viewer.state, 'using_polar', False)
 
         if polar:
-            layout_config = polar_layout_config(self.viewer)
+            layout_config = polar_layout_config_from_mpl(self.viewer)
         else:
             layout_config = rectilinear_layout_config(self.viewer)
 
@@ -94,7 +94,7 @@ class PlotlyScatter2DStaticExport(Tool):
         add_data_label = data_count(layers) > 1
         for layer in layers:
             traces = traces_for_layer(self.viewer,
-                                      layer,
+                                      layer.state,
                                       hover_data=checked_dictionary[layer.state.layer.label],
                                       add_data_label=add_data_label)
             for trace in traces:

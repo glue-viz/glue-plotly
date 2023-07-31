@@ -4,22 +4,22 @@ from glue.core import BaseData
 from plotly.graph_objs import Bar
 
 from glue_plotly.common import base_layout_config, fixed_color, base_rectilinear_axis
-from glue_plotly.utils import ticks_values
+from glue_plotly.utils import mpl_ticks_values
 
 
-def axis(viewer, ax, glue_ticks=True):
-    a = base_rectilinear_axis(viewer, ax)
+def axis_from_mpl(viewer, ax, glue_ticks=True):
+    a = base_rectilinear_axis(viewer.state, ax)
     if glue_ticks:
-        vals, text = ticks_values(viewer.axes, ax)
+        vals, text = mpl_ticks_values(viewer.axes, ax)
         if vals and text:
             a.update(tickmode='array', tickvals=vals, ticktext=text)
     return a
 
 
-def layout_config(viewer):
+def layout_config_from_mpl(viewer):
     config = base_layout_config(viewer, barmode="overlay", bargap=0)
-    x_axis = axis(viewer, 'x')
-    y_axis = axis(viewer, 'y')
+    x_axis = axis_from_mpl(viewer, 'x')
+    y_axis = axis_from_mpl(viewer, 'y')
     config.update(xaxis=x_axis, yaxis=y_axis)
     return config
 

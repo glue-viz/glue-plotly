@@ -1,6 +1,6 @@
 from re import match, sub
 
-__all__ = ['cleaned_labels', 'ticks_values']
+__all__ = ['cleaned_labels', 'mpl_ticks_values']
 
 
 def cleaned_labels(labels):
@@ -12,7 +12,7 @@ def cleaned_labels(labels):
     return cleaned
 
 
-def ticks_values(axes, axis):
+def mpl_ticks_values(axes, axis):
     index = 1 if axis == 'y' else 0
     minor_getters = [axes.get_xminorticklabels, axes.get_yminorticklabels]
     minor_ticks = minor_getters[index]()

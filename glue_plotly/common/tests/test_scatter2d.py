@@ -231,7 +231,7 @@ class TestScatter2DRectilinear(TestScatter2D):
 
         hover_components = [self.data.id['x'], self.data.id['z']]
         hover_data = [cid in hover_components for cid in self.layer.layer.components]
-        traces = trace_data_for_layer(self.viewer, self.layer, hover_data=hover_data, add_data_label=True)
+        traces = trace_data_for_layer(self.viewer, self.layer.state, hover_data=hover_data, add_data_label=True)
         assert set(traces.keys()) == {'scatter', 'vector'}
         scatter = traces['scatter'][0]
         assert scatter['hoverinfo'] == 'text'
