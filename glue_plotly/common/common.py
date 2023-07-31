@@ -6,7 +6,7 @@ from glue.config import settings
 from glue.core import BaseData
 
 from glue_plotly.utils import opacity_value_string
-from glue_plotly.viewers.viewer import PlotlyBaseView
+from glue_plotly.viewers import PlotlyBaseView
 
 DEFAULT_FONT = 'Arial, sans-serif'
 

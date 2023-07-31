@@ -10,6 +10,8 @@ from glue_jupyter.view import IPyWidgetView
 import plotly.graph_objects as go
 
 
+__all__ = ['PlotlyBaseView']
+
 INTERACT_COLOR = "#cbcbcb"
 
 

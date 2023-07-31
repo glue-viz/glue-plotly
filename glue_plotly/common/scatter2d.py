@@ -97,6 +97,7 @@ def rectilinear_lines(layer_state, marker, x, y, legend_group=None):
     line = dict(dash=LINESTYLES[layer_state.linestyle], width=layer_state.linewidth)
     
     if layer_state.cmap_mode == 'Linear':
+        line_id = uuid4().hex
         # set mode to markers and plot the colored line over it
         rgba_strs = marker['color']
         lc = ColoredLineCollection(x, y)
@@ -115,7 +116,9 @@ def rectilinear_lines(layer_state, marker, x, y, legend_group=None):
                     width=layer_state.linewidth,
                     color=rgba_strs[indices[i]]),
                 showlegend=False,
-                hoverinfo='skip')
+                visible=layer_state.line_visible,
+                hoverinfo='skip',
+                meta=line_id)
             )
 
     return line, traces
@@ -131,6 +134,7 @@ def rectilinear_error_bars(layer_state, marker, mask, x, y, axis, legend_group=N
 
     # add points with error bars here if color mode is linear
     if layer_state.cmap_mode == 'Linear':
+        error_bar_id = uuid4().hex
         for i, bar in enumerate(err['array']):
             scatter_info = dict(
                 x=[x[i]],
@@ -140,7 +144,8 @@ def rectilinear_error_bars(layer_state, marker, mask, x, y, axis, legend_group=N
                 showlegend=False,
                 legendgroup=legend_group,
                 hoverinfo='skip',
-                hovertext=None
+                hovertext=None,
+                meta=error_bar_id
             )
             scatter_info[f'error_{axis}'] = dict(
                 type='data', color=marker['color'][i],
@@ -186,7 +191,9 @@ def rectilinear_2d_vectors(viewer, layer_state, marker, mask, x, y, legend_group
                        arrow_scale=arrow_scale,
                        line=dict(width=5),
                        legendgroup=legend_group,
-                       showlegend=False, hoverinfo='skip')
+                       showlegend=False,
+                       hoverinfo='skip',
+                       meta=uuid4().hex)
     x_vec, y_vec = _adjusted_vector_points(layer_state.vector_origin, scale, x, y, vx, vy)
     if layer_state.cmap_mode == 'Fixed':
         fig = ff.create_quiver(x_vec, y_vec, vx, vy, **vector_info)
@@ -229,13 +236,13 @@ def size_info(layer_state, mask=None):
         return s
 
 
-def base_marker(layer, mask):
-    color = color_info(layer.state, mask)
-    marker = dict(size=size_info(layer, mask),
+def base_marker(layer_state, mask):
+    color = color_info(layer_state, mask)
+    marker = dict(size=size_info(layer_state, mask),
                   color=color,
-                  opacity=layer.state.alpha)
+                  opacity=layer_state.alpha)
 
-    if layer.state.fill:
+    if layer_state.fill:
         marker['line'] = dict(width=0)
     else:
         marker['color'] = 'rgba(0,0,0,0)'
@@ -259,7 +266,7 @@ def trace_data_for_layer(viewer, layer, hover_data=None, add_data_label=True):
 
     rectilinear = getattr(viewer.state, 'using_rectilinear', True)
 
-    marker = base_marker(layer, mask)
+    marker = base_marker(layer_state, mask)
 
     # add vectors
     if rectilinear and layer.state.vector_visible and layer.state.vector_scaling > 0.1:

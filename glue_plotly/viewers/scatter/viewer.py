@@ -4,8 +4,7 @@ from glue_jupyter.common.state_widgets.layer_scatter import ScatterLayerStateWid
 from glue_jupyter.registries import viewer_registry
 
 from .layer_artist import PlotlyScatterLayerArtist
-from .viewer import PlotlyBaseView
-
+from glue_plotly.viewers import PlotlyBaseView
 
 @viewer_registry("plotly_scatter")
 class PlotlyScatterView(PlotlyBaseView):

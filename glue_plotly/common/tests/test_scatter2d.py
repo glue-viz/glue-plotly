@@ -120,7 +120,7 @@ class TestScatter2DRectilinear(TestScatter2D):
     @pytest.mark.parametrize('fill', [True, False])
     def test_base_marker(self, fill):
         self.layer.state.fill = fill
-        marker = base_marker(self.layer, self.mask)
+        marker = base_marker(self.layer.state, self.mask)
         assert marker['size'] == 3
         assert marker['opacity'] == 0.64
         if fill:
@@ -135,7 +135,7 @@ class TestScatter2DRectilinear(TestScatter2D):
         layer_state.cmap_mode = 'Linear'
         layer_state.xerr_visible = True
         layer_state.yerr_visible = True
-        marker = base_marker(self.layer, self.mask)
+        marker = base_marker(layer_state, self.mask)
         xerr, xerr_traces = rectilinear_error_bars(layer_state, marker, self.mask, self.x, self.y, 'x')
         yerr, yerr_traces = rectilinear_error_bars(layer_state, marker, self.mask, self.x, self.y, 'y')
 
@@ -159,7 +159,7 @@ class TestScatter2DRectilinear(TestScatter2D):
         layer_state.cmap_mode = 'Fixed'
         layer_state.xerr_visible = True
         layer_state.yerr_visible = True
-        marker = base_marker(self.layer, self.mask)
+        marker = base_marker(layer_state, self.mask)
         xerr, xerr_traces = rectilinear_error_bars(layer_state, marker, self.mask, self.x, self.y, 'x')
         yerr, yerr_traces = rectilinear_error_bars(layer_state, marker, self.mask, self.x, self.y, 'y')
 
@@ -176,7 +176,7 @@ class TestScatter2DRectilinear(TestScatter2D):
         layer_state.line_visible = True
         layer_state.linestyle = 'dashed'
         layer_state.linewidth = 4
-        marker = base_marker(self.layer, self.mask)
+        marker = base_marker(layer_state, self.mask)
         mode = scatter_mode(layer_state)
         line, traces = rectilinear_lines(layer_state, marker, self.x, self.y)
         assert mode == "lines+markers"
@@ -190,7 +190,7 @@ class TestScatter2DRectilinear(TestScatter2D):
         layer_state.line_visible = True
         layer_state.linestyle = "dotted"
         layer_state.linewidth = 6
-        marker = base_marker(self.layer, self.mask)
+        marker = base_marker(layer_state, self.mask)
         mode = scatter_mode(layer_state)
         line, traces = rectilinear_lines(layer_state, marker, self.x, self.y)
         assert mode == "markers"
@@ -212,7 +212,7 @@ class TestScatter2DRectilinear(TestScatter2D):
         layer_state.vector_arrowhead = True
         layer_state.cmap_mode = cmap_mode
 
-        marker = base_marker(self.layer, self.mask)
+        marker = base_marker(layer_state, self.mask)
         traces = rectilinear_2d_vectors(self.viewer, layer_state, marker, self.mask, self.x, self.y)
         color = color_info(layer_state, self.mask)
         if cmap_mode == 'Fixed':
