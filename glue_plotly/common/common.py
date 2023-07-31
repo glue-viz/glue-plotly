@@ -1,3 +1,4 @@
+from glue.viewers.common.qt.data_viewer import DataViewer
 from matplotlib.colors import Normalize
 import numpy as np
 
@@ -5,12 +6,19 @@ from glue.config import settings
 from glue.core import BaseData
 
 from glue_plotly.utils import opacity_value_string
+from glue_plotly.viewers.viewer import PlotlyBaseView
 
 DEFAULT_FONT = 'Arial, sans-serif'
 
 
 def dimensions(viewer):
-    return viewer.figure.get_size_inches() * viewer.figure.dpi
+    # TODO: Add implementation for bqplot viewers
+    if isinstance(viewer, DataViewer):
+        return viewer.figure.get_size_inches() * viewer.figure.dpi
+    elif isinstance(viewer, PlotlyBaseView):
+        return viewer.figure.layout.width, viewer.figure.layout.height
+    else:
+        return 0, 0
 
 
 def layers_to_export(viewer):

@@ -213,7 +213,7 @@ class TestScatter2DRectilinear(TestScatter2D):
         layer_state.cmap_mode = cmap_mode
 
         marker = base_marker(self.layer, self.mask)
-        traces = rectilinear_2d_vectors(self.viewer, self.layer, marker, self.mask, self.x, self.y)
+        traces = rectilinear_2d_vectors(self.viewer, layer_state, marker, self.mask, self.x, self.y)
         color = color_info(layer_state, self.mask)
         if cmap_mode == 'Fixed':
             assert len(traces) == 1

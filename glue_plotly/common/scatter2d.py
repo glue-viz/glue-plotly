@@ -161,9 +161,8 @@ def _adjusted_vector_points(origin, scale, x, y, vx, vy):
         return x - vx, y - vy
 
 
-def rectilinear_2d_vectors(viewer, layer, marker, mask, x, y, legend_group=None):
+def rectilinear_2d_vectors(viewer, layer_state, marker, mask, x, y, legend_group=None):
     width, _ = dimensions(viewer)
-    layer_state = layer.state
     vx = layer_state.layer[layer_state.vx_att][mask]
     vy = layer_state.layer[layer_state.vy_att][mask]
     if layer_state.vector_mode == 'Polar':
@@ -194,7 +193,7 @@ def rectilinear_2d_vectors(viewer, layer, marker, mask, x, y, legend_group=None)
         fig.update_traces(marker=dict(color=marker['color']))
     else:
         # start with the first quiver to add the rest
-        color = marker['color'] if layer.state.fill else marker['line']['color']
+        color = marker['color'] if layer_state.fill else marker['line']['color']
         fig = ff.create_quiver([x[0]], [y[0]], [vx[0]], [vy[0]],
                                **vector_info, line_color=color[0])
         for i in range(1, len(color)):
@@ -264,7 +263,7 @@ def trace_data_for_layer(viewer, layer, hover_data=None, add_data_label=True):
 
     # add vectors
     if rectilinear and layer.state.vector_visible and layer.state.vector_scaling > 0.1:
-        vec_traces = rectilinear_2d_vectors(viewer, layer, marker, mask, x, y, legend_group)
+        vec_traces = rectilinear_2d_vectors(viewer, layer.state, marker, mask, x, y, legend_group)
         traces['vector'] = vec_traces
 
     # add line properties
