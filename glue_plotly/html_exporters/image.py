@@ -19,7 +19,7 @@ except ImportError:
 
 from glue_plotly import PLOTLY_ERROR_MESSAGE, PLOTLY_LOGO
 from glue_plotly.common import data_count, layers_to_export
-from glue_plotly.common.image import axes_data, layers_by_type, layout_config, traces
+from glue_plotly.common.image import axes_data, layers_by_type, layout_config_from_mpl, traces
 
 import plotly.graph_objects as go
 from plotly.offline import plot
@@ -41,7 +41,7 @@ class PlotlyImage2DExport(Tool):
         layers = layers_to_export(self.viewer)
         add_data_label = data_count(layers) > 1
 
-        config = layout_config(self.viewer)
+        config = layout_config_from_mpl(self.viewer)
 
         ax = axes_data(self.viewer)
         config.update(**ax)

@@ -4,12 +4,16 @@ from uuid import uuid4
 from echo import delay_callback
 from glue.core.command import ApplySubsetState
 from glue.core.subset import roi_to_subset_state
-from glue_jupyter.view import IPyWidgetView
 
 import plotly.graph_objects as go
 
-from glue_plotly.common.common import base_layout_config
+from glue_plotly.common import base_layout_config
 from glue_plotly.common.scatter2d import polar_layout_config
+
+try:
+    from glue_jupyter.view import IPyWidgetView
+except:
+    IPyWidgetView = None
 
 
 __all__ = ['PlotlyBaseView']

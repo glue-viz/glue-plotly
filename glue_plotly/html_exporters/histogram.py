@@ -11,7 +11,7 @@ except ImportError:
 
 from glue_plotly import PLOTLY_ERROR_MESSAGE, PLOTLY_LOGO
 from glue_plotly.common import data_count, layers_to_export
-from glue_plotly.common.histogram import mpl_layout_config, traces_for_layer
+from glue_plotly.common.histogram import layout_config_from_mpl, traces_for_layer
 
 from plotly.offline import plot
 import plotly.graph_objs as go
@@ -32,14 +32,14 @@ class PlotlyHistogram1DExport(Tool):
         if not filename:
             return
 
-        config = mpl_layout_config(self.viewer)
+        config = layout_config_from_mpl(self.viewer)
         layout = go.Layout(**config)
         fig = go.Figure(layout=layout)
 
         layers = layers_to_export(self.viewer)
         add_data_label = data_count(layers) > 1
         for layer in layers:
-            traces = traces_for_layer(self.viewer, layer, add_data_label=add_data_label)
+            traces = traces_for_layer(self.viewer.state, layer.state, add_data_label=add_data_label)
             for trace in traces:
                 fig.add_trace(trace)
 

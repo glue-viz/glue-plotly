@@ -37,7 +37,7 @@ def background_color(viewer):
         return bg_color
 
 
-def layout_config(viewer):
+def layout_config_from_mpl(viewer):
     bg_color = background_color(viewer)
     return base_layout_config(viewer,
                               plot_bgcolor='rgba{0}'.format(tuple(bg_color)),

@@ -6,7 +6,6 @@ from glue.config import settings
 from glue.core import BaseData
 
 from glue_plotly.utils import opacity_value_string
-from glue_plotly.viewers import PlotlyBaseView
 
 DEFAULT_FONT = 'Arial, sans-serif'
 
@@ -15,10 +14,8 @@ def dimensions(viewer):
     # TODO: Add implementation for bqplot viewers
     if isinstance(viewer, DataViewer):
         return viewer.figure.get_size_inches() * viewer.figure.dpi
-    elif isinstance(viewer, PlotlyBaseView):
+    else:  # For now, this means a Plotly-based viewer
         return viewer.figure.layout.width, viewer.figure.layout.height
-    else:
-        return 0, 0
 
 
 def layers_to_export(viewer):

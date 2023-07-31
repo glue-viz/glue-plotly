@@ -38,7 +38,7 @@ class PlotlyProfile1DExport(Tool):
         layers = layers_to_export(self.viewer)
         add_data_label = data_count(layers) > 1
         for layer in layers:
-            traces = traces_for_layer(self.viewer, layer, add_data_label=add_data_label)
+            traces = traces_for_layer(self.viewer.state, layer.state, add_data_label=add_data_label)
             for trace in traces:
                 fig.add_trace(trace)
 

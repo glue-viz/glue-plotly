@@ -24,9 +24,8 @@ def layout_config_from_mpl(viewer):
     return config
 
 
-def traces_for_layer(viewer, layer, add_data_label=True):
+def traces_for_layer(viewer_state, layer_state, add_data_label=True):
     traces = []
-    layer_state = layer.state
     legend_group = uuid4().hex
 
     # The x values should be at the midpoints between successive pairs of edge values
@@ -39,12 +38,12 @@ def traces_for_layer(viewer, layer, add_data_label=True):
                   line=dict(width=0),
                   color=fixed_color(layer_state))
 
-    name = layer.layer.label
-    if add_data_label and not isinstance(layer.layer, BaseData):
-        name += " ({0})".format(layer.layer.data.label)
+    name = layer_state.layer.label
+    if add_data_label and not isinstance(layer_state.layer, BaseData):
+        name += " ({0})".format(layer_state.layer.data.label)
 
     hist_info = dict(hoverinfo="skip", marker=marker, name=name)
-    if viewer.state.x_log:
+    if viewer_state.x_log:
         for i in range(len(x)):
             hist_info.update(
                 legendgroup=legend_group,

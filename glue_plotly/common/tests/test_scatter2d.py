@@ -79,8 +79,8 @@ class TestScatter2DRectilinear(TestScatter2D):
         self.viewer.state.x_axislabel = 'X Axis'
         self.viewer.state.y_axislabel = 'Y Axis'
 
-        x_axis = base_rectilinear_axis(self.viewer, 'x')
-        y_axis = base_rectilinear_axis(self.viewer, 'y')
+        x_axis = base_rectilinear_axis(self.viewer.state, 'x')
+        y_axis = base_rectilinear_axis(self.viewer.state, 'y')
 
         common_items = dict(showgrid=False, showline=True, mirror=True, rangemode='normal',
                             zeroline=False, showspikes=False, showticklabels=True,
