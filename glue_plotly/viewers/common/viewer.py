@@ -7,8 +7,7 @@ from glue.core.subset import roi_to_subset_state
 
 import plotly.graph_objects as go
 
-from glue_plotly.common import base_layout_config
-from glue_plotly.common.scatter2d import polar_layout_config
+from glue_plotly.common.common import base_layout_config
 
 try:
     from glue_jupyter.view import IPyWidgetView
@@ -23,6 +22,15 @@ INTERACT_COLOR = "#cbcbcb"
 
 class PlotlyBaseView(IPyWidgetView):
 
+    LAYOUT_SETTINGS = dict(
+        include_dimensions=False,
+        dragmode=False, showlegend=False, grid=None,
+        newselection=dict(line=dict(color=INTERACT_COLOR), mode='immediate'),
+        modebar=dict(remove=['toimage', 'zoom', 'pan', 'lasso', 'zoomIn2d',
+                             'zoomOut2d', 'select', 'autoscale', 'resetScale2d',
+                             'resetViews'])
+    )
+
     allow_duplicate_data = False
     allow_duplicate_subset = False
     is2d = True
@@ -31,23 +39,7 @@ class PlotlyBaseView(IPyWidgetView):
 
         super(PlotlyBaseView, self).__init__(session, state=state)
 
-        x_axis = go.layout.XAxis(showgrid=False)
-        y_axis = go.layout.YAxis(showgrid=False)
-        layout_settings = dict(
-                dragmode=False,
-                showlegend=False,
-                xaxis=x_axis,
-                yaxis=y_axis,
-                grid=None,
-                newselection=dict(line=dict(color=INTERACT_COLOR), mode='immediate'),
-                modebar=dict(remove=['toimage', 'zoom', 'pan', 'lasso', 'zoomIn2d',
-                                     'zoomOut2d', 'select', 'autoscale', 'resetScale2d'])
-        )
-        if self.state.using_rectilinear:
-            layout_config = base_layout_config(self, include_dimensions=False, **layout_settings)
-        else:  # for now, this means polar
-            layout_config = polar_layout_config(self, include_dimensions=False, **layout_settings)
-        layout = go.Layout(**layout_config)
+        layout = self._create_layout_config()
         self.figure = go.FigureWidget(layout=layout)
 
         self.selection_layer_id = uuid4().hex
@@ -79,6 +71,23 @@ class PlotlyBaseView(IPyWidgetView):
 
     def _get_selection_layer(self):
         return next(self.figure.select_traces(dict(meta=self.selection_layer_id)))
+
+    def _create_layout_config(self):
+        return base_layout_config(self, **self.LAYOUT_SETTINGS, width=1200, height=800)
+
+    def _remove_trace_index(self, trace):
+        # TODO: It feels like there has to be a better way to do this
+        try:
+            index = self.figure.data.index(trace)
+            self.figure.data = self.figure.data[:index] + self.figure.data[index + 1:]
+        except ValueError:
+            pass
+
+    def _remove_traces(self, traces):
+        self.figure.data = [t for t in self.figure.data if t not in traces]
+
+    def _clear_traces(self):
+        self.figure.data = [self._get_selection_layer()]
 
     @property
     def axis_x(self):

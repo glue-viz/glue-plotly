@@ -42,10 +42,10 @@ def angular_axis(viewer_state):
     )
 
 
-def radial_axis(viewer_state, tickvals=None, ticklabels=None):
+def radial_axis(viewer, tickvals=None, ticklabels=None):
     axis = dict(
         type='linear',
-        range=[viewer_state.y_min, viewer_state.y_max],
+        range=[viewer.state.y_min, viewer.state.y_max],
         showticklabels=True,
         tickmode='array',
         angle=22.5,
@@ -53,7 +53,7 @@ def radial_axis(viewer_state, tickvals=None, ticklabels=None):
         showline=False,
         tickfont=dict(
             family=DEFAULT_FONT,
-            size=1.5 * viewer_state.y_ticklabel_size,
+            size=1.5 * viewer.state.y_ticklabel_size,
             color=settings.FOREGROUND_COLOR),
         linecolor=settings.FOREGROUND_COLOR,
         gridcolor=settings.FOREGROUND_COLOR
@@ -68,7 +68,7 @@ def radial_axis(viewer_state, tickvals=None, ticklabels=None):
 def mpl_radial_axis(viewer):
     tickvals = viewer.axes.yaxis.get_majorticklocs()
     ticklabels = [t.get_text() for t in viewer.axes.yaxis.get_majorticklabels()]
-    return radial_axis(viewer.state, tickvals, ticklabels)
+    return radial_axis(viewer, tickvals, ticklabels)
 
 
 def rectilinear_layout_config(viewer, **kwargs):

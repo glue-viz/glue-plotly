@@ -1,4 +1,8 @@
+from plotly.graph_objs import Layout
+
 from glue.viewers.scatter.state import ScatterViewerState
+
+from glue_plotly.common.scatter2d import polar_layout_config, radial_axis, rectilinear_layout_config
 
 try:
     from glue_jupyter.common.state_widgets.viewer_scatter import ScatterViewerStateWidget
@@ -33,7 +37,35 @@ class PlotlyScatterView(PlotlyBaseView):
         super().__init__(*args, **kwargs)
         self.state.add_callback('x_att', self._update_axes)
         self.state.add_callback('y_att', self._update_axes)
+        self.state.add_callback('plot_mode', self._update_projection)
+
         self._update_axes()
+
+    def _create_layout_config(self):
+        if self.state.using_rectilinear:
+            config = rectilinear_layout_config(self, **self.LAYOUT_SETTINGS)
+            config['xaxis']['showline'] = False
+            config['yaxis']['showline'] = False
+            return config
+        else:  # For now, that means polar
+            return polar_layout_config(self, radial_axis, **self.LAYOUT_SETTINGS)
+
+    def _update_projection(self, *args):
+        config = self._create_layout_config()
+        traces = self.figure.data
+        layout = Layout(**config)
+        self.figure.update(layout=layout)
+
+        # For some reason doing these updates in the layout config
+        # doesn't seem to get rid of pre-existing axes
+        if self.state.using_rectilinear:
+            self.figure.update_layout(polar=None, xaxis=dict(visible=True), yaxis=dict(visible=True))
+        else:
+            self.figure.update_layout(xaxis=dict(visible=False), yaxis=dict(visible=False))
+        self.figure.data = traces
+        for layer in self.layers:
+            layer.update(layout_update=True)
+        self.figure.update()
 
     def _update_axes(self, *args):
 

@@ -32,7 +32,6 @@ class PlotlySelectionMode(PlotlyDragMode):
         self.viewer.set_selection_callback(self.on_selection)
 
     def deactivate(self):
-        print("Deactivating")
         self.viewer.set_selection_callback(None)
         self.viewer.set_selection_active(False)
         self.viewer.figure.on_edits_completed(self._clear_selection)
@@ -41,7 +40,6 @@ class PlotlySelectionMode(PlotlyDragMode):
         self.viewer.figure.plotly_relayout({'selections': [], 'dragmode': False})
 
     def on_selection(self, trace, points, selector):
-        print("In on_selection")
         self._on_selection(trace, points, selector)
         self.viewer.toolbar.active_tool = None
         self.deactivate()

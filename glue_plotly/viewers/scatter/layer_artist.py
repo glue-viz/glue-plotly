@@ -3,13 +3,13 @@ from uuid import uuid4
 from numpy import repeat
 
 from glue_plotly.common import color_info
-from glue_plotly.common.scatter2d import LINESTYLES, rectilinear_lines, size_info
+from glue_plotly.common.scatter2d import LINESTYLES, rectilinear_lines, scatter_mode, size_info
 from glue.core import BaseData
 from glue.utils import ensure_numerical
 from glue.viewers.common.layer_artist import LayerArtist
 from glue.viewers.scatter.state import ScatterLayerState
 
-from plotly.graph_objs import Scatter
+from plotly.graph_objs import Scatter, Scatterpolar
 
 
 CMAP_PROPERTIES = {"cmap_mode", "cmap_att", "cmap_vmin", "cmap_vmax", "cmap"}
@@ -68,11 +68,6 @@ class PlotlyScatterLayerArtist(LayerArtist):
 
         self.view = view
 
-        if isinstance(layer, BaseData):
-            name = layer.label
-        else:
-            name = f"{layer.label} ({layer.data.label})"
-
         # Somewhat annoyingly, the trace that we pass in to be added
         # is NOT the same instance that ends up living in the figure.
         # (see basedatatypes.py line 2251 in the Plotly package)
@@ -82,11 +77,7 @@ class PlotlyScatterLayerArtist(LayerArtist):
         # constructor or after) doesn't seem to work - it gets
         # overridden by Plotly
         self._scatter_id = uuid4().hex
-        scatter = Scatter(x=[0, 1], y=[0, 1],
-                          mode="markers",
-                          name=name,
-                          unselected=dict(marker=dict(opacity=self.state.alpha)),
-                          meta=self._scatter_id)
+        scatter = self._create_scatter()
         self.view.figure.add_trace(scatter)
 
         self._lines_id = None
@@ -114,10 +105,38 @@ class PlotlyScatterLayerArtist(LayerArtist):
         y = ensure_numerical(self.layer[self._viewer_state.y_att].ravel())
 
         scatter = self._get_scatter()
-        scatter.update(x=x, y=y)
+        if self._viewer_state.using_rectilinear:
+            scatter.update(x=x, y=y)
+        else:
+            scatter.update(theta=x, r=y)
+
+    def _create_scatter(self):
+        if isinstance(self.layer, BaseData):
+            name = self.layer.label
+        else:
+            name = f"{self.layer.label} ({self.layer.data.label})"
+
+
+        scatter_info = dict(mode=self._scatter_mode(),
+                            name=name,
+                            unselected=dict(marker=dict(opacity=self.state.alpha)),
+                            meta=self._scatter_id)
+        if self._viewer_state.using_rectilinear:
+            scatter = Scatter(**scatter_info)
+        else:
+            theta_unit = 'degrees' if self.view.state.using_degrees else 'radians'
+            scatter_info.update(thetaunit=theta_unit)
+            scatter = Scatterpolar(**scatter_info)
+        return scatter
 
     def _update_display(self, force=False, **kwargs):
         changed = self.pop_changed_properties()
+
+        if 'layout_update' in kwargs:
+            self.view._clear_traces()
+            scatter = self._create_scatter()
+            self.view.figure.add_trace(scatter)
+            force = True
 
         if force or len(changed & DATA_PROPERTIES) > 0:
             self._update_data()
@@ -129,17 +148,20 @@ class PlotlyScatterLayerArtist(LayerArtist):
         if force or len(changed & LINE_PROPERTIES) > 0:
             self._update_lines(changed, force=force)
 
+    def _scatter_mode(self):
+        if not (self.state.line_visible and self.state.cmap_mode == 'Fixed'):
+            mode = 'markers'
+        else:
+            mode = 'markers+lines'
+        return mode
+
     def _update_lines(self, changed, force=False):
         scatter = self._get_scatter()
         fixed_color = self.state.cmap_mode == 'Fixed'
         lines = list(self._get_lines())
 
         with self.view.figure.batch_update():
-            if not (self.state.line_visible and fixed_color):
-                mode = 'markers'
-            else:
-                mode = 'markers+lines'
-            scatter.update(mode=mode)
+            scatter.update(mode=self._scatter_mode())
 
             line_traces_visible = True
             if force or "cmap_mode" in changed:
@@ -210,6 +232,6 @@ class PlotlyScatterLayerArtist(LayerArtist):
         if force or "visible" in changed:
             scatter.visible = self.state.visible
 
-    def update(self):
-        self._update_display(force=True)
+    def update(self, **kwargs):
+        self._update_display(force=True, **kwargs)
 
