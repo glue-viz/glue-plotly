@@ -124,7 +124,7 @@ class PlotlyScatterLayerArtist(LayerArtist):
             name = f"{self.layer.label} ({self.layer.data.label})"
 
 
-        scatter_info = dict(mode=self._scatter_mode(),
+        scatter_info = dict(mode=scatter_mode(self.state),
                             name=name,
                             unselected=dict(marker=dict(opacity=self.state.alpha)),
                             meta=self._scatter_id)
@@ -155,20 +155,13 @@ class PlotlyScatterLayerArtist(LayerArtist):
         if force or len(changed & LINE_PROPERTIES) > 0:
             self._update_lines(changed, force=force)
 
-    def _scatter_mode(self):
-        if not (self.state.line_visible and self.state.cmap_mode == 'Fixed'):
-            mode = 'markers'
-        else:
-            mode = 'markers+lines'
-        return mode
-
     def _update_lines(self, changed, force=False):
         scatter = self._get_scatter()
         fixed_color = self.state.cmap_mode == 'Fixed'
         lines = list(self._get_lines())
 
         with self.view.figure.batch_update():
-            scatter.update(mode=self._scatter_mode())
+            scatter.update(mode=scatter_mode(self.state))
 
             line_traces_visible = True
             if force or "cmap_mode" in changed:

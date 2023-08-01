@@ -1,5 +1,6 @@
 from plotly.graph_objs import Layout
 
+from glue.core.subset import roi_to_subset_state
 from glue.viewers.scatter.state import ScatterViewerState
 
 from glue_plotly.common.scatter2d import polar_layout_config, radial_axis, rectilinear_layout_config
@@ -73,3 +74,6 @@ class PlotlyScatterView(PlotlyBaseView):
 
         if self.state.y_att is not None:
             self.state.y_axislabel = str(self.state.y_att)
+
+    def _roi_to_subset_state(self, roi):
+        return roi_to_subset_state(roi, x_att=self.state.x_att, y_att=self.state.y_att)

@@ -3,7 +3,6 @@ from uuid import uuid4
 
 from echo import delay_callback
 from glue.core.command import ApplySubsetState
-from glue.core.subset import roi_to_subset_state
 
 import plotly.graph_objects as go
 
@@ -158,9 +157,6 @@ class PlotlyBaseView(IPyWidgetView):
                                        subset_state=subset_state,
                                        override_mode=use_current)
                 self._session.command_stack.do(cmd)
-
-    def _roi_to_subset_state(self, roi):
-        return roi_to_subset_state(roi, x_att=self.state.x_att, y_att=self.state.y_att)
 
     # Interface stub for now
     # TODO: Should we have anything here?

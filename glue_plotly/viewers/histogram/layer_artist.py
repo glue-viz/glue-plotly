@@ -7,10 +7,11 @@ from glue_plotly.common.common import fixed_color
 
 from glue_plotly.common.histogram import traces_for_layer
 
-HISTOGRAM_PROPERTIES = {'layer', 'x_att', 'hist_x_min',
-                        'hist_x_max', 'hist_n_bin', 'x_log'}
 SCALE_PROPERTIES = {'y_log', 'normalize', 'cumulative'}
+HISTOGRAM_PROPERTIES = SCALE_PROPERTIES | {'layer', 'x_att', 'hist_x_min',
+                        'hist_x_max', 'hist_n_bin', 'x_log'}
 VISUAL_PROPERTIES = {'alpha', 'color', 'zorder', 'visible'}
+DATA_PROPERTIES = {'layer', 'x_att', 'y_att'}
 
 
 class PlotlyHistogramLayerArtist(LayerArtist):
@@ -37,37 +38,23 @@ class PlotlyHistogramLayerArtist(LayerArtist):
 
     def _calculate_histogram(self):
         try:
+            self.state.reset_cache()
             self.bins, self.hist_unscaled = self.state.histogram
         except IncompatibleAttribute:
+            print("Error computing histogram!")
             self.disable('Could not compute histogram')
             self.bins = self.hist_unscaled = None
 
     def _scale_histogram(self):
-        # TODO: comes from glue/viewers/histogram/layer_artist.py
+
         if self.bins is None:
             return  # can happen when the subset is empty
 
         if self.bins.size == 0:
             return
 
-        bars = self._get_bars()
-
         with self.view.figure.batch_update():
-
-            self.hist = self.hist_unscaled.astype(float)
-            dx = self.bins[1] - self.bins[0]
-
-            if self._viewer_state.cumulative:
-                self.hist = self.hist.cumsum()
-                if self._viewer_state.normalize and self.hist.max() > 0:
-                    self.hist /= self.hist.max()
-            elif self._viewer_state.normalize and self.hist.sum() > 0:
-                self.hist /= (self.hist.sum() * dx)
-
-            # TODO this won't work for log ...
-            centers = (self.bins[:-1] + self.bins[1:]) / 2
-            assert len(centers) == len(self.hist)
-            bars.update(x=centers, y=self.hist)
+            print("Passed guards inside _scale_histogram")
 
             # We have to do the following to make sure that we reset the y_max as
             # needed. We can't simply reset based on the maximum for this layer
@@ -77,16 +64,17 @@ class PlotlyHistogramLayerArtist(LayerArtist):
             #
             # because this would never allow y_max to get smaller.
 
-            self.state._y_max = self.hist.max()
+            _, hist = self.state.histogram
+            self.state._y_max = hist.max()
             if self._viewer_state.y_log:
                 self.state._y_max *= 2
             else:
                 self.state._y_max *= 1.2
 
             if self._viewer_state.y_log:
-                keep = self.hist > 0
+                keep = hist > 0
                 if np.any(keep):
-                    self.state._y_min = self.hist[keep].min() / 10
+                    self.state._y_min = hist[keep].min() / 10
                 else:
                     self.state._y_min = 0
             else:
@@ -96,31 +84,47 @@ class PlotlyHistogramLayerArtist(LayerArtist):
                                 for layer in self._viewer_state.layers)
             if np.isfinite(largest_y_max) and largest_y_max != self._viewer_state.y_max:
                 self._viewer_state.y_max = largest_y_max
+                print(f"Updating y_max to {largest_y_max}")
 
             smallest_y_min = min(getattr(layer, '_y_min', np.inf)
                                  for layer in self._viewer_state.layers)
             if np.isfinite(smallest_y_min) and smallest_y_min != self._viewer_state.y_min:
                 self._viewer_state.y_min = smallest_y_min
+                print(f"Updating y_min to {smallest_y_min}")
+
 
     def _update_visual_attributes(self, changed, force=False):
-        
         if not self.enabled:
             return
 
         with self.view.figure.batch_update():
-            update_dict = {}
-            if force or "alpha" in changed:
-                update_dict["alpha"] = self.state.alpha
+            print(list(self.view.figure.select_traces(dict(meta=self._bars_id))))
+            self.view.figure.for_each_trace(self._update_visual_attrs_for_trace, dict(meta=self._bars_id))
 
-            if force or "color" in changed:
-                update_dict["color"] = fixed_color(self.state)
+    def _update_visual_attrs_for_trace(self, trace):
+        marker = trace.marker
+        marker.update(opacity=self.state.alpha, color=fixed_color(self.state))
+        trace.update(marker=marker, visible=self.state.visible)
+        print(trace)
 
-            if force or "visible" in changed:
-                update_dict["visible"] = self.state.visible
+    def _update_data(self):
+        old_bars = self._get_bars()
+        print(len(self.view.figure.data))
+        if old_bars:
+            for bar in old_bars:
+                self.view._remove_trace_index(bar)
+            # self.view._remove_traces(old_bars)
+            print(len(self.view.figure.data))
 
-            self.view.figure.for_each_trace(lambda t: t.update(**update_dict), dict(meta=self._bars_id))
+        bars = traces_for_layer(self.view.state, self.state, add_data_label=True)
+        for bar in bars:
+            bar.update(unselected=dict(marker=dict(opacity=self.state.alpha)))
+        self._bars_id = bars[0].meta if bars else None
+        self.view.figure.add_traces(bars)
         
     def _update_histogram(self, force=False, **kwargs):
+
+        print("In update_histogram")
 
         if (self._viewer_state.hist_x_min is None or
                 self._viewer_state.hist_x_max is None or
@@ -130,18 +134,24 @@ class PlotlyHistogramLayerArtist(LayerArtist):
             return
 
         changed = self.pop_changed_properties()
-
-        bars = self._get_bars()
-        if not bars:
-            bars = traces_for_layer(self.view.state, self.state, add_data_label=True)
-            self._bars_id = bars[0].meta if bars else None
-            self.view.figure.add_traces(bars)
+        print(changed)
 
         if force or len(changed & HISTOGRAM_PROPERTIES) > 0:
+            print("About to enter _calculate_histogram")
             self._calculate_histogram()
             force = True
 
+        if force or len(changed & DATA_PROPERTIES) > 0:
+            print("About to enter _update_data")
+            self._update_data()
+            force = True
+
+        if force or len(changed & SCALE_PROPERTIES) > 0:
+            print("About to enter _scale_histogram")
+            self._scale_histogram()
+
         if force or len(changed & VISUAL_PROPERTIES) > 0:
+            print("About to enter _update_visual_attributes")
             self._update_visual_attributes(changed, force=force)
 
 
