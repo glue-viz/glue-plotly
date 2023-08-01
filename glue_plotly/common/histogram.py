@@ -27,6 +27,7 @@ def layout_config_from_mpl(viewer):
 def traces_for_layer(viewer_state, layer_state, add_data_label=True):
     traces = []
     legend_group = uuid4().hex
+    bars_id = uuid4().hex
 
     # The x values should be at the midpoints between successive pairs of edge values
     edges, y = layer_state.histogram
@@ -51,6 +52,7 @@ def traces_for_layer(viewer_state, layer_state, add_data_label=True):
                 x=[x[i]],
                 y=[y[i]],
                 width=edges[i + 1] - edges[i],
+                meta=bars_id
             )
             traces.append(Bar(**hist_info))
     else:
@@ -59,6 +61,7 @@ def traces_for_layer(viewer_state, layer_state, add_data_label=True):
             x=x,
             y=y,
             width=width,
+            meta=bars_id
         )
         traces.append(Bar(**hist_info))
 

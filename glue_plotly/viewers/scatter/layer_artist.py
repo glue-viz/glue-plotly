@@ -84,6 +84,13 @@ class PlotlyScatterLayerArtist(LayerArtist):
         self._error_id = None
         self._vector_id = None
 
+    def remove(self):
+        self.view._remove_traces([self._get_scatter()])
+        self.view._remove_traces(self._get_lines())
+        self.view._remove_traces(self._get_error_bars())
+        self.view._remove_traces(self._get_vectors())
+        return super().remove()
+
     def _get_traces_with_id(self, id):
         return self.view.figure.select_traces(dict(meta=id))
 
@@ -181,7 +188,7 @@ class PlotlyScatterLayerArtist(LayerArtist):
                 visible = False if not line_traces_visible else self.state.line_visible
                 self.view.figure.for_each_trace(lambda t: t.update(visible=visible), dict(meta=self._lines_id))
 
-            if force or (changed & {"linestyle", "linewidth", "color"}) > 0:
+            if force or len(changed & {"linestyle", "linewidth", "color"}) > 0:
                 linestyle = LINESTYLES[self.state.linestyle]
                 if fixed_color:
                     line = scatter.line.update(dash=linestyle, width=self.state.linewidth)
