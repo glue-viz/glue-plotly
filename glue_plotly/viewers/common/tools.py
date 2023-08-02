@@ -1,4 +1,6 @@
 from contextlib import nullcontext
+
+from echo import delay_callback
 from glue.config import viewer_tool
 from glue.core.subset import PolygonalROI, RectangularROI, XRangeROI, YRangeROI
 from glue.viewers.common.tool import CheckableTool, Tool
@@ -46,7 +48,7 @@ class PlotlySelectionMode(PlotlyDragMode):
 
 
 @viewer_tool
-class PlotlyZoomMode(PlotlyDragMode):
+class PlotlyZoomMode(PlotlySelectionMode):
 
     icon = 'glue_zoom_to_rect'
     tool_id = 'plotly:zoom'
@@ -54,8 +56,21 @@ class PlotlyZoomMode(PlotlyDragMode):
     tool_tip = 'Zoom to rectangle'
 
     def __init__(self, viewer):
-        super().__init__(viewer, 'zoom')
+        super().__init__(viewer, 'select')
 
+    def activate(self):
+        super().activate()
+        self.viewer.figure.update_layout(selectdirection="any")
+
+    def _on_selection(self, _trace, _points, selector):
+        xmin, xmax = selector.xrange
+        ymin, ymax = selector.yrange
+        viewer_state = self.viewer.state
+        with self.viewer.figure.batch_update(), delay_callback(viewer_state, 'x_min', 'x_max', 'y_min', 'y_max'):
+            viewer_state.x_min = xmin
+            viewer_state.x_max = xmax
+            viewer_state.y_min = ymin
+            viewer_state.y_max = ymax
 
 @viewer_tool
 class PlotlyPanMode(PlotlyDragMode):
