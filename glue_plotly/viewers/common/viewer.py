@@ -42,7 +42,7 @@ class PlotlyBaseView(IPyWidgetView):
         self.figure = go.FigureWidget(layout=layout)
 
         self.selection_layer_id = uuid4().hex
-        selection_layer = go.Image(x0=0.5,
+        selection_layer = go.Heatmap(x0=0.5,
                                    dx=1,
                                    y0=0,
                                    dy=1,
