@@ -41,7 +41,6 @@ class PlotlyHistogramLayerArtist(LayerArtist):
             self.state.reset_cache()
             self.bins, self.hist_unscaled = self.state.histogram
         except IncompatibleAttribute:
-            print("Error computing histogram!")
             self.disable('Could not compute histogram')
             self.bins = self.hist_unscaled = None
 
@@ -54,7 +53,6 @@ class PlotlyHistogramLayerArtist(LayerArtist):
             return
 
         with self.view.figure.batch_update():
-            print("Passed guards inside _scale_histogram")
 
             # We have to do the following to make sure that we reset the y_max as
             # needed. We can't simply reset based on the maximum for this layer
@@ -84,35 +82,31 @@ class PlotlyHistogramLayerArtist(LayerArtist):
                                 for layer in self._viewer_state.layers)
             if np.isfinite(largest_y_max) and largest_y_max != self._viewer_state.y_max:
                 self._viewer_state.y_max = largest_y_max
-                print(f"Updating y_max to {largest_y_max}")
 
             smallest_y_min = min(getattr(layer, '_y_min', np.inf)
                                  for layer in self._viewer_state.layers)
             if np.isfinite(smallest_y_min) and smallest_y_min != self._viewer_state.y_min:
                 self._viewer_state.y_min = smallest_y_min
-                print(f"Updating y_min to {smallest_y_min}")
-
 
     def _update_visual_attributes(self, changed, force=False):
         if not self.enabled:
             return
 
         with self.view.figure.batch_update():
-            print(list(self.view.figure.select_traces(dict(meta=self._bars_id))))
             self.view.figure.for_each_trace(self._update_visual_attrs_for_trace, dict(meta=self._bars_id))
 
     def _update_visual_attrs_for_trace(self, trace):
         marker = trace.marker
         marker.update(opacity=self.state.alpha, color=fixed_color(self.state))
         trace.update(marker=marker, visible=self.state.visible)
-        print(trace)
 
     def _update_data(self):
         old_bars = self._get_bars()
         print(len(self.view.figure.data))
         if old_bars:
-            for bar in old_bars:
-                self.view._remove_trace_index(bar)
+            with self.view.figure.batch_update():
+                for bar in old_bars:
+                    self.view._remove_trace_index(bar)
             # self.view._remove_traces(old_bars)
             print(len(self.view.figure.data))
 
@@ -123,9 +117,6 @@ class PlotlyHistogramLayerArtist(LayerArtist):
         self.view.figure.add_traces(bars)
         
     def _update_histogram(self, force=False, **kwargs):
-
-        print("In update_histogram")
-
         if (self._viewer_state.hist_x_min is None or
                 self._viewer_state.hist_x_max is None or
                 self._viewer_state.hist_n_bin is None or
@@ -154,9 +145,7 @@ class PlotlyHistogramLayerArtist(LayerArtist):
             print("About to enter _update_visual_attributes")
             self._update_visual_attributes(changed, force=force)
 
-
     def update(self):
         self.state.reset_cache()
         self._update_histogram(force=True)
-
     
