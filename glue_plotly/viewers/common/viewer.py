@@ -10,7 +10,7 @@ from glue_plotly.common.common import base_layout_config
 
 try:
     from glue_jupyter.view import IPyWidgetView
-except:
+except ImportError:
     IPyWidgetView = None
 
 
@@ -43,12 +43,12 @@ class PlotlyBaseView(IPyWidgetView):
 
         self.selection_layer_id = uuid4().hex
         selection_layer = go.Heatmap(x0=0.5,
-                                   dx=1,
-                                   y0=0,
-                                   dy=1,
-                                   meta=self.selection_layer_id,
-                                   z=[[[0, 0, 0, 0]]],
-                                   visible=False)
+                                     dx=1,
+                                     y0=0,
+                                     dy=1,
+                                     meta=self.selection_layer_id,
+                                     z=[[[0, 0, 0, 0]]],
+                                     visible=False)
         self.figure.add_trace(selection_layer)
 
         self.state.add_callback('x_axislabel', self.update_x_axislabel)

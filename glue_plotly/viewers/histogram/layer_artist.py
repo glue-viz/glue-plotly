@@ -9,7 +9,7 @@ from glue_plotly.common.histogram import traces_for_layer
 
 SCALE_PROPERTIES = {'y_log', 'normalize', 'cumulative'}
 HISTOGRAM_PROPERTIES = SCALE_PROPERTIES | {'layer', 'x_att', 'hist_x_min',
-                        'hist_x_max', 'hist_n_bin', 'x_log'}
+                                           'hist_x_max', 'hist_n_bin', 'x_log'}
 VISUAL_PROPERTIES = {'alpha', 'color', 'zorder', 'visible'}
 DATA_PROPERTIES = {'layer', 'x_att', 'y_att'}
 
@@ -115,7 +115,7 @@ class PlotlyHistogramLayerArtist(LayerArtist):
             bar.update(unselected=dict(marker=dict(opacity=self.state.alpha)))
         self._bars_id = bars[0].meta if bars else None
         self.view.figure.add_traces(bars)
-        
+
     def _update_histogram(self, force=False, **kwargs):
         if (self._viewer_state.hist_x_min is None or
                 self._viewer_state.hist_x_max is None or
@@ -148,4 +148,3 @@ class PlotlyHistogramLayerArtist(LayerArtist):
     def update(self):
         self.state.reset_cache()
         self._update_histogram(force=True)
-    

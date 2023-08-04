@@ -123,7 +123,6 @@ class PlotlyScatterLayerArtist(LayerArtist):
         else:
             name = f"{self.layer.label} ({self.layer.data.label})"
 
-
         scatter_info = dict(mode=scatter_mode(self.state),
                             name=name,
                             unselected=dict(marker=dict(opacity=self.state.alpha)),
@@ -234,4 +233,3 @@ class PlotlyScatterLayerArtist(LayerArtist):
 
     def update(self, **kwargs):
         self._update_display(force=True, **kwargs)
-

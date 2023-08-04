@@ -29,7 +29,6 @@ class PlotlyHistogramView(PlotlyBaseView):
     _subset_artist_cls = PlotlyHistogramLayerArtist
     _layer_style_widget_cls = HistogramLayerStateWidget
 
-
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.state.add_callback('x_att', self._update_axes)
@@ -55,7 +54,7 @@ class PlotlyHistogramView(PlotlyBaseView):
             self.state.y_axislabel = 'Normalized number'
         else:
             self.state.y_axislabel = 'Number'
-        
+
     def _roi_to_subset_state(self, roi):
         return roi_to_subset_state(roi, x_att=self.state.x_att)
 

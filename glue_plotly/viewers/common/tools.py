@@ -72,6 +72,7 @@ class PlotlyZoomMode(PlotlySelectionMode):
             viewer_state.y_min = ymin
             viewer_state.y_max = ymax
 
+
 @viewer_tool
 class PlotlyPanMode(PlotlyDragMode):
 
