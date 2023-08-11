@@ -68,7 +68,8 @@ class PlotlyBaseView(IPyWidgetView):
 
         self.create_layout()
 
-    def _get_selection_layer(self):
+    @property
+    def selection_layer(self):
         return next(self.figure.select_traces(dict(meta=self.selection_layer_id)))
 
     def _create_layout_config(self):
@@ -86,7 +87,8 @@ class PlotlyBaseView(IPyWidgetView):
         self.figure.data = [t for t in self.figure.data if t not in traces]
 
     def _clear_traces(self):
-        self.figure.data = [self._get_selection_layer()]
+        print("In _clear_traces")
+        self.figure.data = [self.selection_layer]
 
     @property
     def axis_x(self):
@@ -107,18 +109,15 @@ class PlotlyBaseView(IPyWidgetView):
         dx = self.state.x_max - self.state.x_min
         y0 = 0.5 * (self.state.y_min + self.state.y_max)
         dy = self.state.y_max - self.state.y_min
-        selection_layer = self._get_selection_layer()
-        selection_layer.update(x0=x0, dx=dx, y0=y0, dy=dy)
+        self.selection_layer.update(x0=x0, dx=dx, y0=y0, dy=dy)
 
     def set_selection_active(self, visible):
         if visible:
             self._update_selection_layer_bounds()
-        # selection_layer = self._get_selection_layer()
-        # selection_layer.update(visible=visible)
+        # self.selection_layer.update(visible=visible)
 
     def set_selection_callback(self, on_selection):
-        selection_layer = self._get_selection_layer()
-        selection_layer.on_selection(on_selection)
+        self.selection_layer.on_selection(on_selection)
 
     def _update_plotly_x_limits(self, *args):
         with self.figure.batch_update():

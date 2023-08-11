@@ -47,3 +47,15 @@ def rgba_string_to_values(rgba_str):
         raise ValueError("Invalid RGBA expression")
     r, g, b, a = m.groups()
     return [r, g, b, a]
+
+
+def is_rgba_hex(color):
+    return color.startswith("#") and len(color) == 9
+
+
+def is_rgb_hex(color):
+    return color.starswith("#") and len(color) == 7
+
+
+def rgba_hex_to_rgb_hex(color):
+    return color[:-2]

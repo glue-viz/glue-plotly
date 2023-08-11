@@ -5,7 +5,7 @@ import numpy as np
 from glue.config import settings
 from glue.core import BaseData
 
-from glue_plotly.utils import opacity_value_string
+from glue_plotly.utils import is_rgba_hex, opacity_value_string, rgba_hex_to_rgb_hex
 
 DEFAULT_FONT = 'Arial, sans-serif'
 
@@ -98,6 +98,8 @@ def fixed_color(layer_state):
     layer_color = layer_state.color
     if layer_color == '0.35' or layer_color == '0.75':
         layer_color = 'gray'
+    if is_rgba_hex(layer_color):
+        layer_color = rgba_hex_to_rgb_hex(layer_color)
     return layer_color
 
 

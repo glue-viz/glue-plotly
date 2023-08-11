@@ -36,6 +36,9 @@ class PlotlyHistogramLayerArtist(LayerArtist):
     def _get_bars(self):
         return self.view.figure.select_traces(dict(meta=self._bars_id))
 
+    def traces(self):
+        return self._get_bars()
+
     def _calculate_histogram(self):
         try:
             self.state.reset_cache()
@@ -116,6 +119,12 @@ class PlotlyHistogramLayerArtist(LayerArtist):
         self._bars_id = bars[0].meta if bars else None
         self.view.figure.add_traces(bars)
 
+    def _update_zorder(self):
+        traces = [self.view.selection_layer]
+        for layer in self.view.layers:
+            traces += list(layer.traces())
+        self.view.figure.data = traces
+
     def _update_histogram(self, force=False, **kwargs):
         if (self._viewer_state.hist_x_min is None or
                 self._viewer_state.hist_x_max is None or
@@ -139,6 +148,9 @@ class PlotlyHistogramLayerArtist(LayerArtist):
 
         if force or len(changed & VISUAL_PROPERTIES) > 0:
             self._update_visual_attributes(changed, force=force)
+
+        if force or "zorder" in changed:
+            self._update_zorder()
 
     def update(self):
         self.state.reset_cache()

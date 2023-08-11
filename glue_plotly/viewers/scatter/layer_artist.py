@@ -1,3 +1,4 @@
+from itertools import chain
 from uuid import uuid4
 
 from numpy import repeat
@@ -106,6 +107,9 @@ class PlotlyScatterLayerArtist(LayerArtist):
     def _get_vectors(self):
         return self._get_traces_with_id(self._vector_id)
 
+    def traces(self):
+        return chain([self._get_scatter()], self._get_lines(), self._get_error_bars(), self._get_vectors())
+
     def _update_data(self):
 
         x = ensure_numerical(self.layer[self._viewer_state.x_att].ravel())
@@ -154,6 +158,15 @@ class PlotlyScatterLayerArtist(LayerArtist):
 
         if force or len(changed & LINE_PROPERTIES) > 0:
             self._update_lines(changed, force=force)
+
+        if force or "zorder" in changed:
+            self._update_zorder()
+
+    def _update_zorder(self):
+        traces = [self.view.selection_layer]
+        for layer in self.view.layers:
+            traces += list(layer.traces())
+        self.view.figure.data = traces
 
     def _update_lines(self, changed, force=False):
         scatter = self._get_scatter()
