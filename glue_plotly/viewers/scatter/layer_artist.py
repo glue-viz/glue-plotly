@@ -225,8 +225,10 @@ class PlotlyScatterLayerArtist(LayerArtist):
                 scatter.marker['size'] = size_info(self.state)
 
         if force or "alpha" in changed:
+            marker = scatter.marker
             opacity_dict = dict(opacity=self.state.alpha)
-            scatter.update(marker=opacity_dict,
+            marker.update(**opacity_dict)
+            scatter.update(marker=marker,
                            unselected=dict(marker=opacity_dict))
 
         if force or "visible" in changed:

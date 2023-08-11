@@ -98,17 +98,17 @@ class PlotlyHistogramLayerArtist(LayerArtist):
     def _update_visual_attrs_for_trace(self, trace):
         marker = trace.marker
         marker.update(opacity=self.state.alpha, color=fixed_color(self.state))
-        trace.update(marker=marker, visible=self.state.visible)
+        trace.update(marker=marker,
+                     visible=self.state.visible,
+                     unselected=dict(marker=dict(opacity=self.state.alpha)))
 
     def _update_data(self):
         old_bars = self._get_bars()
-        print(len(self.view.figure.data))
         if old_bars:
             with self.view.figure.batch_update():
                 for bar in old_bars:
                     self.view._remove_trace_index(bar)
             # self.view._remove_traces(old_bars)
-            print(len(self.view.figure.data))
 
         bars = traces_for_layer(self.view.state, self.state, add_data_label=True)
         for bar in bars:
@@ -125,24 +125,19 @@ class PlotlyHistogramLayerArtist(LayerArtist):
             return
 
         changed = self.pop_changed_properties()
-        print(changed)
 
         if force or len(changed & HISTOGRAM_PROPERTIES) > 0:
-            print("About to enter _calculate_histogram")
             self._calculate_histogram()
             force = True
 
         if force or len(changed & DATA_PROPERTIES) > 0:
-            print("About to enter _update_data")
             self._update_data()
             force = True
 
         if force or len(changed & SCALE_PROPERTIES) > 0:
-            print("About to enter _scale_histogram")
             self._scale_histogram()
 
         if force or len(changed & VISUAL_PROPERTIES) > 0:
-            print("About to enter _update_visual_attributes")
             self._update_visual_attributes(changed, force=force)
 
     def update(self):
