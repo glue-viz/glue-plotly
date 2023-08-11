@@ -19,7 +19,7 @@ from glue.core.qt.dialogs import warn
 
 from glue_plotly import PLOTLY_ERROR_MESSAGE, PLOTLY_LOGO
 from glue_plotly.common import data_count, layers_to_export
-from glue_plotly.common.scatter2d import polar_layout_config_from_mpl, rectilinear_layout_config,\
+from glue_plotly.common.scatter2d import polar_layout_config_from_mpl, rectilinear_layout_config, \
     traces_for_layer
 
 from plotly.offline import plot

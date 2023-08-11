@@ -47,4 +47,3 @@ def rgba_string_to_values(rgba_str):
         raise ValueError("Invalid RGBA expression")
     r, g, b, a = m.groups()
     return [r, g, b, a]
-

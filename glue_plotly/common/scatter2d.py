@@ -9,7 +9,7 @@ from glue.core import BaseData
 from glue.utils import ensure_numerical
 from glue.viewers.scatter.layer_artist import ColoredLineCollection
 
-from .common import DEFAULT_FONT, base_layout_config,\
+from .common import DEFAULT_FONT, base_layout_config, \
     base_rectilinear_axis, color_info, dimensions, sanitize
 
 LINESTYLES = {'solid': 'solid', 'dotted': 'dot', 'dashed': 'dash', 'dashdot': 'dashdot'}
