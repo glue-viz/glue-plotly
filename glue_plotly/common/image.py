@@ -7,7 +7,10 @@ import numpy as np
 
 from glue.config import settings
 from glue.utils import ensure_numerical
-from glue.viewers.image.composite_array import STRETCHES
+try:
+    from glue.config import stretches
+except ImportError:
+    from glue.viewers.image.composite_array import STRETCHES as stretches
 from glue.viewers.image.state import BaseData, ImageLayerState, ImageSubsetLayerState
 from glue.viewers.scatter.state import IncompatibleAttribute, ScatterLayerState
 
@@ -141,7 +144,7 @@ def colorscale_info(layer_state, interval, contrast_bias):
     else:
         cmap = layer_state.cmap
         bounds = [layer_state.v_min, layer_state.v_max]
-    mapped_bounds = STRETCHES[layer_state.stretch]()(contrast_bias(interval(bounds)))
+    mapped_bounds = stretches[layer_state.stretch]()(contrast_bias(interval(bounds)))
     unmapped_space = np.linspace(0, 1, 60)
     mapped_space = np.linspace(mapped_bounds[0], mapped_bounds[1], 60)
     color_space = [cmap(b)[:3] for b in mapped_space]
@@ -319,7 +322,7 @@ def traces_for_image_layer(layer):
     if np.isscalar(array):
         array = np.atleast_2d(array)
 
-    img = STRETCHES[layer_state.stretch]()(constrast_bias(interval(array)))
+    img = stretches[layer_state.stretch]()(constrast_bias(interval(array)))
     img[np.isnan(img)] = 0
 
     z_bounds, colorscale = colorscale_info(layer_state, interval, constrast_bias)
