@@ -7,13 +7,10 @@ from qtpy.QtWidgets import QDialog
 
 from glue.config import viewer_tool, settings
 from glue.core import DataCollection, Data
-from glue.utils.qt import messagebox_on_error
-from glue.utils.qt.threading import Worker
-
-try:
-    from glue.viewers.common.qt.tool import Tool
-except ImportError:
-    from glue.viewers.common.tool import Tool
+from glue_qt.core.dialogs import warn
+from glue_qt.utils import messagebox_on_error
+from glue_qt.utils.threading import Worker
+from glue_qt.viewers.common.tool import Tool
 
 from glue_plotly import PLOTLY_ERROR_MESSAGE, PLOTLY_LOGO
 from glue_plotly.common import data_count, layers_to_export
@@ -22,7 +19,6 @@ from .. import save_hover, export_dialog
 
 from plotly.offline import plot
 import plotly.graph_objs as go
-from glue.core.qt.dialogs import warn
 
 DEFAULT_FONT = 'Arial, sans-serif'
 settings.add('SHOW_WARN_PLOTLY_3D_GRAPHICS_DIFFERENT', True)

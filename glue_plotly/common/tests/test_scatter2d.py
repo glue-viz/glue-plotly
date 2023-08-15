@@ -4,10 +4,10 @@ from numpy import log10
 from plotly.graph_objs import Scatter
 import pytest
 
-from glue.app.qt import GlueApplication
 from glue.config import settings
 from glue.core import Data
-from glue.viewers.scatter.qt import ScatterViewer
+from glue_qt.app import GlueApplication
+from glue_qt.viewers.scatter import ScatterViewer
 
 from glue_plotly.common import DEFAULT_FONT, color_info, data_count, layers_to_export, \
                                       base_rectilinear_axis, sanitize

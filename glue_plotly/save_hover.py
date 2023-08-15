@@ -3,14 +3,13 @@ import os
 from qtpy.QtWidgets import QDialog, QListWidgetItem
 from qtpy.QtCore import Qt
 
-from echo import SelectionCallbackProperty
+from echo import ChoiceSeparator, SelectionCallbackProperty
 from echo.qt import autoconnect_callbacks_to_qt
 
 from glue import config
-from glue.utils.qt import load_ui
-from glue.core.state_objects import State
-from glue.external.echo import ChoiceSeparator
 from glue.core.data_combo_helper import ComponentIDComboHelper, DataCollectionComboHelper
+from glue.core.state_objects import State
+from glue_qt.utils import load_ui
 
 import numpy as np
 

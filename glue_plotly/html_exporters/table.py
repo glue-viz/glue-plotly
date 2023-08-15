@@ -2,11 +2,7 @@ from math import floor
 
 from glue.config import viewer_tool
 from glue.core import BaseData
-
-try:
-    from glue.viewers.common.qt.tool import Tool
-except ImportError:
-    from glue.viewers.common.tool import Tool
+from glue_qt.viewers.common.tool import Tool
 
 from glue_plotly import PLOTLY_LOGO
 

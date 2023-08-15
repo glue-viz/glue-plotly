@@ -4,8 +4,8 @@ from mock import patch
 import numpy as np
 
 from glue.core import Data
-from glue.app.qt import GlueApplication
-from glue.viewers.image.qt import ImageViewer
+from glue_qt.app import GlueApplication
+from glue_qt.viewers.image import ImageViewer
 
 
 class TestImage:

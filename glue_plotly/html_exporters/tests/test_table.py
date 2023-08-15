@@ -3,8 +3,8 @@ import os
 from mock import patch
 
 from glue.core import Data
-from glue.app.qt import GlueApplication
-from glue.viewers.table.qt import TableViewer
+from glue_qt.app import GlueApplication
+from glue_qt.viewers.table import TableViewer
 from glue_plotly.sort_components import SortComponentsDialog
 from qtpy.QtWidgets import QMessageBox
 

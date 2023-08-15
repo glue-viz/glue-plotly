@@ -9,8 +9,8 @@ import webbrowser
 from qtpy import QtWidgets
 from glue.config import settings
 from glue.utils import nonpartial
-from glue.utils.qt import load_ui, process_events
-from glue.utils.qt.widget_properties import TextProperty, ButtonProperty
+from glue_qt.utils import load_ui, process_events
+from glue_qt.utils.widget_properties import TextProperty, ButtonProperty
 from glue_plotly.web.export_plotly import build_plotly_call
 
 

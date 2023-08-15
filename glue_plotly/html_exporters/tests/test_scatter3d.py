@@ -6,7 +6,7 @@ import pytest
 from mock import patch
 
 from glue.core import Data
-from glue.app.qt import GlueApplication
+from glue_qt.app import GlueApplication
 from glue_plotly.save_hover import SaveHoverDialog
 from qtpy.QtWidgets import QMessageBox
 

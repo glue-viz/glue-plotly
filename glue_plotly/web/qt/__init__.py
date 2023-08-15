@@ -6,9 +6,9 @@ def setup():
                                                export_profile)
     from glue_plotly.web.qt.exporter import save_plotly
 
-    from glue.viewers.scatter.qt import ScatterViewer
-    from glue.viewers.histogram.qt import HistogramViewer
-    from glue.viewers.profile.qt import ProfileViewer
+    from glue_qt.viewers.scatter import ScatterViewer
+    from glue_qt.viewers.histogram import HistogramViewer
+    from glue_qt.viewers.profile import ProfileViewer
 
     DISPATCH[ScatterViewer] = export_scatter
     DISPATCH[HistogramViewer] = export_histogram
