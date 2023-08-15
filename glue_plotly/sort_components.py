@@ -3,8 +3,8 @@ import os
 from qtpy.QtWidgets import QDialog, QListWidgetItem
 from qtpy.QtCore import Qt
 
-from glue.external.echo import SelectionCallbackProperty
-from glue.external.echo.qt import autoconnect_callbacks_to_qt
+from echo import SelectionCallbackProperty
+from echo.qt import autoconnect_callbacks_to_qt
 
 from glue.utils.qt import load_ui
 from glue.core.state_objects import State
