@@ -8,10 +8,7 @@ import plotly.graph_objects as go
 
 from glue_plotly.common.common import base_layout_config
 
-try:
-    from glue_jupyter.view import IPyWidgetView
-except ImportError:
-    IPyWidgetView = None
+from glue_jupyter.view import IPyWidgetView
 
 
 __all__ = ['PlotlyBaseView']

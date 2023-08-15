@@ -5,14 +5,9 @@ from glue.viewers.scatter.state import ScatterViewerState
 
 from glue_plotly.common.scatter2d import polar_layout_config, radial_axis, rectilinear_layout_config
 
-try:
-    from glue_jupyter.common.state_widgets.viewer_scatter import ScatterViewerStateWidget
-    from glue_jupyter.common.state_widgets.layer_scatter import ScatterLayerStateWidget
-    from glue_jupyter.registries import viewer_registry
-except ImportError:
-    ScatterViewerStateWidget = None
-    ScatterLayerStateWidget = None
-    viewer_registry = None
+from glue_jupyter.common.state_widgets.viewer_scatter import ScatterViewerStateWidget
+from glue_jupyter.common.state_widgets.layer_scatter import ScatterLayerStateWidget
+from glue_jupyter.registries import viewer_registry
 
 from .layer_artist import PlotlyScatterLayerArtist
 from glue_plotly.viewers import PlotlyBaseView

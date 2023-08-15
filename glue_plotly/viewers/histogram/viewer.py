@@ -5,14 +5,9 @@ from glue_plotly.viewers import PlotlyBaseView
 from glue_plotly.viewers.histogram.layer_artist import PlotlyHistogramLayerArtist
 
 
-try:
-    from glue_jupyter.registries import viewer_registry
-    from glue_jupyter.common.state_widgets.layer_histogram import HistogramLayerStateWidget
-    from glue_jupyter.common.state_widgets.viewer_histogram import HistogramViewerStateWidget
-except ImportError:
-    HistogramLayerStateWidget = None
-    HistogramViewerStateWidget = None
-    viewer_registry = None
+from glue_jupyter.registries import viewer_registry
+from glue_jupyter.common.state_widgets.layer_histogram import HistogramLayerStateWidget
+from glue_jupyter.common.state_widgets.viewer_histogram import HistogramViewerStateWidget
 
 
 @viewer_registry("plotly_histogram")
