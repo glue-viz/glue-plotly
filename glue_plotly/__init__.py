@@ -18,35 +18,35 @@ def setup():
     from .web.qt import setup
     setup()
 
-    from glue.viewers.scatter.qt import ScatterViewer
+    from glue_qt.viewers.scatter import ScatterViewer
     ScatterViewer.subtools = {
         **ScatterViewer.subtools,
         "save": ScatterViewer.subtools["save"] + ['save:plotly2d']
     }
 
-    from glue.viewers.image.qt import ImageViewer
+    from glue_qt.viewers.image import ImageViewer
     ImageViewer.subtools = {
         **ImageViewer.subtools,
         "save": ImageViewer.subtools["save"] + ['save:plotlyimage2d']
     }
 
-    from glue.viewers.histogram.qt import HistogramViewer
+    from glue_qt.viewers.histogram import HistogramViewer
     HistogramViewer.subtools = {
         **HistogramViewer.subtools,
         "save": HistogramViewer.subtools["save"] + ['save:plotlyhist']
     }
 
-    from glue.viewers.profile.qt import ProfileViewer
+    from glue_qt.viewers.profile import ProfileViewer
     ProfileViewer.subtools = {
         **ProfileViewer.subtools,
         "save": ProfileViewer.subtools["save"] + ['save:plotlyprofile']
     }
 
-    from glue.viewers.table.qt import TableViewer
+    from glue_qt.viewers.table import TableViewer
     TableViewer.tools += ['save:plotlytable']
 
     try:
-        from glue.plugins.dendro_viewer.qt import DendrogramViewer
+        from glue_qt.plugins.dendro_viewer import DendrogramViewer
     except ImportError:
         pass
     else:

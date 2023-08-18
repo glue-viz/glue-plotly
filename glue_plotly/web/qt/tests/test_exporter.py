@@ -9,8 +9,8 @@ from chart_studio.plotly import plotly
 from plotly.exceptions import PlotlyError
 
 from glue.core import Data, DataCollection
-from glue.app.qt import GlueApplication
-from glue.viewers.histogram.qt import HistogramViewer
+from glue_qt.app import GlueApplication
+from glue_qt.viewers.histogram import HistogramViewer
 
 from glue_plotly.web.export_plotly import build_plotly_call
 

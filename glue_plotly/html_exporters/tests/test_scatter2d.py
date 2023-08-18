@@ -5,8 +5,8 @@ import os
 from mock import patch
 
 from glue.core import Data
-from glue.app.qt import GlueApplication
-from glue.viewers.scatter.qt import ScatterViewer
+from glue_qt.app import GlueApplication
+from glue_qt.viewers.scatter import ScatterViewer
 from glue_plotly.save_hover import SaveHoverDialog
 
 

@@ -7,15 +7,11 @@ from qtpy.QtWidgets import QDialog
 
 from glue.config import viewer_tool, settings
 from glue.core import DataCollection, Data
-from glue.utils.qt import messagebox_on_error
+from glue_qt.core.dialogs import warn
+from glue_qt.utils import messagebox_on_error
+from glue_qt.viewers.common.tool import Tool
 
 from .. import save_hover
-
-try:
-    from glue.viewers.common.qt.tool import Tool
-except ImportError:
-    from glue.viewers.common.tool import Tool
-from glue.core.qt.dialogs import warn
 
 from glue_plotly import PLOTLY_ERROR_MESSAGE, PLOTLY_LOGO
 from glue_plotly.common import data_count, layers_to_export

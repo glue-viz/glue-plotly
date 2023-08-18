@@ -7,10 +7,10 @@ from glue.core import Data, DataCollection
 
 pytest.importorskip('qtpy')
 
-from glue.app.qt import GlueApplication  # noqa: E402
-from glue.viewers.scatter.qt import ScatterViewer  # noqa: E402
-from glue.viewers.histogram.qt import HistogramViewer  # noqa: E402
-from glue.viewers.profile.qt import ProfileViewer  # noqa: E402
+from glue_qt.app import GlueApplication  # noqa: E402
+from glue_qt.viewers.scatter import ScatterViewer  # noqa: E402
+from glue_qt.viewers.histogram import HistogramViewer  # noqa: E402
+from glue_qt.viewers.profile import ProfileViewer  # noqa: E402
 
 from ...export_plotly import build_plotly_call  # noqa: E402
 from ....common.tests.utils import SimpleCoordinates  # noqa: E402

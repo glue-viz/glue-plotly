@@ -2,10 +2,10 @@ from numpy import log10
 from plotly.graph_objs import Scatter
 import pytest
 
-from glue.app.qt import GlueApplication
 from glue.config import settings
 from glue.core import Data
-from glue.plugins.dendro_viewer.qt import DendrogramViewer
+from glue_qt.app import GlueApplication
+from glue_qt.plugins.dendro_viewer import DendrogramViewer
 
 from glue_plotly.common import data_count, layers_to_export
 from glue_plotly.common.common import base_rectilinear_axis

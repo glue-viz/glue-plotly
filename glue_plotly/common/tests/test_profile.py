@@ -3,10 +3,10 @@ from itertools import product
 from numpy import arange, log10
 import pytest
 
-from glue.app.qt import GlueApplication
 from glue.config import settings
 from glue.core import Data
-from glue.viewers.profile.qt import ProfileViewer
+from glue_qt.app import GlueApplication
+from glue_qt.viewers.profile import ProfileViewer
 
 from glue_plotly.common import DEFAULT_FONT, data_count, layers_to_export, sanitize
 from glue_plotly.common.profile import axis_from_mpl, traces_for_layer

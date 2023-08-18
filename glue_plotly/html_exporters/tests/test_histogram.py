@@ -3,8 +3,8 @@ import os
 from mock import patch
 
 from glue.core import Data
-from glue.app.qt import GlueApplication
-from glue.viewers.histogram.qt import HistogramViewer
+from glue_qt.app import GlueApplication
+from glue_qt.viewers.histogram import HistogramViewer
 
 
 class TestHistogram:

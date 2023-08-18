@@ -3,8 +3,8 @@ import os
 from mock import patch
 
 from glue.core import Data
-from glue.app.qt import GlueApplication
-from glue.plugins.dendro_viewer.qt.data_viewer import DendrogramViewer
+from glue_qt.app import GlueApplication
+from glue_qt.plugins.dendro_viewer.data_viewer import DendrogramViewer
 
 
 class TestDendrogram:
