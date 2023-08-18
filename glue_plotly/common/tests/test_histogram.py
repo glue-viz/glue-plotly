@@ -10,7 +10,7 @@ from glue.core import Data
 from glue.viewers.histogram.qt import HistogramViewer
 
 from glue_plotly.common import DEFAULT_FONT, data_count, layers_to_export, sanitize
-from glue_plotly.common.histogram import axis, traces_for_layer
+from glue_plotly.common.histogram import axis_from_mpl, traces_for_layer
 
 
 class TestHistogram:
@@ -58,8 +58,8 @@ class TestHistogram:
         self.viewer.state.x_axislabel = 'X Axis'
         self.viewer.state.y_axislabel = 'Y Axis'
 
-        x_axis = axis(self.viewer, 'x')
-        y_axis = axis(self.viewer, 'y')
+        x_axis = axis_from_mpl(self.viewer, 'x')
+        y_axis = axis_from_mpl(self.viewer, 'y')
 
         common_items = dict(showgrid=False, showline=True, mirror=True, rangemode='normal',
                             zeroline=False, showspikes=False, showticklabels=True,
@@ -95,7 +95,7 @@ class TestHistogram:
             assert y_axis['minor_ticks'] == 'outside'
 
     def test_basic_trace(self):
-        traces = traces_for_layer(self.viewer, self.layer)
+        traces = traces_for_layer(self.viewer.state, self.layer.state)
         assert len(traces) == 1
         trace = traces[0]
         assert isinstance(trace, Bar)
@@ -106,7 +106,7 @@ class TestHistogram:
         self.viewer.state.x_log = True
         self.viewer.state.hist_n_bin = 3
         edges, _ = self.layer.state.histogram
-        traces = traces_for_layer(self.viewer, self.layer)
+        traces = traces_for_layer(self.viewer.state, self.layer.state)
         assert len(traces) == len(edges) - 1
         legend_group = traces[0]['legendgroup']
         for index, trace in enumerate(traces):

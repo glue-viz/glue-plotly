@@ -103,10 +103,10 @@ def export_scatter(viewer):
     layers = layers_to_export(viewer)
     add_data_label = data_count(layers) > 1
     for layer in layers:
-        traces += scatter2d.traces_for_layer(viewer, layer, add_data_label=add_data_label)
+        traces += scatter2d.traces_for_layer(viewer, layer.state, add_data_label=add_data_label)
 
-    xaxis = base_rectilinear_axis(viewer, 'x')
-    yaxis = base_rectilinear_axis(viewer, 'y')
+    xaxis = base_rectilinear_axis(viewer.state, 'x')
+    yaxis = base_rectilinear_axis(viewer.state, 'y')
 
     return traces, xaxis, yaxis
 
@@ -116,12 +116,12 @@ def export_histogram(viewer):
     layers = layers_to_export(viewer)
     add_data_label = data_count(layers) > 1
     for layer in layers:
-        traces += histogram.traces_for_layer(viewer, layer, add_data_label=add_data_label)
+        traces += histogram.traces_for_layer(viewer.state, layer.state, add_data_label=add_data_label)
 
     # For now, set glue_ticks to False
     # TODO: Can we use MathJax (or some other LaTeX formatting) inside Chart Studio?
-    xaxis = histogram.axis(viewer, 'x', glue_ticks=False)
-    yaxis = histogram.axis(viewer, 'y', glue_ticks=False)
+    xaxis = histogram.axis_from_mpl(viewer, 'x', glue_ticks=False)
+    yaxis = histogram.axis_from_mpl(viewer, 'y', glue_ticks=False)
 
     return traces, xaxis, yaxis
 
@@ -131,12 +131,12 @@ def export_profile(viewer):
     layers = layers_to_export(viewer)
     add_data_label = data_count(layers) > 1
     for layer in layers:
-        traces += profile.traces_for_layer(viewer, layer, add_data_label=add_data_label)
+        traces += profile.traces_for_layer(viewer.state, layer.state, add_data_label=add_data_label)
 
     # For now, set glue_ticks to False
     # TODO: Can we use MathJax (or some other LaTeX formatting) inside Chart Studio?
-    xaxis = profile.axis(viewer, 'x', glue_ticks=False)
-    yaxis = profile.axis(viewer, 'y', glue_ticks=False)
+    xaxis = profile.axis_from_mpl(viewer, 'x', glue_ticks=False)
+    yaxis = profile.axis_from_mpl(viewer, 'y', glue_ticks=False)
 
     return traces, xaxis, yaxis
 

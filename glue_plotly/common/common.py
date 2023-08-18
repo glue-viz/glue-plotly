@@ -1,16 +1,21 @@
+from glue.viewers.common.qt.data_viewer import DataViewer
 from matplotlib.colors import Normalize
 import numpy as np
 
 from glue.config import settings
 from glue.core import BaseData
 
-from glue_plotly.utils import opacity_value_string
+from glue_plotly.utils import is_rgba_hex, opacity_value_string, rgba_hex_to_rgb_hex
 
 DEFAULT_FONT = 'Arial, sans-serif'
 
 
 def dimensions(viewer):
-    return viewer.figure.get_size_inches() * viewer.figure.dpi
+    # TODO: Add implementation for bqplot viewers
+    if isinstance(viewer, DataViewer):
+        return viewer.figure.get_size_inches() * viewer.figure.dpi
+    else:  # For now, this means a Plotly-based viewer
+        return viewer.figure.layout.width, viewer.figure.layout.height
 
 
 def layers_to_export(viewer):
@@ -24,32 +29,35 @@ def data_count(layers):
     return len(data)
 
 
-def base_layout_config(viewer, **kwargs):
+def base_layout_config(viewer, include_dimensions=True, **kwargs):
     # set the aspect ratio of the axes, the tick label size, the axis label
     # sizes, and the axes limits
-    width, height = dimensions(viewer)
 
     config = dict(
         margin=dict(r=50, l=50, b=50, t=50),  # noqa
-        width=1200,
-        height=1200 * height / width,  # scale axis correctly
         paper_bgcolor=settings.BACKGROUND_COLOR,
         plot_bgcolor=settings.BACKGROUND_COLOR
     )
+
+    if include_dimensions:
+        width, height = dimensions(viewer)
+        config.update(width=1200, height=1200 * height / width)
+
     config.update(kwargs)
     return config
 
 
-def base_rectilinear_axis(viewer, axis):
-    title = getattr(viewer.axes, f'get_{axis}label')()
-    ax = getattr(viewer.axes, f'{axis}axis')
-    range = [getattr(viewer.state, f'{axis}_min'), getattr(viewer.state, f'{axis}_max')]
-    log = getattr(viewer.state, f'{axis}_log')
+def base_rectilinear_axis(viewer_state, axis):
+    title = getattr(viewer_state, f'{axis}_axislabel')
+    axislabel_size = getattr(viewer_state, f'{axis}_axislabel_size')
+    ticklabel_size = getattr(viewer_state, f'{axis}_ticklabel_size')
+    range = [getattr(viewer_state, f'{axis}_min'), getattr(viewer_state, f'{axis}_max')]
+    log = getattr(viewer_state, f'{axis}_log')
     axis_dict = dict(
         title=title,
         titlefont=dict(
             family=DEFAULT_FONT,
-            size=2 * ax.get_label().get_size(),
+            size=2 * axislabel_size,
             color=settings.FOREGROUND_COLOR
         ),
         showspikes=False,
@@ -63,8 +71,7 @@ def base_rectilinear_axis(viewer, axis):
         showticklabels=True,
         tickfont=dict(
             family=DEFAULT_FONT,
-            size=1.5 * ax.get_ticklabels()[
-                0].get_fontsize(),
+            size=1.5 * ticklabel_size,
             color=settings.FOREGROUND_COLOR),
         range=range,
         type='log' if log else 'linear',
@@ -87,15 +94,16 @@ def sanitize(*arrays):
     return mask, tuple(a[mask].ravel() for a in arrays)
 
 
-def fixed_color(layer):
-    layer_color = layer.state.color
-    if layer_color == '0.35':
+def fixed_color(layer_state):
+    layer_color = layer_state.color
+    if layer_color == '0.35' or layer_color == '0.75':
         layer_color = 'gray'
+    if is_rgba_hex(layer_color):
+        layer_color = rgba_hex_to_rgb_hex(layer_color)
     return layer_color
 
 
-def rgb_colors(layer, mask, cmap_att):
-    layer_state = layer.state
+def rgb_colors(layer_state, mask, cmap_att):
     if layer_state.cmap_vmin > layer_state.cmap_vmax:
         cmap = layer_state.cmap.reversed()
         norm = Normalize(
@@ -115,10 +123,10 @@ def rgb_colors(layer, mask, cmap_att):
     return rgba_strs
 
 
-def color_info(layer, mask=None,
+def color_info(layer_state, mask=None,
                mode_att="cmap_mode",
                cmap_att="cmap_att"):
-    if getattr(layer.state, mode_att) == "Fixed":
-        return fixed_color(layer)
+    if getattr(layer_state, mode_att) == "Fixed":
+        return fixed_color(layer_state)
     else:
-        return rgb_colors(layer, mask, cmap_att)
+        return rgb_colors(layer_state, mask, cmap_att)

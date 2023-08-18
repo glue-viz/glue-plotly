@@ -9,7 +9,7 @@ from glue.core import Data
 from glue.viewers.profile.qt import ProfileViewer
 
 from glue_plotly.common import DEFAULT_FONT, data_count, layers_to_export, sanitize
-from glue_plotly.common.profile import axis, traces_for_layer
+from glue_plotly.common.profile import axis_from_mpl, traces_for_layer
 
 from glue_plotly.common.tests.utils import SimpleCoordinates
 
@@ -62,8 +62,8 @@ class TestProfile:
         self.viewer.state.x_axislabel = 'X Axis'
         self.viewer.state.y_axislabel = 'Y Axis'
 
-        x_axis = axis(self.viewer, 'x')
-        y_axis = axis(self.viewer, 'y')
+        x_axis = axis_from_mpl(self.viewer, 'x')
+        y_axis = axis_from_mpl(self.viewer, 'y')
 
         common_items = dict(showgrid=False, showline=True, mirror=True, rangemode='normal',
                             zeroline=False, showspikes=False, showticklabels=True,
@@ -101,7 +101,7 @@ class TestProfile:
     @pytest.mark.parametrize('as_steps', [True, False])
     def test_trace(self, as_steps):
         self.layer.state.as_steps = as_steps
-        traces = traces_for_layer(self.viewer, self.layer)
+        traces = traces_for_layer(self.viewer.state, self.layer.state)
         assert len(traces) == 1
         trace = traces[0]
         line = trace['line']

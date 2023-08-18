@@ -41,8 +41,8 @@ class TestDendrogram:
     def test_axes(self, log_y):
         self.viewer.state.y_log = log_y
 
-        xaxis = x_axis(self.viewer)
-        yaxis = base_rectilinear_axis(self.viewer, 'y')
+        xaxis = x_axis(self.viewer.state)
+        yaxis = base_rectilinear_axis(self.viewer.state, 'y')
 
         assert xaxis['showticklabels'] is False
         assert xaxis['showline'] is False
@@ -65,7 +65,7 @@ class TestDendrogram:
 
     def test_trace(self):
         xy_data = self.layer.mpl_artists[0].get_xydata()
-        trace = trace_for_layer(self.layer, xy_data)
+        trace = trace_for_layer(self.layer.state, xy_data)
         assert isinstance(trace, Scatter)
         assert trace['mode'] == 'lines'
         assert trace['name'] == 'dendrogram'

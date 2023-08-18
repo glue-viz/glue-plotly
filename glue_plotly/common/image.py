@@ -7,7 +7,10 @@ import numpy as np
 
 from glue.config import settings
 from glue.utils import ensure_numerical
-from glue.viewers.image.composite_array import STRETCHES
+try:
+    from glue.config import stretches
+except ImportError:
+    from glue.viewers.image.composite_array import STRETCHES as stretches
 from glue.viewers.image.state import BaseData, ImageLayerState, ImageSubsetLayerState
 from glue.viewers.scatter.state import IncompatibleAttribute, ScatterLayerState
 
@@ -37,7 +40,7 @@ def background_color(viewer):
         return bg_color
 
 
-def layout_config(viewer):
+def layout_config_from_mpl(viewer):
     bg_color = background_color(viewer)
     return base_layout_config(viewer,
                               plot_bgcolor='rgba{0}'.format(tuple(bg_color)),
@@ -122,27 +125,33 @@ def shape(viewer):
     return [viewer.state.reference_data.shape[i] for i in xy_axes]
 
 
-def image_size_info(layer):
-    state = layer.state
-    if state.size_mode == 'Fixed':
-        return state.size
+def image_size_info(layer_state):
+    if layer_state.size_mode == 'Fixed':
+        return layer_state.size
     else:
-        s = ensure_numerical(state.layer[state.size_att].ravel())
-        size = 25 * (s - state.size_vmin) / (
-                        state.size_vmax - state.size_vmin)
+        s = ensure_numerical(layer_state.layer[layer_state.size_att].ravel())
+        size = 25 * (s - layer_state.size_vmin) / (
+                        layer_state.size_vmax - layer_state.size_vmin)
         size[np.isnan(size)] = 0
         size[size < 0] = 0
         return size
 
 
-def colorscale_info(layer, interval, contrast_bias):
-    if layer.state.v_min > layer.state.v_max:
-        cmap = layer.state.cmap.reversed()
-        bounds = [layer.state.v_max, layer.state.v_min]
+def get_stretch(stretch_name):
+    try:
+        return stretches(stretch_name)
+    except TypeError:
+        return stretches[stretch_name]
+
+
+def colorscale_info(layer_state, interval, contrast_bias):
+    if layer_state.v_min > layer_state.v_max:
+        cmap = layer_state.cmap.reversed()
+        bounds = [layer_state.v_max, layer_state.v_min]
     else:
-        cmap = layer.state.cmap
-        bounds = [layer.state.v_min, layer.state.v_max]
-    mapped_bounds = STRETCHES[layer.state.stretch]()(contrast_bias(interval(bounds)))
+        cmap = layer_state.cmap
+        bounds = [layer_state.v_min, layer_state.v_max]
+    mapped_bounds = get_stretch(layer_state.stretch)()(contrast_bias(interval(bounds)))
     unmapped_space = np.linspace(0, 1, 60)
     mapped_space = np.linspace(mapped_bounds[0], mapped_bounds[1], 60)
     color_space = [cmap(b)[:3] for b in mapped_space]
@@ -233,7 +242,7 @@ def traces_for_nonpixel_subset_layer(viewer, layer, full_view, transpose):
     layer_state = layer.state
     subset_state = layer.layer.subset_state
     ref_data = viewer.state.reference_data
-    color = fixed_color(layer)
+    color = fixed_color(layer_state)
     buffer = ref_data.compute_fixed_resolution_buffer(full_view, target_data=ref_data,
                                                       broadcast=False, subset_state=subset_state)
     if transpose:
@@ -269,10 +278,10 @@ def traces_for_scatter_layer(viewer, layer, hover_data=None, add_data_label=True
     y = layer_state.layer[viewer_state.y_att].copy()
     mask, (x, y) = sanitize(x, y)
 
-    marker = dict(color=color_info(layer),
+    marker = dict(color=color_info(layer_state),
                   opacity=layer_state.alpha,
                   line=dict(width=0),
-                  size=scatter_size_info(layer, mask),
+                  size=scatter_size_info(layer_state, mask),
                   sizemin=1)
 
     if np.sum(hover_data) == 0:
@@ -320,10 +329,10 @@ def traces_for_image_layer(layer):
     if np.isscalar(array):
         array = np.atleast_2d(array)
 
-    img = STRETCHES[layer_state.stretch]()(constrast_bias(interval(array)))
+    img = get_stretch(layer_state.stretch)()(constrast_bias(interval(array)))
     img[np.isnan(img)] = 0
 
-    z_bounds, colorscale = colorscale_info(layer, interval, constrast_bias)
+    z_bounds, colorscale = colorscale_info(layer_state, interval, constrast_bias)
     image_info = dict(z=img,
                       colorscale=colorscale,
                       hoverinfo='skip',
