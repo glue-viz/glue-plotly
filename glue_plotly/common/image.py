@@ -120,9 +120,9 @@ def axes_data(viewer):
     return axes_data
 
 
-def shape(viewer):
-    xy_axes = sorted([viewer.state.x_att.axis, viewer.state.y_att.axis])
-    return [viewer.state.reference_data.shape[i] for i in xy_axes]
+def shape(viewer_state):
+    xy_axes = sorted([viewer_state.x_att.axis, viewer_state.y_att.axis])
+    return [viewer_state.reference_data.shape[i] for i in xy_axes]
 
 
 def image_size_info(layer_state):
@@ -188,8 +188,8 @@ def full_view_transpose(viewer):
     return full_view, transpose
 
 
-def empty_secondary_layer(viewer, secondary_x, secondary_y):
-    bg = np.ones(shape(viewer))
+def empty_secondary_layer(viewer_state, secondary_x, secondary_y):
+    bg = np.ones(shape(viewer_state))
     secondary_info = dict(z=bg,
                           colorscale=[[0, 'rgb(0,0,0)'], [1, 'rgb(0,0,0)']],
                           hoverinfo='skip',
@@ -200,12 +200,12 @@ def empty_secondary_layer(viewer, secondary_x, secondary_y):
     return Heatmap(**secondary_info)
 
 
-def background_heatmap_layer(viewer):
+def background_heatmap_layer(viewer_state):
     """
     This function creates an all-white heatmap which we can use as the bottom layer
     when the viewer is using colormap, to match what we see in glue
     """
-    bg = np.ones(shape(viewer))
+    bg = np.ones(shape(viewer_state))
     bottom_color = (256, 256, 256)
     bottom_colorstring = 'rgb{0}'.format(bottom_color)
     bottom_info = dict(z=bg, hoverinfo='skip', opacity=1, showscale=False,
@@ -238,10 +238,9 @@ def traces_for_pixel_subset_layer(viewer, layer):
         return []
 
 
-def traces_for_nonpixel_subset_layer(viewer, layer, full_view, transpose):
-    layer_state = layer.state
-    subset_state = layer.layer.subset_state
-    ref_data = viewer.state.reference_data
+def traces_for_nonpixel_subset_layer(viewer_state, layer_state, full_view, transpose):
+    subset_state = layer_state.layer.subset_state
+    ref_data = viewer_state.reference_data
     color = fixed_color(layer_state)
     buffer = ref_data.compute_fixed_resolution_buffer(full_view, target_data=ref_data,
                                                       broadcast=False, subset_state=subset_state)
@@ -270,10 +269,7 @@ def traces_for_nonpixel_subset_layer(viewer, layer, full_view, transpose):
     return [Heatmap(**image_info)]
 
 
-def traces_for_scatter_layer(viewer, layer, hover_data=None, add_data_label=True):
-    viewer_state = viewer.state
-    layer_state = layer.state
-
+def traces_for_scatter_layer(viewer_state, layer_state, hover_data=None, add_data_label=True):
     x = layer_state.layer[viewer_state.x_att].copy()
     y = layer_state.layer[viewer_state.y_att].copy()
     mask, (x, y) = sanitize(x, y)
@@ -300,8 +296,8 @@ def traces_for_scatter_layer(viewer, layer, hover_data=None, add_data_label=True
                                             hover_values[k]))
 
     name = layer_state.layer.label
-    if add_data_label and not isinstance(layer.layer, BaseData):
-        name += " ({0})".format(layer.layer.data.label)
+    if add_data_label and not isinstance(layer_state.layer, BaseData):
+        name += " ({0})".format(layer_state.layer.data.label)
     scatter_info = dict(mode='markers',
                         marker=marker,
                         x=x,
@@ -320,6 +316,7 @@ def traces_for_image_layer(layer):
 
     interval = ManualInterval(layer_state.v_min, layer_state.v_max)
     constrast_bias = ContrastBiasStretch(layer_state.contrast, layer_state.bias)
+
     array = layer.get_image_data
     if callable(array):
         array = array(bounds=None)
@@ -368,7 +365,7 @@ def traces(viewer, secondary_x=False, secondary_y=False, hover_selections=None, 
         full_view, transpose = full_view_transpose(viewer)
 
     if using_colormaps:
-        traces.append(background_heatmap_layer(viewer))
+        traces.append(background_heatmap_layer(viewer.state))
         for layer in layers['image']:
             traces += traces_for_image_layer(layer)
     else:
@@ -379,14 +376,14 @@ def traces(viewer, secondary_x=False, secondary_y=False, hover_selections=None, 
         if isinstance(subset_state, PixelSubsetState):
             traces += traces_for_pixel_subset_layer(viewer, layer)
         else:
-            traces += traces_for_nonpixel_subset_layer(viewer, layer, full_view, transpose)
+            traces += traces_for_nonpixel_subset_layer(viewer.state, layer.state, full_view, transpose)
 
     for layer in layers['scatter']:
-        traces += traces_for_scatter_layer(viewer, layer,
+        traces += traces_for_scatter_layer(viewer.state, layer.state,
                                            hover_data=hover_selections[layer.state.layer.label],
                                            add_data_label=add_data_label)
 
     if secondary_x or secondary_y:
-        traces.append(empty_secondary_layer(viewer, secondary_x, secondary_y))
+        traces.append(empty_secondary_layer(viewer.state, secondary_x, secondary_y))
 
     return traces
