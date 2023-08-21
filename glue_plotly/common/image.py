@@ -33,7 +33,7 @@ def background_color(viewer):
     if using_colormaps:
         return [256, 256, 256, 1]
     else:
-        img = viewer.axes._composite()
+        img = composite_array(viewer)()
         bg_color = [_ for _ in img[0][0]]
         for i in range(3):
             bg_color[i] *= 256
@@ -125,6 +125,15 @@ def shape(viewer_state):
     return [viewer_state.reference_data.shape[i] for i in xy_axes]
 
 
+def composite_array(viewer):
+    # Qt viewer
+    try:
+        return viewer.axes._composite
+    # bqplot
+    except AttributeError:
+        return viewer._composite
+
+
 def image_size_info(layer_state):
     if layer_state.size_mode == 'Fixed':
         return layer_state.size
@@ -176,14 +185,13 @@ def layers_by_type(viewer):
     return dict(scatter=scatter_layers, image=image_layers, image_subset=image_subset_layers)
 
 
-def full_view_transpose(viewer):
-    state = viewer.state
-    full_view, _agg_func, transpose = state.numpy_slice_aggregation_transpose
-    full_view[state.x_att.axis] = slice(None)
-    full_view[state.y_att.axis] = slice(None)
-    for i in range(state.reference_data.ndim):
+def full_view_transpose(viewer_state):
+    full_view, _agg_func, transpose = viewer_state.numpy_slice_aggregation_transpose
+    full_view[viewer_state.x_att.axis] = slice(None)
+    full_view[viewer_state.y_att.axis] = slice(None)
+    for i in range(viewer_state.reference_data.ndim):
         if isinstance(full_view[i], slice):
-            full_view[i] = slice_to_bound(full_view[i], state.reference_data.shape[i])
+            full_view[i] = slice_to_bound(full_view[i], viewer_state.reference_data.shape[i])
 
     return full_view, transpose
 
@@ -213,26 +221,23 @@ def background_heatmap_layer(viewer_state):
     return Heatmap(**bottom_info)
 
 
-def traces_for_pixel_subset_layer(viewer, layer):
-    state = layer.state
-    subset_state = layer.layer.subset_state
-    xmin, xmax = viewer.axes.get_xlim()
-    ymin, ymax = viewer.axes.get_ylim()
+def traces_for_pixel_subset_layer(viewer_state, layer_state):
+    subset_state = layer_state.layer.subset_state
 
     try:
-        x, y = subset_state.get_xy(layer.layer.data, viewer.state.x_att.axis, viewer.state.y_att.axis)
+        x, y = subset_state.get_xy(layer_state.layer.data, viewer_state.x_att.axis, viewer_state.y_att.axis)
         line_data = dict(
             mode="lines",
             marker=dict(
-                color=state.color
+                color=layer_state.color
             ),
-            opacity=state.alpha * 0.5,
-            name=state.layer.label,
+            opacity=layer_state.alpha * 0.5,
+            name=layer_state.layer.label,
             legendgroup=uuid4().hex
         )
 
-        x_line_data = {**line_data, 'x': [x, x], 'y': [ymin, ymax], 'showlegend': True}
-        y_line_data = {**line_data, 'x': [xmin, xmax], 'y': [y, y], 'showlegend': False}
+        x_line_data = {**line_data, 'x': [x, x], 'y': [viewer_state.y_min, viewer_state.y_max], 'showlegend': True}
+        y_line_data = {**line_data, 'x': [viewer_state.x_min, viewer_state.x_max], 'y': [y, y], 'showlegend': False}
         return [Scatter(**x_line_data), Scatter(**y_line_data)]
     except IncompatibleAttribute:
         return []
@@ -317,6 +322,7 @@ def traces_for_image_layer(layer):
     interval = ManualInterval(layer_state.v_min, layer_state.v_max)
     constrast_bias = ContrastBiasStretch(layer_state.contrast, layer_state.bias)
 
+    # This works for either Qt or bqplot layers
     array = layer.get_image_data
     if callable(array):
         array = array(bounds=None)
@@ -345,7 +351,7 @@ def traces_for_image_layer(layer):
 
 
 def single_color_trace(viewer):
-    img = viewer.axes._composite()
+    img = composite_array(viewer)()
     img[:, :, :3] *= 256
     image_info = dict(z=img,
                       opacity=1,
@@ -362,7 +368,7 @@ def traces(viewer, secondary_x=False, secondary_y=False, hover_selections=None, 
     has_nonpixel_subset = any(not isinstance(layer.layer.subset_state, PixelSubsetState)
                               for layer in layers['image_subset'])
     if has_nonpixel_subset:
-        full_view, transpose = full_view_transpose(viewer)
+        full_view, transpose = full_view_transpose(viewer.state)
 
     if using_colormaps:
         traces.append(background_heatmap_layer(viewer.state))
@@ -374,7 +380,7 @@ def traces(viewer, secondary_x=False, secondary_y=False, hover_selections=None, 
     for layer in layers['image_subset']:
         subset_state = layer.layer.subset_state
         if isinstance(subset_state, PixelSubsetState):
-            traces += traces_for_pixel_subset_layer(viewer, layer)
+            traces += traces_for_pixel_subset_layer(viewer.state, layer.state)
         else:
             traces += traces_for_nonpixel_subset_layer(viewer.state, layer.state, full_view, transpose)
 
