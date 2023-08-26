@@ -77,5 +77,10 @@ def setup_qt():
 
 def setup_jupyter():
     from .html_exporters import bqplot  # noqa
+    from glue_jupyter.bqplot.histogram import BqplotHistogramView
+    from glue_jupyter.bqplot.profile import BqplotProfileView
     from glue_jupyter.bqplot.scatter import BqplotScatterView
+
+    BqplotHistogramView.tools += ['save:bqplot_plotlyhist']
+    BqplotProfileView.tools += ['save:bqplot_plotlyprofile']
     BqplotScatterView.tools += ['save:bqplot_plotly2d']

@@ -1,1 +1,2 @@
+from . import histogram  # noqa
 from . import scatter2d  # noqa

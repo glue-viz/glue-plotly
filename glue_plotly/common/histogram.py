@@ -16,6 +16,14 @@ def axis_from_mpl(viewer, ax, glue_ticks=True):
     return a
 
 
+def layout_config(viewer):
+    config = base_layout_config(viewer, barmode="overlay", bargap=0)
+    x_axis = base_rectilinear_axis(viewer.state, 'x')
+    y_axis = base_rectilinear_axis(viewer.state, 'y')
+    config.update(xaxis=x_axis, yaxis=y_axis)
+    return config
+
+
 def layout_config_from_mpl(viewer):
     config = base_layout_config(viewer, barmode="overlay", bargap=0)
     x_axis = axis_from_mpl(viewer, 'x')

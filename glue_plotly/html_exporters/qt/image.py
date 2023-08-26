@@ -15,7 +15,7 @@ from ... import save_hover, export_dialog
 
 from glue_plotly import PLOTLY_ERROR_MESSAGE, PLOTLY_LOGO
 from glue_plotly.common import data_count, layers_to_export
-from glue_plotly.common.image import axes_data, layers_by_type, layout_config_from_mpl, traces
+from glue_plotly.common.image import axes_data_from_mpl, layers_by_type, layout_config, traces
 
 import plotly.graph_objects as go
 from plotly.offline import plot
@@ -37,9 +37,10 @@ class PlotlyImage2DExport(Tool):
         layers = layers_to_export(self.viewer)
         add_data_label = data_count(layers) > 1
 
-        config = layout_config_from_mpl(self.viewer)
+        config = layout_config(self.viewer)
 
-        ax = axes_data(self.viewer)
+        # TODO: Need to determine how to makes axes from bqplot
+        ax = axes_data_from_mpl(self.viewer)
         config.update(**ax)
         secondary_x = 'xaxis2' in ax
         secondary_y = 'yaxis2' in ax
