@@ -12,9 +12,21 @@ PLOTLY_ERROR_MESSAGE = "An error occurred during the export to Plotly:"
 
 
 def setup():
+    try:
+        setup_qt()
+    except ImportError:
+        pass
+
+    try:
+        setup_jupyter()
+    except ImportError:
+        pass
+
+
+def setup_qt():
 
     from . import common  # noqa
-    from . import html_exporters  # noqa
+    from .html_exporters import qt  # noqa
     from .web.qt import setup
     setup()
 
@@ -61,3 +73,9 @@ def setup():
         pass
     else:
         VispyScatterViewer.subtools['save'] = VispyScatterViewer.subtools['save'] + ['save:plotly3d']
+
+
+def setup_jupyter():
+    from .html_exporters import bqplot  # noqa
+    from glue_jupyter.bqplot.scatter import BqplotScatterView
+    BqplotScatterView.tools += ['save:bqplot_plotly2d']

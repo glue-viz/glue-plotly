@@ -3,7 +3,12 @@ import numpy as np
 
 from glue.config import settings
 from glue.core import BaseData
-from glue_qt.viewers.common.data_viewer import DataViewer
+try:
+    from glue_qt.viewers.common.data_viewer import DataViewer
+    from glue_jupyter.bqplot.common import BqplotBaseView
+except ImportError:
+    DataViewer = type(None)
+    BqplotBaseView = type(None)
 
 from glue_plotly.utils import is_rgba_hex, opacity_value_string, rgba_hex_to_rgb_hex
 
@@ -14,6 +19,8 @@ def dimensions(viewer):
     # TODO: Add implementation for bqplot viewers
     if isinstance(viewer, DataViewer):
         return viewer.figure.get_size_inches() * viewer.figure.dpi
+    elif isinstance(viewer, BqplotBaseView):
+        return 1200, 600  # TODO: What to do here?
     else:  # For now, this means a Plotly-based viewer
         return viewer.figure.layout.width, viewer.figure.layout.height
 

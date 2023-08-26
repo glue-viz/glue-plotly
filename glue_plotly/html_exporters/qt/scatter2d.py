@@ -7,11 +7,11 @@ from qtpy.QtWidgets import QDialog
 
 from glue.config import viewer_tool, settings
 from glue.core import DataCollection, Data
+from glue.viewers.common.tool import Tool
 from glue_qt.core.dialogs import warn
 from glue_qt.utils import messagebox_on_error
-from glue_qt.viewers.common.tool import Tool
 
-from .. import save_hover
+from ... import save_hover
 
 from glue_plotly import PLOTLY_ERROR_MESSAGE, PLOTLY_LOGO
 from glue_plotly.common import data_count, layers_to_export
@@ -93,7 +93,6 @@ class PlotlyScatter2DStaticExport(Tool):
                                       layer.state,
                                       hover_data=checked_dictionary[layer.state.layer.label],
                                       add_data_label=add_data_label)
-            for trace in traces:
-                fig.add_trace(trace)
+            fig.add_traces(traces)
 
         plot(fig, filename=filename, auto_open=False)
