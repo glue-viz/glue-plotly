@@ -23,7 +23,7 @@ class PlotlyHistogramBqplotExport(Tool):
         if not filename:
             return
 
-        config = layout_config(self.viewer)
+        config = layout_config(self.viewer, bargap=0.1)
         layout = go.Layout(**config)
         fig = go.Figure(layout=layout)
 

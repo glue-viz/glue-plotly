@@ -16,16 +16,20 @@ def axis_from_mpl(viewer, ax, glue_ticks=True):
     return a
 
 
-def layout_config(viewer):
-    config = base_layout_config(viewer, barmode="overlay", bargap=0)
+def layout_config(viewer, **kwargs):
+    kwargs.setdefault("barmode", "overlay")
+    kwargs.setdefault("bargap", 0)
+    config = base_layout_config(viewer, **kwargs)
     x_axis = base_rectilinear_axis(viewer.state, 'x')
     y_axis = base_rectilinear_axis(viewer.state, 'y')
     config.update(xaxis=x_axis, yaxis=y_axis)
     return config
 
 
-def layout_config_from_mpl(viewer):
-    config = base_layout_config(viewer, barmode="overlay", bargap=0)
+def layout_config_from_mpl(viewer, **kwargs):
+    kwargs.setdefault("barmode", "overlay")
+    kwargs.setdefault("bargap", 0)
+    config = base_layout_config(viewer, **kwargs)
     x_axis = axis_from_mpl(viewer, 'x')
     y_axis = axis_from_mpl(viewer, 'y')
     config.update(xaxis=x_axis, yaxis=y_axis)
@@ -64,11 +68,9 @@ def traces_for_layer(viewer_state, layer_state, add_data_label=True):
             )
             traces.append(Bar(**hist_info))
     else:
-        width = edges[1] - edges[0]
         hist_info.update(
             x=x,
             y=y,
-            width=width,
             meta=bars_id
         )
         traces.append(Bar(**hist_info))
