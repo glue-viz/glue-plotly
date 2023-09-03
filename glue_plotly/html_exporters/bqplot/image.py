@@ -3,7 +3,7 @@ from glue.viewers.common.tool import Tool
 
 from glue_plotly import PLOTLY_LOGO
 from glue_plotly.common import data_count, layers_to_export
-from glue_plotly.common.image import axes_data, layout_config, traces
+from glue_plotly.common.image import axes_data_from_bqplot, layout_config, traces
 
 from plotly.offline import plot
 import plotly.graph_objs as go
@@ -29,7 +29,7 @@ class PlotlyImageBqplotExport(Tool):
 
         config = layout_config(self.viewer)
         
-        ax = axes_data(self.viewer)
+        ax = axes_data_from_bqplot(self.viewer)
         config.update(**ax)
         secondary_x = 'xaxis2' in ax
         secondary_y = 'yaxis2' in ax

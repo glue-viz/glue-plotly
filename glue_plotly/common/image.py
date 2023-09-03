@@ -7,6 +7,8 @@ import numpy as np
 
 from glue.config import settings
 from glue.utils import ensure_numerical
+
+from glue_plotly.common.common import base_rectilinear_axis
 try:
     from glue.config import stretches
 except ImportError:
@@ -118,6 +120,13 @@ def axes_data_from_mpl(viewer):
                 continue
 
     return axes_data
+
+
+def axes_data_from_bqplot(viewer):
+    return dict(
+        xaxis=base_rectilinear_axis(viewer.state, 'x'),
+        yaxis=base_rectilinear_axis(viewer.state, 'y')
+    )
 
 
 def shape(viewer_state):
