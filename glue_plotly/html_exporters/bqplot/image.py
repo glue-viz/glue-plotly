@@ -1,7 +1,5 @@
 from glue.config import viewer_tool
-from glue.viewers.common.tool import Tool
 
-from glue_plotly import PLOTLY_LOGO
 from glue_plotly.common import data_count, layers_to_export
 from glue_plotly.common.image import axes_data_from_bqplot, layout_config, traces
 
@@ -9,19 +7,16 @@ from plotly.offline import plot
 import plotly.graph_objs as go
 from plotly.subplots import make_subplots
 
+from .base import PlotlyBaseBqplotExport
+
 
 @viewer_tool
-class PlotlyImageBqplotExport(Tool):
-    icon = PLOTLY_LOGO
+class PlotlyImageBqplotExport(PlotlyBaseBqplotExport):
     tool_id = 'save:bqplot_plotlyimage'
-    action_text = 'Save Plotly HTML page'
-    tool_tip = 'Save Plotly HTML page'
 
-    def activate(self):
+    def save_figure(self, filepath):
 
-        filename = "plot.html"
-
-        if not filename:
+        if not filepath:
             return
 
         layers = layers_to_export(self.viewer)
@@ -47,7 +42,7 @@ class PlotlyImageBqplotExport(Tool):
                                add_data_label=add_data_label)
         fig.add_traces(traces_to_add)
 
-        plot(fig, include_mathjax='cdn', filename=filename, auto_open=False)
+        plot(fig, include_mathjax='cdn', filename=filepath, auto_open=False)
 
 
 

@@ -1,26 +1,21 @@
 from glue.config import viewer_tool
-from glue.viewers.common.tool import Tool
 
-from glue_plotly import PLOTLY_LOGO
 from glue_plotly.common import data_count, layers_to_export
 from glue_plotly.common.histogram import layout_config, traces_for_layer
 
 from plotly.offline import plot
 import plotly.graph_objs as go
 
+from .base import PlotlyBaseBqplotExport
+
 
 @viewer_tool
-class PlotlyHistogramBqplotExport(Tool):
-    icon = PLOTLY_LOGO
+class PlotlyHistogramBqplotExport(PlotlyBaseBqplotExport):
     tool_id = 'save:bqplot_plotlyhist'
-    action_text = 'Save Plotly HTML page'
-    tool_tip = 'Save Plotly HTML page'
 
-    def activate(self):
+    def save_figure(self, filepath):
 
-        filename = "plot.html"
-
-        if not filename:
+        if not filepath:
             return
 
         config = layout_config(self.viewer, bargap=0.1)
@@ -33,5 +28,5 @@ class PlotlyHistogramBqplotExport(Tool):
             traces = traces_for_layer(self.viewer.state, layer.state, add_data_label=add_data_label)
             fig.add_traces(traces)
 
-        plot(fig, include_mathjax='cdn', filename=filename, auto_open=False)
+        plot(fig, include_mathjax='cdn', filename=filepath, auto_open=False)
 

@@ -1,26 +1,20 @@
 from glue.config import viewer_tool
-from glue.viewers.common.tool import Tool
 
-from glue_plotly import PLOTLY_LOGO
 from glue_plotly.common.common import data_count, layers_to_export
 from glue_plotly.common.scatter2d import rectilinear_layout_config, traces_for_layer
 
 from plotly.offline import plot
 import plotly.graph_objs as go
 
+from .base import PlotlyBaseBqplotExport
 
 @viewer_tool
-class PlotlyScatter2DBqplotExport(Tool):
-    icon = PLOTLY_LOGO
+class PlotlyScatter2DBqplotExport(PlotlyBaseBqplotExport):
     tool_id = 'save:bqplot_plotly2d'
-    action_text = 'Save Plotly HTML page'
-    tool_tip = 'Save Plotly HTML page'
 
-    def activate(self):
+    def save_figure(self, filepath):
 
-        filename = "plot.html"  # TODO: Add a way to select this
-
-        if not filename:
+        if not filepath:
             return
 
         layout_config = rectilinear_layout_config(self.viewer)
@@ -34,4 +28,4 @@ class PlotlyScatter2DBqplotExport(Tool):
             traces = traces_for_layer(self.viewer, layer.state, add_data_label=add_data_label)
             fig.add_traces(traces)
 
-        plot(fig, filename=filename, auto_open=False)
+        plot(fig, filename=filepath, auto_open=False)
