@@ -8,6 +8,7 @@ import plotly.graph_objs as go
 
 from .base import PlotlyBaseBqplotExport
 
+
 @viewer_tool
 class PlotlyScatter2DBqplotExport(PlotlyBaseBqplotExport):
     tool_id = 'save:bqplot_plotly2d'

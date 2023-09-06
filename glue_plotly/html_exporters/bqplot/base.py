@@ -26,8 +26,8 @@ class PlotlyBaseBqplotExport(Tool):
                 v.Card(children=[
                     v.CardTitle(primary_title=True, children=["Select output filepath"]),
                     file_chooser,
-                    HBox(children=[ok_btn, close_btn]
-                )])
+                    HBox(children=[ok_btn, close_btn])
+                ])
             ]
         )
 
@@ -49,7 +49,6 @@ class PlotlyBaseBqplotExport(Tool):
             dialog.v_model = True
             display(dialog)
 
-
     def maybe_save_figure(self, filepath):
         if exists(filepath):
             yes_btn = v.Btn(color='success', children=["Yes"])
@@ -60,14 +59,17 @@ class PlotlyBaseBqplotExport(Tool):
                     v.Card(children=[
                         v.CardText(children=["This filepath already exists. Are you sure you want to overwrite it?"]),
                         HBox(children=[no_btn, yes_btn])
-                    ]
-                )
-            ])
+                    ])
+                ]
+            )
+
             def on_yes_click(button, event, data):
                 self.save_figure(filepath)
                 check_dialog.v_model = False
+
             def on_no_click(button, event, data):
                 check_dialog.v_model = False
+
             yes_btn.on_event('click', on_yes_click)
             no_btn.on_event('click', on_no_click)
             with self.viewer.output_widget:
@@ -75,7 +77,6 @@ class PlotlyBaseBqplotExport(Tool):
                 display(check_dialog)
         else:
             self.save_figure(filepath)
-
 
     def save_figure(self, filepath):
         raise NotImplementedError()

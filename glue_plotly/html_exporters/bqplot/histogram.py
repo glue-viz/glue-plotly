@@ -29,4 +29,3 @@ class PlotlyHistogramBqplotExport(PlotlyBaseBqplotExport):
             fig.add_traces(traces)
 
         plot(fig, include_mathjax='cdn', filename=filepath, auto_open=False)
-

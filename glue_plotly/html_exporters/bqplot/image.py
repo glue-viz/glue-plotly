@@ -23,7 +23,7 @@ class PlotlyImageBqplotExport(PlotlyBaseBqplotExport):
         add_data_label = data_count(layers) > 1
 
         config = layout_config(self.viewer)
-        
+
         ax = axes_data_from_bqplot(self.viewer)
         config.update(**ax)
         secondary_x = 'xaxis2' in ax
@@ -43,6 +43,3 @@ class PlotlyImageBqplotExport(PlotlyBaseBqplotExport):
         fig.add_traces(traces_to_add)
 
         plot(fig, include_mathjax='cdn', filename=filepath, auto_open=False)
-
-
-
