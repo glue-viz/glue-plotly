@@ -7,7 +7,9 @@ try:
 except DistributionNotFound:
     pass
 
-PLOTLY_LOGO = os.path.abspath(os.path.join(os.path.dirname(__file__), 'logo.svg'))
+
+PLOTLY_LOGO_PNG = os.path.abspath(os.path.join(os.path.dirname(__file__), 'logo'))
+PLOTLY_LOGO_SVG = os.path.abspath(os.path.join(os.path.dirname(__file__), 'logo.svg'))
 PLOTLY_ERROR_MESSAGE = "An error occurred during the export to Plotly:"
 
 

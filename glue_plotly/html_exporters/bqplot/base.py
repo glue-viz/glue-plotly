@@ -8,11 +8,11 @@ from ipywidgets import HBox
 from IPython.display import display
 from ipyfilechooser import FileChooser
 
-from glue_plotly import PLOTLY_LOGO
+from glue_plotly import PLOTLY_LOGO_SVG
 
 
 class PlotlyBaseBqplotExport(Tool):
-    icon = PLOTLY_LOGO
+    icon = PLOTLY_LOGO_SVG
     action_text = 'Save Plotly HTML page'
     tool_tip = 'Save Plotly HTML page'
 

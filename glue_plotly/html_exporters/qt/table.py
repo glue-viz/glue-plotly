@@ -4,7 +4,7 @@ from glue.config import viewer_tool
 from glue.core import BaseData
 from glue_qt.viewers.common.tool import Tool
 
-from glue_plotly import PLOTLY_LOGO
+from glue_plotly import PLOTLY_LOGO_PNG
 
 from qtpy import compat
 from qtpy.QtCore import Qt
@@ -24,7 +24,7 @@ except ImportError:
 
 @viewer_tool
 class PlotlyTableExport(Tool):
-    icon = PLOTLY_LOGO
+    icon = PLOTLY_LOGO_PNG
     tool_id = 'save:plotlytable'
     action_text = 'Save Plotly HTML page'
     tool_tip = 'Save Plotly HTML page'

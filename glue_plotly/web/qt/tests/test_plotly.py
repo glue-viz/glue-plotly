@@ -1,4 +1,5 @@
 from __future__ import absolute_import, division, print_function
+from glue_qt.app.application import get_icon
 
 import pytest
 import numpy as np
@@ -14,6 +15,8 @@ from glue_qt.viewers.profile import ProfileViewer  # noqa: E402
 
 from ...export_plotly import build_plotly_call  # noqa: E402
 from ....common.tests.utils import SimpleCoordinates  # noqa: E402
+
+get_icon
 
 
 class TestPlotly(object):

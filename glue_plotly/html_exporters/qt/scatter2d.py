@@ -13,7 +13,7 @@ from glue_qt.utils import messagebox_on_error
 
 from ... import save_hover
 
-from glue_plotly import PLOTLY_ERROR_MESSAGE, PLOTLY_LOGO
+from glue_plotly import PLOTLY_ERROR_MESSAGE, PLOTLY_LOGO_PNG
 from glue_plotly.common import data_count, layers_to_export
 from glue_plotly.common.scatter2d import polar_layout_config_from_mpl, rectilinear_layout_config, \
     traces_for_layer
@@ -29,7 +29,7 @@ settings.add(SHOW_PLOTLY_VECTORS_2D_DIFFERENT, True)
 
 @viewer_tool
 class PlotlyScatter2DStaticExport(Tool):
-    icon = PLOTLY_LOGO
+    icon = PLOTLY_LOGO_PNG
     tool_id = 'save:plotly2d'
     action_text = 'Save Plotly HTML page'
     tool_tip = 'Save Plotly HTML page'

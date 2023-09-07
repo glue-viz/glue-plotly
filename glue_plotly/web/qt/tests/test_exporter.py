@@ -15,6 +15,7 @@ from glue_qt.viewers.histogram import HistogramViewer
 from glue_plotly.web.export_plotly import build_plotly_call
 
 from ..exporter import QtPlotlyExporter
+from ....web.qt import setup
 
 plotly_sign_in = mock.MagicMock()
 plotly_plot = mock.MagicMock()
@@ -50,6 +51,8 @@ def make_credentials_file(path, username='', api_key=''):
 class TestQtPlotlyExporter:
 
     def setup_class(self):
+
+        setup()
 
         data = Data(x=[1, 2, 3], y=[2, 3, 4], label='data')
         dc = DataCollection([data])
