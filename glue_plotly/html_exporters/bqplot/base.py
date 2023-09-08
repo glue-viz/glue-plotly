@@ -4,9 +4,10 @@ from os.path import exists
 from glue.viewers.common.tool import Tool
 
 import ipyvuetify as v
-from ipywidgets import HBox
+from ipywidgets import HBox, Layout
 from IPython.display import display
 from ipyfilechooser import FileChooser
+from pandas.io.formats.printing import justify
 
 from glue_plotly import PLOTLY_LOGO_SVG
 
@@ -22,21 +23,23 @@ class PlotlyBaseBqplotExport(Tool):
         close_btn = v.Btn(color='error', children=['Close'])
         dialog = v.Dialog(
             width='500',
+            persistent=True,
             children=[
                 v.Card(children=[
-                    v.CardTitle(primary_title=True, children=["Select output filepath"]),
+                    v.CardTitle(primary_title=True,
+                                children=["Select output filepath"]),
                     file_chooser,
-                    HBox(children=[ok_btn, close_btn])
-                ])
+                    HBox(children=[ok_btn, close_btn],
+                         layout=Layout(justify_content='flex-end', grid_gap='5px'))
+                ], layout=Layout(padding='8px'))
             ]
         )
 
         def on_ok_click(button, event, data):
             self.maybe_save_figure(file_chooser.selected)
-            dialog.v_model = False
 
         def on_close_click(button, event, data):
-            dialog.v_model = False
+            self.viewer.output_widget.clear_output()
 
         def on_selected_change(chooser):
             ok_btn.disabled = not bool(chooser.selected_filename)
@@ -55,17 +58,18 @@ class PlotlyBaseBqplotExport(Tool):
             no_btn = v.Btn(color='error', children=["No"])
             check_dialog = v.Dialog(
                 width='500',
+                persistent=True,
                 children=[
                     v.Card(children=[
                         v.CardText(children=["This filepath already exists. Are you sure you want to overwrite it?"]),
-                        HBox(children=[no_btn, yes_btn])
+                        HBox(children=[yes_btn, no_btn], layout=Layout(justify_content='flex-end', grid_gap='5px'))
                     ])
                 ]
             )
 
             def on_yes_click(button, event, data):
                 self.save_figure(filepath)
-                check_dialog.v_model = False
+                self.viewer.output_widget.clear_output()
 
             def on_no_click(button, event, data):
                 check_dialog.v_model = False
