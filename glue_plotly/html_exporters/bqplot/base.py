@@ -7,7 +7,6 @@ import ipyvuetify as v
 from ipywidgets import HBox, Layout
 from IPython.display import display
 from ipyfilechooser import FileChooser
-from pandas.io.formats.printing import justify
 
 from glue_plotly import PLOTLY_LOGO_SVG
 

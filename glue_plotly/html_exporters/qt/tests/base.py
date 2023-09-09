@@ -53,4 +53,3 @@ class TestQtExporter:
 
     def make_data(self):
         raise NotImplementedError()
-
