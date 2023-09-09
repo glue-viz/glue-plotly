@@ -21,5 +21,5 @@ class TestProfile(TestQtExporter):
         self.viewer.state.x_att = self.data.id['Pixel Axis 0 [x]']
 
     def test_default(self, tmpdir):
-        output_path = self.export_figure(tmpdir, 'test.html') 
+        output_path = self.export_figure(tmpdir, 'test.html')
         assert os.path.exists(output_path)

@@ -10,7 +10,7 @@ class TestQtExporter:
 
     viewer_type = None
     tool_id = None
-    
+
     def setup_method(self, method):
         self.data = self.make_data()
         self.app = GlueApplication()

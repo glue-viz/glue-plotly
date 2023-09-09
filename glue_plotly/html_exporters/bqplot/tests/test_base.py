@@ -1,5 +1,3 @@
-import os
-
 from glue_jupyter import jglue
 
 
