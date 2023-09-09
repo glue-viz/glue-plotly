@@ -1,7 +1,9 @@
+import os
+
 from glue.core import Data
 from glue_qt.viewers.profile import ProfileViewer
 
-from .base import TestQtExporter
+from .test_base import TestQtExporter
 
 
 class TestProfile(TestQtExporter):
@@ -17,3 +19,7 @@ class TestProfile(TestQtExporter):
     def setup_method(self, method):
         super().setup_method(method)
         self.viewer.state.x_att = self.data.id['Pixel Axis 0 [x]']
+
+    def test_default(self, tmpdir):
+        output_path = self.export_figure(tmpdir, 'test.html') 
+        assert os.path.exists(output_path)

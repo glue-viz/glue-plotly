@@ -1,7 +1,9 @@
+import os
+
 from glue.core import Data
 from glue_qt.plugins.dendro_viewer.data_viewer import DendrogramViewer
 
-from .base import TestQtExporter
+from .test_base import TestQtExporter
 
 
 class TestDendrogram(TestQtExporter):
@@ -11,3 +13,7 @@ class TestDendrogram(TestQtExporter):
 
     def make_data(self):
         return Data(label='dendrogram', parent=[-1, 0, 1, 1], height=[1.3, 2.2, 3.2, 4.4])
+
+    def test_default(self, tmpdir):
+        output_path = self.export_figure(tmpdir, 'test_default.html')
+        assert os.path.exists(output_path)

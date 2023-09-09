@@ -5,7 +5,7 @@ from glue.config import viewer_tool
 from glue_qt.utils import messagebox_on_error
 from glue_qt.viewers.common.tool import Tool
 
-from glue_plotly import PLOTLY_ERROR_MESSAGE, PLOTLY_LOGO_PNG
+from glue_plotly import PLOTLY_ERROR_MESSAGE, PLOTLY_LOGO
 from glue_plotly.common import data_count, layers_to_export
 from glue_plotly.common.histogram import layout_config_from_mpl, traces_for_layer
 
@@ -17,7 +17,7 @@ DEFAULT_FONT = 'Arial, sans-serif'
 
 @viewer_tool
 class PlotlyHistogram1DExport(Tool):
-    icon = PLOTLY_LOGO_PNG
+    icon = PLOTLY_LOGO
     tool_id = 'save:plotlyhist'
     action_text = 'Save Plotly HTML page'
     tool_tip = 'Save Plotly HTML page'

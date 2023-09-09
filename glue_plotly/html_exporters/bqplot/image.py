@@ -12,7 +12,7 @@ from .base import PlotlyBaseBqplotExport
 
 @viewer_tool
 class PlotlyImageBqplotExport(PlotlyBaseBqplotExport):
-    tool_id = 'save:bqplot_plotlyimage'
+    tool_id = 'save:bqplot_plotlyimage2d'
 
     def save_figure(self, filepath):
 

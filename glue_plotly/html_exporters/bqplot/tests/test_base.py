@@ -22,12 +22,5 @@ class TestBqplotExporter:
 
     def export_figure(self, tmpdir, output_filename):
         output_path = tmpdir.join(output_filename).strpath
-        self.viewer.save_figure(output_path)
+        self.tool.save_figure(output_path)
         return output_path
-
-    def test_default(self, tmpdir):
-        output_path = self.export_figure(tmpdir, 'test_default.html')
-        assert os.path.exists(output_path)
-
-    def make_data(self):
-        raise NotImplementedError()

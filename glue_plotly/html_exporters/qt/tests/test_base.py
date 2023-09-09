@@ -1,15 +1,16 @@
-import os
-
 from mock import patch
 
 from glue_qt.app import GlueApplication
+from glue_plotly.save_hover import SaveHoverDialog
+from glue_plotly.sort_components import SortComponentsDialog
+from qtpy.QtWidgets import QMessageBox
 
 
 class TestQtExporter:
 
     viewer_type = None
     tool_id = None
-
+    
     def setup_method(self, method):
         self.data = self.make_data()
         self.app = GlueApplication()
@@ -29,7 +30,7 @@ class TestQtExporter:
         self.app.close()
         self.app = None
 
-    def auto_accept_hoverdialog(self):
+    def auto_accept_selectdialog(self):
         def exec_replacement(dialog):
             dialog.select_all()
             dialog.accept()
@@ -44,12 +45,8 @@ class TestQtExporter:
         output_path = tmpdir.join(output_filename).strpath
         with patch('qtpy.compat.getsavefilename') as fd:
             fd.return_value = output_path, 'html'
-            self.tool.activate()
+            with patch.object(SaveHoverDialog, 'exec_', self.auto_accept_selectdialog()), \
+                 patch.object(SortComponentsDialog, 'exec_', self.auto_accept_selectdialog()), \
+                 patch.object(QMessageBox, 'exec_', self.auto_accept_messagebox()):
+                self.tool.activate()
         return output_path
-
-    def test_default(self, tmpdir):
-        output_path = self.export_figure(tmpdir, 'test_default.html')
-        assert os.path.exists(output_path)
-
-    def make_data(self):
-        raise NotImplementedError()

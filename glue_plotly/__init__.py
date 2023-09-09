@@ -8,8 +8,7 @@ except DistributionNotFound:
     pass
 
 
-PLOTLY_LOGO_PNG = os.path.abspath(os.path.join(os.path.dirname(__file__), 'logo'))
-PLOTLY_LOGO_SVG = os.path.abspath(os.path.join(os.path.dirname(__file__), 'logo.svg'))
+PLOTLY_LOGO = os.path.abspath(os.path.join(os.path.dirname(__file__), 'logo'))
 PLOTLY_ERROR_MESSAGE = "An error occurred during the export to Plotly:"
 
 
@@ -85,6 +84,6 @@ def setup_jupyter():
     from glue_jupyter.bqplot.scatter import BqplotScatterView
 
     BqplotHistogramView.tools += ['save:bqplot_plotlyhist']
-    BqplotImageView.tools += ['save:bqplot_plotlyimage']
+    BqplotImageView.tools += ['save:bqplot_plotlyimage2d']
     BqplotProfileView.tools += ['save:bqplot_plotlyprofile']
     BqplotScatterView.tools += ['save:bqplot_plotly2d']
