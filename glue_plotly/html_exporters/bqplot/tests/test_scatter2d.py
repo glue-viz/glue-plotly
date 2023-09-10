@@ -1,9 +1,14 @@
 import os
 
 from glue.core import Data
-from glue_jupyter.bqplot.scatter import BqplotScatterView
 
-from .test_base import TestBqplotExporter
+from pytest import importorskip
+
+importorskip('glue_jupyter')
+
+from glue_jupyter.bqplot.scatter import BqplotScatterView  # noqa
+
+from .test_base import TestBqplotExporter  # noqa
 
 
 class TestScatter2D(TestBqplotExporter):

@@ -1,9 +1,14 @@
 import os
 
 from glue.core import Data
-from glue_qt.viewers.histogram import HistogramViewer
 
-from .test_base import TestQtExporter
+from pytest import importorskip
+
+importorskip('glue_qt')
+
+from glue_qt.viewers.histogram import HistogramViewer  # noqa
+
+from .test_base import TestQtExporter  # noqa
 
 
 class TestHistogram(TestQtExporter):

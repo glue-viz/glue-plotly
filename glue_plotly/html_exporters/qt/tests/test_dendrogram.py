@@ -1,9 +1,14 @@
 import os
 
 from glue.core import Data
-from glue_qt.plugins.dendro_viewer.data_viewer import DendrogramViewer
 
-from .test_base import TestQtExporter
+from pytest import importorskip
+
+importorskip('glue_qt.plugins.dendro_viewer.data_viewer')
+
+from glue_qt.plugins.dendro_viewer.data_viewer import DendrogramViewer  # noqa
+
+from .test_base import TestQtExporter  # noqa
 
 
 class TestDendrogram(TestQtExporter):

@@ -1,10 +1,15 @@
 import os
 
 from glue.core import Data
-from glue_qt.app import GlueApplication
-from glue_qt.viewers.table import TableViewer
 
-from .test_base import TestQtExporter
+from pytest import importorskip
+
+importorskip('glue_qt')
+
+from glue_qt.app import GlueApplication  # noqa
+from glue_qt.viewers.table import TableViewer  # noqa
+
+from .test_base import TestQtExporter  # noqa
 
 
 class TestTable(TestQtExporter):

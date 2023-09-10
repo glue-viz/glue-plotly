@@ -1,11 +1,16 @@
 import os
 
 from glue.core import Data
-from glue_qt.viewers.image.data_viewer import ImageViewer
 
-from numpy import arange, ones
+from pytest import importorskip
 
-from .test_base import TestQtExporter
+importorskip('glue_qt')
+
+from glue_qt.viewers.image.data_viewer import ImageViewer  # noqa
+
+from numpy import arange, ones  # noqa
+
+from .test_base import TestQtExporter  # noqa
 
 
 class TestImage(TestQtExporter):

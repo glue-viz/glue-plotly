@@ -1,9 +1,14 @@
 import os
 
 from glue.core import Data
-from glue_qt.viewers.scatter import ScatterViewer
 
-from .test_base import TestQtExporter
+from pytest import importorskip
+
+importorskip('glue_qt')
+
+from glue_qt.viewers.scatter import ScatterViewer  # noqa
+
+from .test_base import TestQtExporter  # noqa
 
 
 class TestScatter2D(TestQtExporter):

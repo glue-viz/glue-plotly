@@ -1,11 +1,16 @@
 import os
 
 from glue.core import Data
-from glue_jupyter.bqplot.image import BqplotImageView
 
-from numpy import arange, ones
+from pytest import importorskip
 
-from .test_base import TestBqplotExporter
+importorskip('glue_jupyter')
+
+from glue_jupyter.bqplot.image import BqplotImageView  # noqa
+
+from numpy import arange, ones  # noqa
+
+from .test_base import TestBqplotExporter  # noqa
 
 
 class TestImage(TestBqplotExporter):

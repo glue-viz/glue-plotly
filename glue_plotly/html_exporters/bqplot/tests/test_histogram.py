@@ -1,9 +1,14 @@
 import os
 
 from glue.core import Data
-from glue_jupyter.bqplot.histogram import BqplotHistogramView
 
-from .test_base import TestBqplotExporter
+from pytest import importorskip
+
+importorskip('glue_jupyter')
+
+from glue_jupyter.bqplot.histogram import BqplotHistogramView  # noqa
+
+from .test_base import TestBqplotExporter  # noqa
 
 
 class TestHistogram(TestBqplotExporter):
