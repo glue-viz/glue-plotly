@@ -7,12 +7,12 @@ from pytest import importorskip
 
 importorskip('ipyvuetify')
 
-import ipyvuetify as v
-from ipywidgets import HBox, Layout
-from IPython.display import display
-from ipyfilechooser import FileChooser
+import ipyvuetify as v  # noqa
+from ipywidgets import HBox, Layout  # noqa
+from IPython.display import display  # noqa
+from ipyfilechooser import FileChooser  # noqa
 
-from glue_plotly import PLOTLY_LOGO
+from glue_plotly import PLOTLY_LOGO  # noqa
 
 
 class PlotlyBaseBqplotExport(Tool):
