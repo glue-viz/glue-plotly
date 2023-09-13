@@ -3,10 +3,6 @@ from os.path import exists
 
 from glue.viewers.common.tool import Tool
 
-from pytest import importorskip
-
-importorskip('ipyvuetify')
-
 import ipyvuetify as v  # noqa
 from ipywidgets import HBox, Layout  # noqa
 from IPython.display import display  # noqa
