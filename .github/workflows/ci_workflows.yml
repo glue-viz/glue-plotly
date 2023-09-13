@@ -52,7 +52,7 @@ jobs:
     uses: OpenAstronomy/github-actions-workflows/.github/workflows/publish_pure_python.yml@v1
     with:
       libraries: '^libxcb.*-dev libxkbcommon-x11-dev libgl1-mesa-glx xvfb'
-      test_extras: 'test,qt'
+      test_extras: 'test,qt,jupyter'
       test_command: Xvfb :99 -screen 0 1024x768x24 > /dev/null 2>&1 & sleep 3; DISPLAY=:99.0 pytest --pyargs glue_plotly
     secrets:
       pypi_token: ${{ secrets.pypi_token }}

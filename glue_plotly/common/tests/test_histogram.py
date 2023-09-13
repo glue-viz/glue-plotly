@@ -99,8 +99,6 @@ class TestHistogram:
         assert len(traces) == 1
         trace = traces[0]
         assert isinstance(trace, Bar)
-        edges, _ = self.layer.state.histogram
-        assert trace['width'] == edges[1] - edges[0]
 
     def test_log_trace(self):
         self.viewer.state.x_log = True

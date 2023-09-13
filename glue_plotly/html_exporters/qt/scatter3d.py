@@ -15,7 +15,7 @@ from glue_qt.viewers.common.tool import Tool
 from glue_plotly import PLOTLY_ERROR_MESSAGE, PLOTLY_LOGO
 from glue_plotly.common import data_count, layers_to_export
 from glue_plotly.common.scatter3d import layout_config, traces_for_layer
-from .. import save_hover, export_dialog
+from ... import save_hover, export_dialog
 
 from plotly.offline import plot
 import plotly.graph_objs as go

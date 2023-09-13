@@ -2,7 +2,7 @@ from glue.core import BaseData
 from plotly.graph_objs import Scatter
 
 from glue_plotly.common import fixed_color
-from glue_plotly.common.histogram import axis_from_mpl, layout_config_from_mpl  # noqa
+from glue_plotly.common.histogram import axis_from_mpl, layout_config, layout_config_from_mpl  # noqa
 
 
 def traces_for_layer(viewer_state, layer_state, add_data_label=True):

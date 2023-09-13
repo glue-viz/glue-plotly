@@ -13,7 +13,7 @@ from plotly.offline import plot
 import plotly.graph_objs as go
 from pandas import DataFrame
 
-from ..sort_components import SortComponentsDialog
+from ...sort_components import SortComponentsDialog
 
 try:
     import dask.array as da
