@@ -1,5 +1,40 @@
 # Full changelog
 
+## v0.5.0 - 2023-09-16
+
+<!-- Release notes generated using configuration in .github/release.yml at main -->
+### What's Changed
+
+#### New Features
+
+- Add exporter for profile viewer by @Carifio24 in https://github.com/glue-viz/glue-plotly/pull/26
+- Add exporter for table viewer by @Carifio24 in https://github.com/glue-viz/glue-plotly/pull/27
+- Improve feedback to user from exporters by @Carifio24 in https://github.com/glue-viz/glue-plotly/pull/25
+- Improvements to 2D scatter exporter by @Carifio24 in https://github.com/glue-viz/glue-plotly/pull/28
+- Added web exporter, originally from glue.plugins.exporters.plotly by @astrofrog in https://github.com/glue-viz/glue-plotly/pull/4
+- Share functionality between web and HTML 2D scatter exporters by @Carifio24 in https://github.com/glue-viz/glue-plotly/pull/29
+- Share functionality between web and HTML histogram exporters by @Carifio24 in https://github.com/glue-viz/glue-plotly/pull/30
+- Add profile viewer to web export by @Carifio24 in https://github.com/glue-viz/glue-plotly/pull/31
+- Add exporter for dendrogram viewer by @Carifio24 in https://github.com/glue-viz/glue-plotly/pull/39
+- Implementation of Plotly viewers and refactoring by @Carifio24 in https://github.com/glue-viz/glue-plotly/pull/40
+- Add export tools for bqplot viewers by @Carifio24 in https://github.com/glue-viz/glue-plotly/pull/45
+
+#### Bug Fixes
+
+- Updates to 2D scatter sizing by @Carifio24 in https://github.com/glue-viz/glue-plotly/pull/32
+- Close dialog in bqplot exporter when saving to a new file by @Carifio24 in https://github.com/glue-viz/glue-plotly/pull/46
+
+#### Other Changes
+
+- Refactor 3D scatter functionality by @Carifio24 in https://github.com/glue-viz/glue-plotly/pull/33
+- Refactor image viewer export functionality by @Carifio24 in https://github.com/glue-viz/glue-plotly/pull/35
+- Add unit tests for 2D scatter exporter by @Carifio24 in https://github.com/glue-viz/glue-plotly/pull/36
+- Add basic tests for histogram and profile export by @Carifio24 in https://github.com/glue-viz/glue-plotly/pull/38
+- Updates for glue-qt by @Carifio24 in https://github.com/glue-viz/glue-plotly/pull/42
+- Bump minimum glue-core to 1.13.1 by @Carifio24 in https://github.com/glue-viz/glue-plotly/pull/44
+
+**Full Changelog**: https://github.com/glue-viz/glue-plotly/compare/v0.4.0...v0.5.0
+
 ## v0.4.0 - 2022-10-24
 
 <!-- Release notes generated using configuration in .github/release.yml at main -->
