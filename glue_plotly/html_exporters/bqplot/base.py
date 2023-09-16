@@ -80,6 +80,7 @@ class PlotlyBaseBqplotExport(Tool):
                 display(check_dialog)
         else:
             self.save_figure(filepath)
+            self.viewer.output_widget.clear_output()
 
     def save_figure(self, filepath):
         raise NotImplementedError()
