@@ -5,9 +5,12 @@ from glue.config import settings
 from glue.core import BaseData
 try:
     from glue_qt.viewers.common.data_viewer import DataViewer
-    from glue_jupyter.bqplot.common import BqplotBaseView
 except ImportError:
     DataViewer = type(None)
+
+try:
+    from glue_jupyter.bqplot.common import BqplotBaseView
+except ImportError:
     BqplotBaseView = type(None)
 
 from glue_plotly.utils import is_rgba_hex, opacity_value_string, rgba_hex_to_rgb_hex
