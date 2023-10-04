@@ -1,5 +1,16 @@
 # Full changelog
 
+## v0.5.1 - 2023-10-04
+
+<!-- Release notes generated using configuration in .github/release.yml at main -->
+### What's Changed
+
+#### Bug Fixes
+
+- Separate glue_qt and glue_jupyter import attempts by @Carifio24 in https://github.com/glue-viz/glue-plotly/pull/47
+
+**Full Changelog**: https://github.com/glue-viz/glue-plotly/compare/v0.5.0...v0.5.1
+
 ## v0.5.0 - 2023-09-16
 
 <!-- Release notes generated using configuration in .github/release.yml at main -->
