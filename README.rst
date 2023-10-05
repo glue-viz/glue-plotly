@@ -11,6 +11,18 @@ to `Plotly <https://plotly.com/>`_. This includes three main pieces of functiona
 - Experimental glue viewers powered by Plotly
 
 
+============
+Installation
+============
+
+glue-plotly can be installed using pip:::
+
+    pip install glue-plotly
+
+Additionally, glue-plotly is included in the glue `standalone applications <https://glueviz.org/install.html>_`
+for MacOS and Windows.
+
+
 ==============
 HTML Exporters
 ==============
