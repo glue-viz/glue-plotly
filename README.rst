@@ -61,6 +61,9 @@ Viewers
 This package contains two experimental Plotly-powered viewers which can be used with glue-jupyter - a
 scatter viewer and a histogram viewer. More viewers to come in the future!
 
+`This notebook <https://github.com/glue-viz/glue-plotly/blob/main/doc/PlotlyViewerExample.ipynb>`_ demonstrates
+basic usage of the these viewers, such as importing and viewer creation.
+
 
 =================
 Package Structure
