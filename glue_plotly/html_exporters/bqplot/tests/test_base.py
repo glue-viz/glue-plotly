@@ -7,7 +7,7 @@ class TestBqplotExporter:
     tool_id = None
 
     def setup_method(self, method):
-        self.data = self.test_data()
+        self.data = self.make_data()
         self.app = jglue()
         self.app.session.data_collection.append(self.data)
         self.viewer = self.app.new_data_viewer(self.viewer_type)
