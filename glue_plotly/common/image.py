@@ -155,11 +155,18 @@ def image_size_info(layer_state):
         return size
 
 
-def get_stretch(stretch_name):
+def get_stretch_by_name(stretch_name):
     try:
         return stretches.members[stretch_name]
     except TypeError:
         return stretches[stretch_name]()
+
+
+def get_stretch(layer_state):
+    if hasattr(layer_state, 'stretch_object'):
+        return layer_state.stretch_object
+    else:
+        return get_stretch_by_name(layer_state.stretch)
 
 
 def colorscale_info(layer_state, interval, contrast_bias):
@@ -169,7 +176,8 @@ def colorscale_info(layer_state, interval, contrast_bias):
     else:
         cmap = layer_state.cmap
         bounds = [layer_state.v_min, layer_state.v_max]
-    mapped_bounds = get_stretch(layer_state.stretch)(contrast_bias(interval(bounds)))
+    stretch = get_stretch(layer_state)
+    mapped_bounds = stretch(contrast_bias(interval(bounds)))
     unmapped_space = np.linspace(0, 1, 60)
     mapped_space = np.linspace(mapped_bounds[0], mapped_bounds[1], 60)
     color_space = [cmap(b)[:3] for b in mapped_space]
@@ -341,7 +349,8 @@ def traces_for_image_layer(layer):
     if np.isscalar(array):
         array = np.atleast_2d(array)
 
-    img = get_stretch(layer_state.stretch)(constrast_bias(interval(array)))
+    stretch = get_stretch(layer_state)
+    img = stretch(constrast_bias(interval(array)))
     img[np.isnan(img)] = 0
 
     z_bounds, colorscale = colorscale_info(layer_state, interval, constrast_bias)
