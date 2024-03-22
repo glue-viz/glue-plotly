@@ -112,7 +112,7 @@ class PlotlyVZoomMode(PlotlySelectionMode):
         self.viewer.figure.update_layout(selectdirection="v")
 
     def _on_selection(self, _trace, _points, selector):
-        ymin, ymax = selector.xrange
+        ymin, ymax = selector.yrange
         viewer_state = self.viewer.state
         with self.viewer.figure.batch_update(), delay_callback(viewer_state, 'y_min', 'y_max'):
             viewer_state.y_min = ymin
