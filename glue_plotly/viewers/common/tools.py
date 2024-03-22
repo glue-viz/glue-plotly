@@ -230,7 +230,7 @@ class PlotlyHomeTool(Tool):
 
 @viewer_tool
 class PlotlyHoverTool(CheckableTool):
-    
+
     icon = 'glue_point'
     tool_id = 'plotly:hover'
     action_text = 'Hover'
@@ -238,7 +238,6 @@ class PlotlyHoverTool(CheckableTool):
 
     def activate(self):
         self.viewer.figure.update_layout(hovermode="closest")
-        
 
     def deactivate(self):
         self.viewer.figure.update_layout(hovermode=False)
