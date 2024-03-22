@@ -115,7 +115,7 @@ class PlotlyHistogramLayerArtist(LayerArtist):
 
         bars = traces_for_layer(self.view.state, self.state, add_data_label=True)
         for bar in bars:
-            bar.update(unselected=dict(marker=dict(opacity=self.state.alpha)))
+            bar.update(hoverinfo='all', unselected=dict(marker=dict(opacity=self.state.alpha)))
         self._bars_id = bars[0].meta if bars else None
         self.view.figure.add_traces(bars)
 

@@ -129,7 +129,7 @@ class PlotlyScatterLayerArtist(LayerArtist):
 
         scatter_info = dict(mode=scatter_mode(self.state),
                             name=name,
-                            hoverinfo='skip',
+                            hoverinfo='all',
                             unselected=dict(marker=dict(opacity=self.state.alpha)),
                             meta=self._scatter_id)
         if self._viewer_state.using_rectilinear:

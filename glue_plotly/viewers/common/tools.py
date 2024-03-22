@@ -226,3 +226,19 @@ class PlotlyHomeTool(Tool):
     def activate(self):
         with self.viewer.figure.batch_update():
             self.viewer.state.reset_limits()
+
+
+@viewer_tool
+class PlotlyHoverTool(CheckableTool):
+    
+    icon = 'glue_point'
+    tool_id = 'plotly:hover'
+    action_text = 'Hover'
+    tool_tip = 'Show hover info'
+
+    def activate(self):
+        self.viewer.figure.update_layout(hovermode="closest")
+        
+
+    def deactivate(self):
+        self.viewer.figure.update_layout(hovermode=False)

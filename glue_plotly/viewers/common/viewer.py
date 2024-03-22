@@ -20,6 +20,7 @@ class PlotlyBaseView(IPyWidgetView):
 
     LAYOUT_SETTINGS = dict(
         include_dimensions=False,
+        hovermode=False, hoverdistance=1,
         dragmode=False, showlegend=False, grid=None,
         newselection=dict(line=dict(color=INTERACT_COLOR), mode='immediate'),
         modebar=dict(remove=['toimage', 'zoom', 'pan', 'lasso', 'zoomIn2d',
