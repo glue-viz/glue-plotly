@@ -74,6 +74,52 @@ class PlotlyZoomMode(PlotlySelectionMode):
 
 
 @viewer_tool
+class PlotlyHZoomMode(PlotlySelectionMode):
+
+    icon = 'glue_zoom_to_rect'
+    tool_id = 'plotly:hzoom'
+    action_text = 'Horizontal zoom'
+    tool_tip = 'Horizontal zoom'
+
+    def __init__(self, viewer):
+        super().__init__(viewer, 'select')
+
+    def activate(self):
+        super().activate()
+        self.viewer.figure.update_layout(selectdirection="h")
+
+    def _on_selection(self, _trace, _points, selector):
+        xmin, xmax = selector.xrange
+        viewer_state = self.viewer.state
+        with self.viewer.figure.batch_update(), delay_callback(viewer_state, 'x_min', 'x_max'):
+            viewer_state.x_min = xmin
+            viewer_state.x_max = xmax
+
+
+@viewer_tool
+class PlotlyVZoomMode(PlotlySelectionMode):
+
+    icon = 'glue_zoom_to_rect'
+    tool_id = 'plotly:vzoom'
+    action_text = 'Vertical zoom'
+    tool_tip = 'Vertical zoom'
+
+    def __init__(self, viewer):
+        super().__init__(viewer, 'select')
+
+    def activate(self):
+        super().activate()
+        self.viewer.figure.update_layout(selectdirection="v")
+
+    def _on_selection(self, _trace, _points, selector):
+        ymin, ymax = selector.xrange
+        viewer_state = self.viewer.state
+        with self.viewer.figure.batch_update(), delay_callback(viewer_state, 'y_min', 'y_max'):
+            viewer_state.y_min = ymin
+            viewer_state.y_max = ymax
+
+
+@viewer_tool
 class PlotlyPanMode(PlotlyDragMode):
 
     icon = 'glue_move'
