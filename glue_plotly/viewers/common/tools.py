@@ -37,6 +37,7 @@ class PlotlySelectionMode(PlotlyDragMode):
         self.viewer.set_selection_callback(None)
         self.viewer.set_selection_active(False)
         self.viewer.figure.on_edits_completed(self._clear_selection)
+        super().deactivate()
 
     def _clear_selection(self):
         self.viewer.figure.plotly_relayout({'selections': [], 'dragmode': False})
@@ -129,6 +130,16 @@ class PlotlyPanMode(PlotlyDragMode):
 
     def __init__(self, viewer):
         super().__init__(viewer, 'pan')
+
+    def activate(self):
+        super().activate()
+        self.viewer.figure.layout['xaxis']['fixedrange'] = False
+        self.viewer.figure.layout['yaxis']['fixedrange'] = False
+
+    def deactivate(self):
+        self.viewer.figure.layout['xaxis']['fixedrange'] = True
+        self.viewer.figure.layout['yaxis']['fixedrange'] = True
+        super().deactivate()
 
 
 @viewer_tool
