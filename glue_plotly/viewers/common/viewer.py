@@ -71,10 +71,7 @@ class PlotlyBaseView(IPyWidgetView):
         return next(self.figure.select_traces(dict(meta=self.selection_layer_id)))
 
     def _create_layout_config(self):
-        config = base_layout_config(self, **self.LAYOUT_SETTINGS, width=1200, height=800)
-        config['xaxis']['fixedrange'] = True
-        config['yaxis']['fixedrange'] = True
-        return config
+        return base_layout_config(self, **self.LAYOUT_SETTINGS, width=1200, height=800)
 
     def _remove_trace_index(self, trace):
         # TODO: It feels like there has to be a better way to do this

@@ -78,6 +78,7 @@ def base_rectilinear_axis(viewer_state, axis):
         ticks='outside',
         showline=True,
         showgrid=False,
+        fixedrange=True,
         showticklabels=True,
         tickfont=dict(
             family=DEFAULT_FONT,
