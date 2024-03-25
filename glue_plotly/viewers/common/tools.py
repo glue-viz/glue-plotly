@@ -37,6 +37,7 @@ class PlotlySelectionMode(PlotlyDragMode):
         self.viewer.set_selection_callback(None)
         self.viewer.set_selection_active(False)
         self.viewer.figure.on_edits_completed(self._clear_selection)
+        super().deactivate()
 
     def _clear_selection(self):
         self.viewer.figure.plotly_relayout({'selections': [], 'dragmode': False})
@@ -74,6 +75,52 @@ class PlotlyZoomMode(PlotlySelectionMode):
 
 
 @viewer_tool
+class PlotlyHZoomMode(PlotlySelectionMode):
+
+    icon = 'glue_zoom_to_rect'
+    tool_id = 'plotly:hzoom'
+    action_text = 'Horizontal zoom'
+    tool_tip = 'Horizontal zoom'
+
+    def __init__(self, viewer):
+        super().__init__(viewer, 'select')
+
+    def activate(self):
+        super().activate()
+        self.viewer.figure.update_layout(selectdirection="h")
+
+    def _on_selection(self, _trace, _points, selector):
+        xmin, xmax = selector.xrange
+        viewer_state = self.viewer.state
+        with self.viewer.figure.batch_update(), delay_callback(viewer_state, 'x_min', 'x_max'):
+            viewer_state.x_min = xmin
+            viewer_state.x_max = xmax
+
+
+@viewer_tool
+class PlotlyVZoomMode(PlotlySelectionMode):
+
+    icon = 'glue_zoom_to_rect'
+    tool_id = 'plotly:vzoom'
+    action_text = 'Vertical zoom'
+    tool_tip = 'Vertical zoom'
+
+    def __init__(self, viewer):
+        super().__init__(viewer, 'select')
+
+    def activate(self):
+        super().activate()
+        self.viewer.figure.update_layout(selectdirection="v")
+
+    def _on_selection(self, _trace, _points, selector):
+        ymin, ymax = selector.yrange
+        viewer_state = self.viewer.state
+        with self.viewer.figure.batch_update(), delay_callback(viewer_state, 'y_min', 'y_max'):
+            viewer_state.y_min = ymin
+            viewer_state.y_max = ymax
+
+
+@viewer_tool
 class PlotlyPanMode(PlotlyDragMode):
 
     icon = 'glue_move'
@@ -83,6 +130,16 @@ class PlotlyPanMode(PlotlyDragMode):
 
     def __init__(self, viewer):
         super().__init__(viewer, 'pan')
+
+    def activate(self):
+        super().activate()
+        self.viewer.figure.layout['xaxis']['fixedrange'] = False
+        self.viewer.figure.layout['yaxis']['fixedrange'] = False
+
+    def deactivate(self):
+        self.viewer.figure.layout['xaxis']['fixedrange'] = True
+        self.viewer.figure.layout['yaxis']['fixedrange'] = True
+        super().deactivate()
 
 
 @viewer_tool
@@ -180,3 +237,18 @@ class PlotlyHomeTool(Tool):
     def activate(self):
         with self.viewer.figure.batch_update():
             self.viewer.state.reset_limits()
+
+
+@viewer_tool
+class PlotlyHoverTool(CheckableTool):
+
+    icon = 'glue_point'
+    tool_id = 'plotly:hover'
+    action_text = 'Hover'
+    tool_tip = 'Show hover info'
+
+    def activate(self):
+        self.viewer.figure.update_layout(hovermode="closest")
+
+    def deactivate(self):
+        self.viewer.figure.update_layout(hovermode=False)

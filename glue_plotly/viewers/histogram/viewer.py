@@ -13,7 +13,7 @@ from glue_jupyter.common.state_widgets.viewer_histogram import HistogramViewerSt
 @viewer_registry("plotly_histogram")
 class PlotlyHistogramView(PlotlyBaseView):
 
-    tools = ['plotly:home', 'plotly:zoom', 'plotly:pan', 'plotly:xrange']
+    tools = ['plotly:home', 'plotly:zoom', 'plotly:pan', 'plotly:xrange', 'plotly:hover']
 
     allow_duplicate_data = False
     allow_duplicate_subset = False

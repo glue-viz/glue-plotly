@@ -20,6 +20,7 @@ class PlotlyBaseView(IPyWidgetView):
 
     LAYOUT_SETTINGS = dict(
         include_dimensions=False,
+        hovermode=False, hoverdistance=1,
         dragmode=False, showlegend=False, grid=None,
         newselection=dict(line=dict(color=INTERACT_COLOR), mode='immediate'),
         modebar=dict(remove=['toimage', 'zoom', 'pan', 'lasso', 'zoomIn2d',
@@ -84,7 +85,6 @@ class PlotlyBaseView(IPyWidgetView):
         self.figure.data = [t for t in self.figure.data if t not in traces]
 
     def _clear_traces(self):
-        print("In _clear_traces")
         self.figure.data = [self.selection_layer]
 
     @property
