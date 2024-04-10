@@ -13,6 +13,9 @@ from glue.viewers.scatter.state import ScatterLayerState
 from plotly.graph_objs import Scatter, Scatterpolar
 
 
+__all__ = ["PlotlyScatterLayerArtist"]
+
+
 CMAP_PROPERTIES = {"cmap_mode", "cmap_att", "cmap_vmin", "cmap_vmax", "cmap"}
 MARKER_PROPERTIES = {
     "size_mode",

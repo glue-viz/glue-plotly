@@ -13,6 +13,9 @@ from .layer_artist import PlotlyScatterLayerArtist
 from glue_plotly.viewers import PlotlyBaseView
 
 
+__all__ = ["PlotlyScatterView"]
+
+
 @viewer_registry("plotly_scatter")
 class PlotlyScatterView(PlotlyBaseView):
 
