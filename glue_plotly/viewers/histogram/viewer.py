@@ -4,10 +4,12 @@ from glue_plotly.common import base_layout_config, base_rectilinear_axis
 from glue_plotly.viewers import PlotlyBaseView
 from glue_plotly.viewers.histogram.layer_artist import PlotlyHistogramLayerArtist
 
-
 from glue_jupyter.registries import viewer_registry
 from glue_jupyter.common.state_widgets.layer_histogram import HistogramLayerStateWidget
 from glue_jupyter.common.state_widgets.viewer_histogram import HistogramViewerStateWidget
+
+
+__all__ = ["PlotlyHistogramView"]
 
 
 @viewer_registry("plotly_histogram")

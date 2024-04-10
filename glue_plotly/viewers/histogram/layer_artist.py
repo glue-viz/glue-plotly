@@ -7,6 +7,8 @@ from glue_plotly.common.common import fixed_color
 
 from glue_plotly.common.histogram import traces_for_layer
 
+__all__ = ["PlotlyHistogramLayerArtist"]
+
 SCALE_PROPERTIES = {'y_log', 'normalize', 'cumulative'}
 HISTOGRAM_PROPERTIES = SCALE_PROPERTIES | {'layer', 'x_att', 'hist_x_min',
                                            'hist_x_max', 'hist_n_bin', 'x_log'}
