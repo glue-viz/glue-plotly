@@ -1,5 +1,23 @@
 # Full changelog
 
+## v0.6.0 - 2024-04-10
+
+<!-- Release notes generated using configuration in .github/release.yml at main -->
+### What's Changed
+
+#### New Features
+
+* Update image export for layer-specific stretch customizations by @Carifio24 in https://github.com/glue-viz/glue-plotly/pull/52
+* Add hover and horizontal/vertical zoom tools by @Carifio24 in https://github.com/glue-viz/glue-plotly/pull/56
+
+#### Documentation
+
+* Add information to README by @Carifio24 in https://github.com/glue-viz/glue-plotly/pull/48
+* Add image and GIF showing where to access export tools by @Carifio24 in https://github.com/glue-viz/glue-plotly/pull/49
+* More README updates by @Carifio24 in https://github.com/glue-viz/glue-plotly/pull/50
+
+**Full Changelog**: https://github.com/glue-viz/glue-plotly/compare/v0.5.1...v0.6.0
+
 ## v0.5.1 - 2023-10-04
 
 <!-- Release notes generated using configuration in .github/release.yml at main -->
