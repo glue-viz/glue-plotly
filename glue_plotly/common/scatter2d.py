@@ -245,7 +245,7 @@ def size_info(layer_state, mask=None):
         return s
 
 
-def base_marker(layer_state, mask):
+def base_marker(layer_state, mask=None):
     color = color_info(layer_state, mask)
     marker = dict(size=size_info(layer_state, mask),
                   color=color,
