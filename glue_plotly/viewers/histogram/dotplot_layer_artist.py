@@ -1,3 +1,6 @@
+# NB: This dot plot layer artist shouldn't be used together with the
+# normalized mode, as a dotplot only makes sense when the heights are integral.
+
 import numpy as np
 
 from glue.core.exceptions import IncompatibleAttribute
@@ -5,14 +8,17 @@ from glue.viewers.common.layer_artist import LayerArtist
 from glue.viewers.histogram.state import HistogramLayerState
 from glue_plotly.common.common import fixed_color
 
-from glue_plotly.common.dotplot import traces_for_layer
+from glue_plotly.common.dotplot import dot_radius, traces_for_layer
 
 __all__ = ["PlotlyDotplotLayerArtist"]
 
 SCALE_PROPERTIES = {'y_log', 'normalize', 'cumulative'}
 HISTOGRAM_PROPERTIES = SCALE_PROPERTIES | {'layer', 'x_att', 'hist_x_min',
                                            'hist_x_max', 'hist_n_bin', 'x_log'}
-VISUAL_PROPERTIES = {'alpha', 'color', 'zorder', 'visible'}
+
+# Note that, because we need to scale the dots based on pixel space due to how Plotly sizes scatters,
+# we need to update the dot sizing when the bounds change
+VISUAL_PROPERTIES = {'alpha', 'color', 'zorder', 'visible', 'x_min', 'x_max', 'y_min', 'y_max'}
 DATA_PROPERTIES = {'layer', 'x_att', 'y_att'}
 
 
@@ -20,7 +26,7 @@ class PlotlyDotplotLayerArtist(LayerArtist):
 
     _layer_state_cls = HistogramLayerState
 
-    def  __init__(self, view, viewer_state, layer_state=None, layer=None):
+    def __init__(self, view, viewer_state, layer_state=None, layer=None):
         super().__init__(
             viewer_state,
             layer_state=layer_state,
@@ -101,7 +107,8 @@ class PlotlyDotplotLayerArtist(LayerArtist):
 
     def _update_visual_attrs_for_trace(self, trace):
         marker = trace.marker
-        marker.update(opacity=self.state.alpha, color=fixed_color(self.state))
+        marker.update(opacity=self.state.alpha, color=fixed_color(self.state), size=dot_radius(self.view, self.state))
+        print(marker)
         trace.update(marker=marker,
                      visible=self.state.visible,
                      unselected=dict(marker=dict(opacity=self.state.alpha)))
@@ -111,7 +118,7 @@ class PlotlyDotplotLayerArtist(LayerArtist):
         if old_dots:
             self.view._remove_traces(old_dots)
 
-        dots = traces_for_layer(self.view.state, self.state, add_data_label=True)
+        dots = traces_for_layer(self.view, self.state, add_data_label=True)
         self._dots_id = dots[0].meta if dots else None
         self.view.figure.add_traces(dots)
 
