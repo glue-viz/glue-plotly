@@ -4,17 +4,18 @@ from plotly.graph_objs import Scatter
 
 from glue.core import BaseData
 
-from .common import color_info
+from .common import color_info, dimensions
 
 
 def dot_radius(viewer, layer_state):
     edges = layer_state.histogram[0]
     viewer_state = viewer.state
     diam_world = min([edges[i + 1] - edges[i] for i in range(len(edges) - 1)])
-    diam = diam_world * viewer.figure.layout.width / abs(viewer_state.x_max - viewer_state.x_min)
+    width, height = dimensions(viewer)
+    diam = diam_world * width / abs(viewer_state.x_max - viewer_state.x_min)
     if viewer_state.y_min is not None and viewer_state.y_max is not None:
         max_diam_world_v = 1
-        diam_pixel_v = max_diam_world_v * viewer.figure.layout.height / abs(viewer_state.y_max - viewer_state.y_min)
+        diam_pixel_v = max_diam_world_v * height / abs(viewer_state.y_max - viewer_state.y_min)
         diam = min(diam_pixel_v, diam)
     return diam / 2
 
