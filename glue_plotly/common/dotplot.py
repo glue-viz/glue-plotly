@@ -10,7 +10,7 @@ from .common import color_info
 def dot_radius(viewer, layer_state):
     edges = layer_state.histogram[0]
     viewer_state = viewer.state
-    diam_world = min([edges[i + 1] - edges[i] for i in range(len(edges) - 2)])
+    diam_world = min([edges[i + 1] - edges[i] for i in range(len(edges) - 1)])
     diam = diam_world * viewer.figure.layout.width / abs(viewer_state.x_max - viewer_state.x_min)
     if viewer_state.y_min is not None and viewer_state.y_max is not None:
         max_diam_world_v = 1
@@ -27,7 +27,7 @@ def traces_for_layer(viewer, layer_state, add_data_label=True):
     y = []
     edges, counts = layer_state.histogram
     counts = counts.astype(int)
-    for i in range(len(edges) - 2):
+    for i in range(len(edges) - 1):
         x_i = (edges[i] + edges[i + 1]) / 2
         y_i = range(1, counts[i] + 1)
         x.extend([x_i] * counts[i])
