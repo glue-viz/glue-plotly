@@ -1,5 +1,16 @@
 # Full changelog
 
+## v0.7.0 - 2024-05-07
+
+<!-- Release notes generated using configuration in .github/release.yml at main -->
+### What's Changed
+
+#### New Features
+
+* Add dotplot layer artist for histogram by @Carifio24 in https://github.com/glue-viz/glue-plotly/pull/58
+
+**Full Changelog**: https://github.com/glue-viz/glue-plotly/compare/v0.6.0...v0.7.0
+
 ## v0.6.0 - 2024-04-10
 
 <!-- Release notes generated using configuration in .github/release.yml at main -->
