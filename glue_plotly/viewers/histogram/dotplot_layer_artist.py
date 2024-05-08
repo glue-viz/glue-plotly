@@ -115,9 +115,13 @@ class PlotlyDotplotLayerArtist(LayerArtist):
     def _update_data(self):
         old_dots = self._get_dots()
         if old_dots:
-            self.view._remove_traces(old_dots)
+            with self.view.figure.batch_update():
+                for trace in old_dots:
+                    self.view._remove_trace_index(trace)
 
         dots = traces_for_layer(self.view, self.state, add_data_label=True)
+        for trace in dots:
+            trace.update(hoverinfo='all', unselected=dict(marker=dict(opacity=self.state.alpha)))
         self._dots_id = dots[0].meta if dots else None
         self.view.figure.add_traces(dots)
 
