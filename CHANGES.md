@@ -1,5 +1,20 @@
 # Full changelog
 
+## v0.7.1 - 2024-05-08
+
+<!-- Release notes generated using configuration in .github/release.yml at main -->
+### What's Changed
+
+#### Bug Fixes
+
+* Update how traces are removed from dotplot layer artist by @Carifio24 in https://github.com/glue-viz/glue-plotly/pull/61
+
+#### Documentation
+
+* Improve example notebook by @Carifio24 in https://github.com/glue-viz/glue-plotly/pull/60
+
+**Full Changelog**: https://github.com/glue-viz/glue-plotly/compare/v0.7.0...v0.7.1
+
 ## v0.7.0 - 2024-05-07
 
 <!-- Release notes generated using configuration in .github/release.yml at main -->
