@@ -108,7 +108,6 @@ class PlotlyDotplotLayerArtist(LayerArtist):
     def _update_visual_attrs_for_trace(self, trace):
         marker = trace.marker
         marker.update(opacity=self.state.alpha, color=fixed_color(self.state), size=dot_radius(self.view, self.state))
-        print(marker)
         trace.update(marker=marker,
                      visible=self.state.visible,
                      unselected=dict(marker=dict(opacity=self.state.alpha)))
