@@ -84,9 +84,13 @@ class PlotlyScatterLayerArtist(LayerArtist):
         scatter = self._create_scatter()
         self.view.figure.add_trace(scatter)
 
-        self._lines_id = None
-        self._error_id = None
-        self._vector_id = None
+        # We want to initialize these to some dummy UUIDs so that
+        # _get_lines, _get_error_bars, _get_vectors, etc. don't pick up
+        # any other traces that tools have added to the viewer, which
+        # will happen if these IDs are None
+        self._lines_id = uuid4().hex
+        self._error_id = uuid4().hex
+        self._vector_id = uuid4().hex
 
     def remove(self):
         self.view._remove_traces([self._get_scatter()])
