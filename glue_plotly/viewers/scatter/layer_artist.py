@@ -69,6 +69,7 @@ class PlotlyScatterLayerArtist(LayerArtist):
 
         self._viewer_state.add_global_callback(self._update_display)
         self.state.add_global_callback(self._update_display)
+        self.state.add_callback("zorder", self._update_zorder)
 
         self.view = view
 
@@ -166,14 +167,12 @@ class PlotlyScatterLayerArtist(LayerArtist):
         if force or len(changed & LINE_PROPERTIES) > 0:
             self._update_lines(changed, force=force)
 
-        if force or "zorder" in changed:
-            self._update_zorder()
-
-    def _update_zorder(self):
+    def _update_zorder(self, *args):
+        current_traces = self.view.figure.data
         traces = [self.view.selection_layer]
         for layer in self.view.layers:
             traces += list(layer.traces())
-        self.view.figure.data = traces
+        self.view.figure.data = traces + [t for t in current_traces if t not in traces]
 
     def _update_lines(self, changed, force=False):
         scatter = self._get_scatter()

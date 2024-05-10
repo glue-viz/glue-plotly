@@ -40,6 +40,7 @@ class PlotlyDotplotLayerArtist(LayerArtist):
 
         self._viewer_state.add_global_callback(self._update_dotplot)
         self.state.add_global_callback(self._update_dotplot)
+        self.state.add_callback("zorder", self._update_zorder)
 
     def _get_dots(self):
         return self.view.figure.select_traces(dict(meta=self._dots_id))
@@ -126,11 +127,12 @@ class PlotlyDotplotLayerArtist(LayerArtist):
         self._dots_id = dots[0].meta if dots else None
         self.view.figure.add_traces(dots)
 
-    def _update_zorder(self):
+    def _update_zorder(self, *args):
+        current_traces = self.view.figure.data
         traces = [self.view.selection_layer]
         for layer in self.view.layers:
             traces += list(layer.traces())
-        self.view.figure.data = traces
+        self.view.figure.data = traces + [t for t in current_traces if t not in traces]
 
     def _update_dotplot(self, force=False, **kwargs):
         if (self._viewer_state.hist_x_min is None or
@@ -155,9 +157,6 @@ class PlotlyDotplotLayerArtist(LayerArtist):
 
         if force or len(changed & VISUAL_PROPERTIES) > 0:
             self._update_visual_attributes(changed, force=force)
-
-        if force or "zorder" in changed:
-            self._update_zorder()
 
     def update(self):
         self.state.reset_cache()
