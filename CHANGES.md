@@ -1,5 +1,17 @@
 # Full changelog
 
+## v0.7.2 - 2024-05-10
+
+<!-- Release notes generated using configuration in .github/release.yml at main -->
+### What's Changed
+
+#### Bug Fixes
+
+* Initialize all trace metadata IDs by @Carifio24 in https://github.com/glue-viz/glue-plotly/pull/62
+* Updates to z-order manipulation by @Carifio24 in https://github.com/glue-viz/glue-plotly/pull/63
+
+**Full Changelog**: https://github.com/glue-viz/glue-plotly/compare/v0.7.1...v0.7.2
+
 ## v0.7.1 - 2024-05-08
 
 <!-- Release notes generated using configuration in .github/release.yml at main -->
