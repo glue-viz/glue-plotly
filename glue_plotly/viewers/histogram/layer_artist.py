@@ -1,4 +1,5 @@
 import numpy as np
+from uuid import uuid4
 
 from glue.core.exceptions import IncompatibleAttribute
 from glue.viewers.common.layer_artist import LayerArtist
@@ -30,7 +31,7 @@ class PlotlyHistogramLayerArtist(LayerArtist):
 
         self.view = view
         self.bins = None
-        self._bars_id = None
+        self._bars_id = uuid4().hex
 
         self._viewer_state.add_global_callback(self._update_histogram)
         self.state.add_global_callback(self._update_histogram)

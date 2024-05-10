@@ -2,6 +2,7 @@
 # normalized mode, as a dotplot only makes sense when the heights are integral.
 
 import numpy as np
+from uuid import uuid4
 
 from glue.core.exceptions import IncompatibleAttribute
 from glue.viewers.common.layer_artist import LayerArtist
@@ -35,7 +36,7 @@ class PlotlyDotplotLayerArtist(LayerArtist):
 
         self.view = view
         self.bins = None
-        self._dots_id = None
+        self._dots_id = uuid4().hex
 
         self._viewer_state.add_global_callback(self._update_dotplot)
         self.state.add_global_callback(self._update_dotplot)
