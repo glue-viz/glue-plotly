@@ -36,31 +36,31 @@ jobs:
         - linux: py39-test
         - linux: py310-test
         - linux: py311-test
-        - linux: py311-glue113-test
-        - linux: py311-glue114-test
-        - linux: py311-glue115-test
         - linux: py311-glue116-test
         - linux: py311-glue117-test
+        - linux: py311-glue118-test
+        - linux: py311-glue119-test
+        - linux: py311-glue120-test
 
         - macos: py38-test
         - macos: py39-test
         - macos: py310-test
         - macos: py311-test
-        - macos: py311-glue113-test
-        - macos: py311-glue114-test
-        - macos: py311-glue115-test
         - macos: py311-glue116-test
         - macos: py311-glue117-test
+        - macos: py311-glue118-test
+        - macos: py311-glue119-test
+        - macos: py311-glue120-test
 
         - windows: py38-test
         - windows: py39-test
         - windows: py310-test
         - windows: py311-test
-        - windows: py311-glue113-test
-        - windows: py311-glue114-test
-        - windows: py311-glue115-test
         - windows: py311-glue116-test
         - windows: py311-glue117-test
+        - windows: py311-glue118-test
+        - windows: py311-glue119-test
+        - windows: py311-glue120-test
 
   publish:
     needs: tests
