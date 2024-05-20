@@ -70,10 +70,18 @@ def setup_qt():
 
     try:
         from glue_vispy_viewers.scatter.scatter_viewer import VispyScatterViewer
+        from glue_vispy_viewers.volume.volume_viewer import VispyVolumeViewer
     except ImportError:
         pass
     else:
-        VispyScatterViewer.subtools['save'] = VispyScatterViewer.subtools['save'] + ['save:plotly3d']
+        VispyScatterViewer.subtools = {
+            **VispyScatterViewer.subtools,
+            "save": VispyScatterViewer.subtools["save"] + ["save:plotly3d"]
+        }
+        VispyVolumeViewer.subtools = {
+            **VispyVolumeViewer.subtools,
+            "save": VispyVolumeViewer.subtools["save"] + ["save:plotlyvolume"]
+        }
 
 
 def setup_jupyter():
