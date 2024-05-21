@@ -3,7 +3,7 @@
 Experimental plot.ly plugin for glue
 ------------------------------------
 
-This package is a plugin for `glue <https://glueviz.org/>`_ that allows functionality linking glue
+This package is a plugin for `glue <https://glueviz.org/>`_ that allows linking glue
 to `Plotly <https://plotly.com/>`_. This includes three main pieces of functionality:
 
 - Export glue views to standalone HTML pages
