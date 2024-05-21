@@ -12,6 +12,7 @@ from glue_plotly.common.base_3d import layout_config
 from glue_plotly.common.volume import traces_for_layer
 
 from plotly.offline import plot
+import plotly.graph_objs as go
 
 
 @viewer_tool
@@ -23,20 +24,8 @@ class PlotlyVolumeStaticExport(Tool):
 
     @messagebox_on_error(PLOTLY_ERROR_MESSAGE)
     def _export_to_plotly(self, filename):
+        pass
 
-        config = layout_config(self.viewer.state)
-        layout = go.Layout(**config)
-        fig = go.Figure(layout=layout)
-
-        layers = layers_to_export(self.viewer)
-        bounds = self.viewer._vispy_widget._multivol._data_bounds
-        for layer in layers:
-            traces = traces_for_layer(layer, bounds)
-            
-            for trace in traces:
-                fig.add_trace(trace)
-
-        plot(fig, filename=filename, auto_open=False)
 
     def activate(self):
 
@@ -45,9 +34,24 @@ class PlotlyVolumeStaticExport(Tool):
         if not filename:
             return
 
-        worker = Worker(self._export_to_plotly, filename)
-        exp_dialog = export_dialog.ExportDialog(parent=self.viewer)
-        worker.result.connect(exp_dialog.close)
-        worker.error.connect(exp_dialog.close)
-        worker.start()
-        exp_dialog.exec_()
+        config = layout_config(self.viewer.state)
+        layout = go.Layout(**config)
+        fig = go.Figure(layout=layout)
+
+        layers = layers_to_export(self.viewer)
+        bounds = self.viewer._vispy_widget._multivol._data_bounds
+        for layer in layers:
+            traces = traces_for_layer(self.viewer.state, layer, bounds)
+            
+            for trace in traces:
+                fig.add_trace(trace)
+
+        plot(fig, filename=filename, auto_open=False)
+
+        # worker = Worker(self._export_to_plotly, filename)
+        # exp_dialog = export_dialog.ExportDialog(parent=self.viewer)
+        # worker.result.connect(exp_dialog.close)
+        # worker.error.connect(exp_dialog.close)
+        # worker.start()
+        # exp_dialog.exec_()
+

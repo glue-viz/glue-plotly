@@ -59,3 +59,7 @@ def is_rgb_hex(color):
 
 def rgba_hex_to_rgb_hex(color):
     return color[:-2]
+
+
+def rgb_hex_to_rgba_hex(color, opacity=1):
+    return f"{color}{format(opacity, '02x')}"
