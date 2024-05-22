@@ -1,4 +1,5 @@
 from qtpy import compat
+from qtpy.QtWidgets import QDialog
 
 from glue.config import viewer_tool
 from glue_plotly.common.common import data_count
@@ -6,7 +7,7 @@ from glue_qt.utils import messagebox_on_error
 from glue_qt.utils.threading import Worker
 from glue_qt.viewers.common.tool import Tool
 
-from glue_plotly import PLOTLY_ERROR_MESSAGE, PLOTLY_LOGO, export_dialog
+from glue_plotly import PLOTLY_ERROR_MESSAGE, PLOTLY_LOGO, export_dialog, volume_options
 from glue_plotly.common import layers_to_export
 from glue_plotly.common.base_3d import layout_config
 from glue_plotly.common.volume import traces_for_layer
@@ -29,6 +30,11 @@ class PlotlyVolumeStaticExport(Tool):
 
     def activate(self):
 
+        dialog = volume_options.VolumeOptionsDialog(viewer=self.viewer)
+        result = dialog.exec_()
+        if result == QDialog.Rejected:
+            return
+
         filename, _ = compat.getsavefilename(
             parent=self.viewer, basedir="plot.html")
         if not filename:
@@ -41,7 +47,10 @@ class PlotlyVolumeStaticExport(Tool):
         layers = layers_to_export(self.viewer)
         bounds = self.viewer._vispy_widget._multivol._data_bounds
         for layer in layers:
-            traces = traces_for_layer(self.viewer.state, layer, bounds)
+            options = dialog.state_dictionary[layer.layer.label]
+            count = options.get("isosurface_count", 5)
+            traces = traces_for_layer(self.viewer.state, layer, bounds,
+                                      isosurface_count=count)
             
             for trace in traces:
                 fig.add_trace(trace)

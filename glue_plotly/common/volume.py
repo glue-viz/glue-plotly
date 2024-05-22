@@ -17,7 +17,7 @@ def positions(bounds):
 
 def values(data_proxy, bounds):
     values = data_proxy.compute_fixed_resolution_buffer(bounds)
-    # This accounts for two transformations: the fact that the viewer bounds and in reverse order,
+    # This accounts for two transformations: the fact that the viewer bounds are in reverse order,
     # plus a need to change R -> L handedness for Plotly
     values = values.transpose(1, 2, 0)
     min_value = nanmin(values)
@@ -55,7 +55,7 @@ def isomax_for_layer(viewer_state, layer_state):
     return layer_state.vmax
 
 
-def traces_for_layer(viewer_state, layer, bounds):
+def traces_for_layer(viewer_state, layer, bounds, isosurface_count=5):
 
     xyz = positions(bounds)
     state = layer.state
@@ -72,5 +72,5 @@ def traces_for_layer(viewer_state, layer, bounds):
        isomin=isomin_for_layer(viewer_state, state),
        isomax=isomax_for_layer(viewer_state, state),
        opacity=state.alpha,
-       surface_count=5
+       surface_count=isosurface_count
     )]
