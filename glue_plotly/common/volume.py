@@ -10,13 +10,16 @@ import plotly.graph_objects as go
 
 
 def positions(bounds):
+    # The viewer bounds are in reverse order
     coord_arrays = [linspace(b[0], b[1], num=b[2]) for b in reversed(bounds)]
     return meshgrid(*coord_arrays)
 
 
 def values(data_proxy, bounds):
     values = data_proxy.compute_fixed_resolution_buffer(bounds)
-    values = values.transpose(2, 1, 0)
+    # This accounts for two transformations: the fact that the viewer bounds and in reverse order,
+    # plus a need to change R -> L handedness for Plotly
+    values = values.transpose(1, 2, 0)
     min_value = nanmin(values)
     replacement = min_value - 1
     replaced = nan_to_num(values, replacement)
@@ -26,7 +29,7 @@ def values(data_proxy, bounds):
 def colorscale(layer_state, size=10):
     color = color_info(layer_state)
     r, g, b, a = rgba_components(color)
-    fractions = [i / size for i in range(size + 1)]
+    fractions = [(i / size) ** 0.25 for i in range(size + 1)]
     return [f"rgba({f*r},{f*g},{f*b},{f*a})" for f in fractions]
 
 
