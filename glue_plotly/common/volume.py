@@ -1,3 +1,4 @@
+from glue_plotly.utils import rgba_components
 from numpy import array, linspace, meshgrid, nan_to_num, nanmin
 
 from glue.core.subset_group import GroupedSubset
@@ -15,15 +16,18 @@ def positions(bounds):
 
 def values(data_proxy, bounds):
     values = data_proxy.compute_fixed_resolution_buffer(bounds)
+    values = values.transpose(2, 1, 0)
     min_value = nanmin(values)
     replacement = min_value - 1
     replaced = nan_to_num(values, replacement)
     return replaced 
 
 
-def colorscale(layer_state):
+def colorscale(layer_state, size=10):
     color = color_info(layer_state)
-    return [(0, "#000000"), (1, color)]
+    r, g, b, a = rgba_components(color)
+    fractions = [i / size for i in range(size + 1)]
+    return [f"rgba({f*r},{f*g},{f*b},{f*a})" for f in fractions]
 
 
 def opacity_scale(layer_state):
@@ -51,7 +55,6 @@ def isomax_for_layer(viewer_state, layer_state):
 def traces_for_layer(viewer_state, layer, bounds):
 
     xyz = positions(bounds)
-    print([c.shape for c in xyz])
     state = layer.state
     mask = bbox_mask(viewer_state, *xyz)
     clipped_xyz = [c[mask] for c in xyz]
@@ -68,5 +71,3 @@ def traces_for_layer(viewer_state, layer, bounds):
        opacity=state.alpha,
        surface_count=5
     )]
-
-
