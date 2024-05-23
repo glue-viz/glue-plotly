@@ -49,7 +49,7 @@ class PlotlyVolumeStaticExport(Tool):
         for layer in layers:
             options = dialog.state_dictionary[layer.layer.label]
             count = options.get("isosurface_count", 5)
-            traces = traces_for_layer(self.viewer.state, layer, bounds,
+            traces = traces_for_layer(self.viewer, layer, bounds,
                                       isosurface_count=count)
             
             for trace in traces:

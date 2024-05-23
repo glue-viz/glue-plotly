@@ -46,7 +46,7 @@ class VolumeOptionsDialog(QDialog):
 
     def _on_layer_change(self, layer):
         count = self.state_dictionary[self.state.layer].get("isosurface_count", 5)
-        self.ui.valuetext_isosurface_count.setText(int(count))
+        self.ui.valuetext_isosurface_count.setText(str(count))
 
     def _on_isosurface_count_change(self, count):
         self.state_dictionary[self.state.layer]["isosurface_count"] = int(count)
