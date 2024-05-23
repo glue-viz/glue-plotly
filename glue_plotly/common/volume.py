@@ -1,6 +1,7 @@
 from glue_plotly.utils import rgba_components
-from numpy import array, linspace, meshgrid, nan_to_num, nanmin
+from numpy import linspace, meshgrid, nan_to_num, nanmin
 
+from glue.core import BaseData
 from glue.core.state_objects import State
 from glue.core.subset_group import GroupedSubset
 
@@ -76,7 +77,7 @@ def isomin_for_layer(viewer_or_state, layer):
 
     state = layer if isinstance(layer, State) else layer 
     return state.vmin
-
+        
 
 def isomax_for_layer(viewer_or_state, layer):
     if isinstance(layer.layer, GroupedSubset):
@@ -89,13 +90,21 @@ def isomax_for_layer(viewer_or_state, layer):
     return state.vmax
 
 
-def traces_for_layer(viewer_state, layer_state, bounds, isosurface_count=5):
+def traces_for_layer(viewer_state, layer_state, bounds,
+                     isosurface_count=5, add_data_label=True):
 
     xyz = positions(bounds)
     mask = bbox_mask(viewer_state, *xyz)
     clipped_xyz = [c[mask] for c in xyz]
     clipped_values = values(viewer_state, layer_state, bounds)[mask]
+    name = layer_state.layer.label
+    if add_data_label and not isinstance(layer_state.layer, BaseData):
+        name += " ({0})".format(layer_state.layer.data.label)
+
     return [go.Volume(
+       name=name,
+       hoverinfo="skip",
+       hovertext=None,
        x=clipped_xyz[0],
        y=clipped_xyz[1],
        z=clipped_xyz[2],

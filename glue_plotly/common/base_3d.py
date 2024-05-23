@@ -1,3 +1,5 @@
+import re
+
 from glue.config import settings
 from glue_plotly.common import DEFAULT_FONT
 
@@ -70,6 +72,16 @@ def clipped_data(viewer_state, layer_state):
     return x[mask], y[mask], z[mask], mask
 
 
+def plotly_up_from_vispy(vispy_up):
+    regex = re.compile("(\+|-)(x|y|z)")
+    up = {"x": 0, "y": 0, "z": 0}
+    m = regex.match(vispy_up)
+    if m is not None and len(m.groups()) == 2:
+        sign = 1 if m.group(1) == "+" else -1
+        up[m.group(2)] = sign
+    return up 
+
+
 def layout_config(viewer_state):
     width, height, depth = dimensions(viewer_state)
     return dict(
@@ -83,7 +95,9 @@ def layout_config(viewer_state):
             camera=dict(
                 projection=dict(
                     type=projection_type(viewer_state)
-                )
+                ),
+                # Currently there's no way to change this in glue
+                up=plotly_up_from_vispy("+z")
             ),
             aspectratio=dict(x=1 * viewer_state.x_stretch,
                              y=height / width * viewer_state.y_stretch,

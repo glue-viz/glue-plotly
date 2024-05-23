@@ -24,8 +24,23 @@ class PlotlyVolumeStaticExport(Tool):
     tool_tip = 'Save Plotly HTML page'
 
     @messagebox_on_error(PLOTLY_ERROR_MESSAGE)
-    def _export_to_plotly(self, filename):
-        pass
+    def _export_to_plotly(self, filename, state_dictionary):
+        config = layout_config(self.viewer.state)
+        layout = go.Layout(**config)
+        fig = go.Figure(layout=layout)
+
+        layers = layers_to_export(self.viewer)
+        bounds = self.viewer._vispy_widget._multivol._data_bounds
+        for layer in layers:
+            options = state_dictionary[layer.layer.label]
+            count = options.get("isosurface_count", 5)
+            traces = traces_for_layer(self.viewer.state, layer.state, bounds,
+                                      isosurface_count=count)
+            
+            for trace in traces:
+                fig.add_trace(trace)
+
+        plot(fig, filename=filename, auto_open=False)
 
 
     def activate(self):
@@ -39,28 +54,10 @@ class PlotlyVolumeStaticExport(Tool):
             parent=self.viewer, basedir="plot.html")
         if not filename:
             return
-
-        config = layout_config(self.viewer.state)
-        layout = go.Layout(**config)
-        fig = go.Figure(layout=layout)
-
-        layers = layers_to_export(self.viewer)
-        bounds = self.viewer._vispy_widget._multivol._data_bounds
-        for layer in layers:
-            options = dialog.state_dictionary[layer.layer.label]
-            count = options.get("isosurface_count", 5)
-            traces = traces_for_layer(self.viewer.state, layer.state, bounds,
-                                      isosurface_count=count)
-            
-            for trace in traces:
-                fig.add_trace(trace)
-
-        plot(fig, filename=filename, auto_open=False)
-
-        # worker = Worker(self._export_to_plotly, filename)
-        # exp_dialog = export_dialog.ExportDialog(parent=self.viewer)
-        # worker.result.connect(exp_dialog.close)
-        # worker.error.connect(exp_dialog.close)
-        # worker.start()
-        # exp_dialog.exec_()
-
+        
+        worker = Worker(self._export_to_plotly, filename, dialog.state_dictionary)
+        exp_dialog = export_dialog.ExportDialog(parent=self.viewer)
+        worker.result.connect(exp_dialog.close)
+        worker.error.connect(exp_dialog.close)
+        worker.start()
+        exp_dialog.exec_()
