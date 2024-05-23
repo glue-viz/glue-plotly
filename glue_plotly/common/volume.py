@@ -24,25 +24,25 @@ def parent_layer(viewer_or_state, subset):
     return None
 
 
-# TODO: Can we write this function entirely in terms of the viewer and layer states?
-# We probably can, if we don't on the data proxies
-def values(viewer, layer, bounds, precomputed=None):
-    subset_layer = isinstance(layer.layer, GroupedSubset)
-    parent = layer.layer.data if subset_layer else layer.layer
+def values(viewer_state, layer_state, bounds, precomputed=None):
+    subset_layer = isinstance(layer_state.layer, GroupedSubset)
+    parent = layer_state.layer.data if subset_layer else layer_state.layer
     parent_label = parent.label
-    parent_artist = parent_layer(viewer, layer.layer) if subset_layer else layer
     if precomputed is not None and parent_label in precomputed:
         data = precomputed[parent_label]
-    elif parent_artist is not None:
-        data = parent_artist._data_proxy.compute_fixed_resolution_buffer(bounds)
     else:
         data = parent.compute_fixed_resolution_buffer(
-                   target_data=viewer.state.reference_data,
+                   target_data=viewer_state.reference_data,
                    bounds=bounds,
-                   target_cid=layer.state.attribute)
+                   target_cid=layer_state.attribute
+               )
 
     if subset_layer:
-        subcube = layer._data_proxy.compute_fixed_resolution_buffer(bounds)
+        subcube = parent.compute_fixed_resolution_buffer(
+            target_data=viewer_state.reference_data,
+            bounds=bounds,
+            subset_state=layer_state.layer.subset_state
+        )
         values = subcube * data
     else:
         values = data
@@ -89,23 +89,22 @@ def isomax_for_layer(viewer_or_state, layer):
     return state.vmax
 
 
-def traces_for_layer(viewer, layer, bounds, isosurface_count=5):
+def traces_for_layer(viewer_state, layer_state, bounds, isosurface_count=5):
 
     xyz = positions(bounds)
-    state = layer.state
-    mask = bbox_mask(viewer.state, *xyz)
+    mask = bbox_mask(viewer_state, *xyz)
     clipped_xyz = [c[mask] for c in xyz]
-    clipped_values = values(viewer, layer, bounds)[mask]
+    clipped_values = values(viewer_state, layer_state, bounds)[mask]
     return [go.Volume(
        x=clipped_xyz[0],
        y=clipped_xyz[1],
        z=clipped_xyz[2],
        value=clipped_values,
-       colorscale=colorscale(state),
-       opacityscale=opacity_scale(state),
-       isomin=isomin_for_layer(viewer.state, state),
-       isomax=isomax_for_layer(viewer.state, state),
-       opacity=state.alpha,
+       colorscale=colorscale(layer_state),
+       opacityscale=opacity_scale(layer_state),
+       isomin=isomin_for_layer(viewer_state, layer_state),
+       isomax=isomax_for_layer(viewer_state, layer_state),
+       opacity=layer_state.alpha,
        surface_count=isosurface_count,
        showscale=False
     )]
