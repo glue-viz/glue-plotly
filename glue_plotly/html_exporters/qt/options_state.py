@@ -19,6 +19,7 @@ class QtExportLayerOptionsRegistry(DictRegistry):
             self.add(layer_state_cls, export_state_class)
         return adder
 
+
 qt_export_options = QtExportLayerOptionsRegistry()
 
 

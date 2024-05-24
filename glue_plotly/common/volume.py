@@ -54,7 +54,7 @@ def values(viewer_state, layer_state, bounds, precomputed=None):
     min_value = nanmin(values)
     replacement = min_value - 1
     replaced = nan_to_num(values, replacement)
-    return replaced 
+    return replaced
 
 
 def colorscale(layer_state, size=10):
@@ -75,9 +75,9 @@ def isomin_for_layer(viewer_or_state, layer):
             parent_state = parent if isinstance(parent, State) else parent.state
             return parent_state.vmin
 
-    state = layer if isinstance(layer, State) else layer 
+    state = layer if isinstance(layer, State) else layer
     return state.vmin
-        
+
 
 def isomax_for_layer(viewer_or_state, layer):
     if isinstance(layer.layer, GroupedSubset):
@@ -86,7 +86,7 @@ def isomax_for_layer(viewer_or_state, layer):
             parent_state = parent if isinstance(parent, State) else parent.state
             return parent_state.vmax
 
-    state = layer if isinstance(layer, State) else layer 
+    state = layer if isinstance(layer, State) else layer
     return state.vmax
 
 

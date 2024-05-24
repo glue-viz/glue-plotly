@@ -17,7 +17,6 @@ def layer_label(layer):
     return label
 
 
-
 def clear_layout(layout):
     if layout is not None:
         while layout.count():
@@ -34,7 +33,7 @@ def widgets_for_property(instance, property, display_name=None):
     t = type(value)
     connections = []
     widgets = []
-    display_name = display_name or property 
+    display_name = display_name or property
     if t is bool:
         widget = QCheckBox()
         widget.setChecked(value)
@@ -69,7 +68,7 @@ def widgets_for_state(state):
 
 def update_layout_for_state(layout, state):
     clear_layout(layout)
-    connections, widgets = widgets_for_state(state) 
+    connections, widgets = widgets_for_state(state)
     for widget in widgets:
         row = QHBoxLayout()
         row.addWidget(widget)

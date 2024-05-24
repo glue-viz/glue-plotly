@@ -57,4 +57,4 @@ class VolumeOptionsDialog(QDialog):
         return None
 
     def _on_layer_change(self, layer):
-        update_layout_for_state(self.ui.layer_layout, self.state_dictionary.get(layer, None))
+        self._layer_connections = update_layout_for_state(self.ui.layer_layout, self.state_dictionary.get(layer, None))

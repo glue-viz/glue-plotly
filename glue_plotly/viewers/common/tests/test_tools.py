@@ -86,7 +86,6 @@ class TestTools(object):
         self.viewer.state.y_max = 13
         tool = self.get_tool('plotly:home')
         tool.activate()
-        print(self.viewer.state)
         assert self.viewer.state.x_min == xmin
         assert self.viewer.state.x_max == xmax
         assert self.viewer.state.y_min == ymin

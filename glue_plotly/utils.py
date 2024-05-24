@@ -85,4 +85,3 @@ def rgba_components(color):
 def components_to_hex(r, g, b, a=None):
     components = [hex_string(t) for t in (r, g, b, a) if t is not None]
     return f"#{''.join(components)}"
-
