@@ -46,7 +46,7 @@ def rgba_string_to_values(rgba_str):
     if not m or len(m.groups()) != 4:
         raise ValueError("Invalid RGBA expression")
     r, g, b, a = m.groups()
-    return [r, g, b, a]
+    return [int(t) for t in (r, g, b, a)]
 
 
 def is_rgba_hex(color):
@@ -54,8 +54,34 @@ def is_rgba_hex(color):
 
 
 def is_rgb_hex(color):
-    return color.starswith("#") and len(color) == 7
+    return color.startswith("#") and len(color) == 7
 
 
 def rgba_hex_to_rgb_hex(color):
     return color[:-2]
+
+
+def hex_string(number):
+    return format(number, '02x')
+
+
+def rgb_hex_to_rgba_hex(color, opacity=1):
+    return f"{color}{hex_string(opacity)}"
+
+
+def hex_to_components(color):
+    return [int(color[idx:idx+2], 16) for idx in range(1, len(color), 2)]
+
+
+def rgba_components(color):
+    if is_rgb_hex(color):
+        color = rgb_hex_to_rgba_hex(color)
+    if is_rgba_hex(color):
+        return hex_to_components(color)
+    else:
+        return rgba_string_to_values(color)
+
+
+def components_to_hex(r, g, b, a=None):
+    components = [hex_string(t) for t in (r, g, b, a) if t is not None]
+    return f"#{''.join(components)}"

@@ -6,11 +6,11 @@ from pytest import importorskip
 
 importorskip('glue_qt')
 
-from glue_qt.viewers.image.data_viewer import ImageViewer  # noqa
+from glue_qt.viewers.image.data_viewer import ImageViewer  # noqa: E402
 
-from numpy import arange, ones  # noqa
+from numpy import arange, ones  # noqa: E402
 
-from .test_base import TestQtExporter  # noqa
+from .test_base import TestQtExporter  # noqa: E402
 
 
 class TestImage(TestQtExporter):

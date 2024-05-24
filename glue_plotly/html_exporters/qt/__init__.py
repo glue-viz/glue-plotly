@@ -5,3 +5,5 @@ from . import histogram  # noqa
 from . import profile  # noqa
 from . import table  # noqa
 from . import dendrogram  # noqa
+from . import volume  # noqa
+from .options_state import *  # noqa

@@ -6,10 +6,10 @@ from pytest import importorskip
 
 importorskip('glue_qt')
 
-from glue_qt.app import GlueApplication  # noqa
-from glue_qt.viewers.table import TableViewer  # noqa
+from glue_qt.app import GlueApplication  # noqa: E402
+from glue_qt.viewers.table import TableViewer  # noqa: E402
 
-from .test_base import TestQtExporter  # noqa
+from .test_base import TestQtExporter  # noqa: E402
 
 
 class TestTable(TestQtExporter):

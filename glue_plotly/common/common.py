@@ -108,7 +108,7 @@ def sanitize(*arrays):
 def fixed_color(layer_state):
     layer_color = layer_state.color
     if layer_color == '0.35' or layer_color == '0.75':
-        layer_color = 'gray'
+        layer_color = '#808080'
     if is_rgba_hex(layer_color):
         layer_color = rgba_hex_to_rgb_hex(layer_color)
     return layer_color
