@@ -14,6 +14,9 @@ from glue_plotly.html_exporters.qt.options_state import qt_export_options
 from glue_plotly.html_exporters.qt.utils import layer_label
 
 
+__all__ = ["VolumeOptionsDialog"]
+
+
 class VolumeDialogState(State):
 
     layer = SelectionCallbackProperty()

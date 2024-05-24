@@ -5,6 +5,8 @@ from glue_plotly.save_hover import SaveHoverDialog
 from glue_plotly.sort_components import SortComponentsDialog
 from qtpy.QtWidgets import QMessageBox
 
+from glue_plotly.volume_options import VolumeOptionsDialog
+
 
 class TestQtExporter:
 
@@ -47,6 +49,7 @@ class TestQtExporter:
             fd.return_value = output_path, 'html'
             with patch.object(SaveHoverDialog, 'exec_', self.auto_accept_selectdialog()), \
                  patch.object(SortComponentsDialog, 'exec_', self.auto_accept_selectdialog()), \
+                 patch.object(VolumeOptionsDialog, 'exec_', self.auto_accept_messagebox()), \
                  patch.object(QMessageBox, 'exec_', self.auto_accept_messagebox()):
                 self.tool.activate()
         return output_path
