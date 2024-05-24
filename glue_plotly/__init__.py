@@ -15,7 +15,8 @@ PLOTLY_ERROR_MESSAGE = "An error occurred during the export to Plotly:"
 def setup():
     try:
         setup_qt()
-    except ImportError:
+    except ImportError as e:
+        print(e)
         pass
 
     try:

@@ -95,7 +95,7 @@ def layout_config(viewer_state):
             camera=dict(
                 projection=dict(
                     type=projection_type(viewer_state)
-                ),
+                ), 
                 # Currently there's no way to change this in glue
                 up=plotly_up_from_vispy("+z")
             ),

@@ -14,6 +14,9 @@
    <string>Export 3D Volume</string>
   </property>
   <layout class="QGridLayout" name="gridLayout">
+   <item row="5" column="0">
+    <layout class="QFormLayout" name="layer_layout"/>
+   </item>
    <item row="4" column="0">
     <widget class="QLabel" name="label_settings_message">
      <property name="text">
@@ -24,16 +27,7 @@
      </property>
     </widget>
    </item>
-   <item row="6" column="0">
-    <widget class="QLineEdit" name="valuetext_isosurface_count"/>
-   </item>
    <item row="7" column="0">
-    <layout class="QFormLayout" name="layer_layout"/>
-   </item>
-   <item row="3" column="0">
-    <widget class="QListWidget" name="listsel_layer"/>
-   </item>
-   <item row="9" column="0">
     <widget class="QWidget" name="widget" native="true">
      <layout class="QHBoxLayout" name="horizontalLayout">
       <item>
@@ -72,12 +66,8 @@
      </layout>
     </widget>
    </item>
-   <item row="5" column="0">
-    <widget class="QLabel" name="label_isosurface_count">
-     <property name="text">
-      <string>Isosurface count:</string>
-     </property>
-    </widget>
+   <item row="3" column="0">
+    <widget class="QListWidget" name="listsel_layer"/>
    </item>
   </layout>
  </widget>
