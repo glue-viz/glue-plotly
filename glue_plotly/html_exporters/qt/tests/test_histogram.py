@@ -6,9 +6,9 @@ from pytest import importorskip
 
 importorskip('glue_qt')
 
-from glue_qt.viewers.histogram import HistogramViewer  # noqa
+from glue_qt.viewers.histogram import HistogramViewer  # noqa: E402
 
-from .test_base import TestQtExporter  # noqa
+from .test_base import TestQtExporter  # noqa: E402
 
 
 class TestHistogram(TestQtExporter):

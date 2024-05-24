@@ -6,9 +6,9 @@ from pytest import importorskip
 
 importorskip('glue_qt.plugins.dendro_viewer.data_viewer')
 
-from glue_qt.plugins.dendro_viewer.data_viewer import DendrogramViewer  # noqa
+from glue_qt.plugins.dendro_viewer.data_viewer import DendrogramViewer  # noqa: E402
 
-from .test_base import TestQtExporter  # noqa
+from .test_base import TestQtExporter  # noqa: E402
 
 
 class TestDendrogram(TestQtExporter):
