@@ -1,6 +1,14 @@
 from re import match, sub
 
-__all__ = ['cleaned_labels', 'mpl_ticks_values']
+__all__ = [
+    'cleaned_labels',
+    'mpl_ticks_values',
+    'opacity_value_string',
+    'rgba_string_to_values',
+    'is_rgba_hex',
+    'is_rgb_hex',
+    'rgba_hex_to_rgb_hex',
+]
 
 
 def cleaned_labels(labels):

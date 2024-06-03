@@ -6,11 +6,11 @@ from glue_plotly.common.scatter2d import rectilinear_layout_config, traces_for_l
 from plotly.offline import plot
 import plotly.graph_objs as go
 
-from .base import PlotlyBaseBqplotExport
+from ...jupyter_base_export_tool import JupyterBaseExportTool
 
 
 @viewer_tool
-class PlotlyScatter2DBqplotExport(PlotlyBaseBqplotExport):
+class PlotlyScatter2DBqplotExport(JupyterBaseExportTool):
     tool_id = 'save:bqplot_plotly2d'
 
     def save_figure(self, filepath):

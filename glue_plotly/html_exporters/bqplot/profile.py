@@ -6,11 +6,11 @@ from glue_plotly.common.profile import layout_config, traces_for_layer
 from plotly.offline import plot
 import plotly.graph_objs as go
 
-from .base import PlotlyBaseBqplotExport
+from ...jupyter_base_export_tool import JupyterBaseExportTool
 
 
 @viewer_tool
-class PlotlyProfileBqplotExport(PlotlyBaseBqplotExport):
+class PlotlyProfileBqplotExport(JupyterBaseExportTool):
     tool_id = 'save:bqplot_plotlyprofile'
 
     def save_figure(self, filepath):

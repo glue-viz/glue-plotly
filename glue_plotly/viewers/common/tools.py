@@ -4,6 +4,13 @@ from echo import delay_callback
 from glue.config import viewer_tool
 from glue.core.subset import PolygonalROI, RectangularROI, XRangeROI, YRangeROI
 from glue.viewers.common.tool import CheckableTool, Tool
+from glue_plotly.jupyter_base_export_tool import JupyterBaseExportTool
+
+import plotly.graph_objects as go
+import ipyvuetify as v  # noqa
+from ipywidgets import HBox, Layout  # noqa
+from IPython.display import display  # noqa
+from ipyfilechooser import FileChooser  # noqa
 
 
 class PlotlyDragMode(CheckableTool):
@@ -252,3 +259,29 @@ class PlotlyHoverTool(CheckableTool):
 
     def deactivate(self):
         self.viewer.figure.update_layout(hovermode=False)
+
+
+@viewer_tool
+class PlotlySaveTool(JupyterBaseExportTool):
+
+    icon = 'glue_filesave'
+    tool_id = 'plotly:save'
+    action_text = 'Save as interactive HTML'
+    tool_tip = 'Save as interactive HTML'
+
+    def save_figure(self, filepath):
+        if not filepath:
+            return
+
+        # We restrict things like modebar and axis functionality in
+        # the viewer so that we can enable/disable them via tools.
+        # For the HTML export, we want to re-enable these.
+        # We clone the viewer figure so that we don't modify the viewer itself.
+        figure = go.Figure(self.viewer.figure)
+        for setting in ('modebar', 'dragmode', 'newselection'):
+            figure.update_layout({setting: None})
+        for ax in ('x', 'y', 'z'):
+            attr = f"{ax}axis"
+            if hasattr(figure.layout, attr):
+                getattr(figure.layout, attr).update(fixedrange=False)
+        figure.write_html(filepath)

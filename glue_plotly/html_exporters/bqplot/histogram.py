@@ -6,11 +6,11 @@ from glue_plotly.common.histogram import layout_config, traces_for_layer
 from plotly.offline import plot
 import plotly.graph_objs as go
 
-from .base import PlotlyBaseBqplotExport
+from ...jupyter_base_export_tool import JupyterBaseExportTool
 
 
 @viewer_tool
-class PlotlyHistogramBqplotExport(PlotlyBaseBqplotExport):
+class PlotlyHistogramBqplotExport(JupyterBaseExportTool):
     tool_id = 'save:bqplot_plotlyhist'
 
     def save_figure(self, filepath):

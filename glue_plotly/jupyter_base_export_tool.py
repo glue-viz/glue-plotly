@@ -7,14 +7,16 @@ import ipyvuetify as v  # noqa
 from ipywidgets import HBox, Layout  # noqa
 from IPython.display import display  # noqa
 from ipyfilechooser import FileChooser  # noqa
+from glue_plotly import PLOTLY_LOGO
 
-from glue_plotly import PLOTLY_LOGO  # noqa
+__all__ = ["JupyterBaseExportTool"]
 
 
-class PlotlyBaseBqplotExport(Tool):
+class JupyterBaseExportTool(Tool):
+
     icon = PLOTLY_LOGO
-    action_text = 'Save Plotly HTML page'
-    tool_tip = 'Save Plotly HTML page'
+    action_text = "Save Plotly HTML page"
+    tool_tip = "Save Plotly HTML page"
 
     def activate(self):
         file_chooser = FileChooser(getcwd())

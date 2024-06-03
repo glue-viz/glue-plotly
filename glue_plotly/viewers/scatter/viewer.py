@@ -19,8 +19,11 @@ __all__ = ["PlotlyScatterView"]
 @viewer_registry("plotly_scatter")
 class PlotlyScatterView(PlotlyBaseView):
 
-    tools = ['plotly:home', 'plotly:zoom', 'plotly:pan', 'plotly:xrange',
-             'plotly:yrange', 'plotly:rectangle', 'plotly:lasso', 'plotly:hover']
+    tools = ['plotly:save', 'plotly:home',
+             'plotly:zoom', 'plotly:pan',
+             'plotly:xrange', 'plotly:yrange',
+             'plotly:rectangle', 'plotly:lasso',
+             'plotly:hover']
 
     allow_duplicate_data = False
     allow_duplicate_subset = False
