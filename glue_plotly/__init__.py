@@ -69,8 +69,8 @@ def setup_qt():
         }
 
     try:
-        from glue_vispy_viewers.scatter.scatter_viewer import VispyScatterViewer
-        from glue_vispy_viewers.volume.volume_viewer import VispyVolumeViewer
+        from glue_vispy_viewers.scatter.qt.scatter_viewer import VispyScatterViewer
+        from glue_vispy_viewers.volume.qt.volume_viewer import VispyVolumeViewer
     except ImportError:
         pass
     else:

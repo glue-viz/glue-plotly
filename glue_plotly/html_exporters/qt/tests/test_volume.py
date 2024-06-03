@@ -7,7 +7,7 @@ from pytest import importorskip
 importorskip('glue_qt')
 importorskip('glue_vispy_viewers')
 
-from glue_vispy_viewers.volume.volume_viewer import VispyVolumeViewer  # noqa: E402
+from glue_vispy_viewers.volume.qt.volume_viewer import VispyVolumeViewer  # noqa: E402
 
 from numpy import arange, ones  # noqa: E402
 

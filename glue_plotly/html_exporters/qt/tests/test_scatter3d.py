@@ -6,7 +6,7 @@ from glue.core import Data
 
 pytest.importorskip('glue_vispy_viewers')
 
-from glue_vispy_viewers.scatter.scatter_viewer import VispyScatterViewer  # noqa: E402
+from glue_vispy_viewers.scatter.qt.scatter_viewer import VispyScatterViewer  # noqa: E402
 
 from .test_base import TestQtExporter  # noqa: E402
 
