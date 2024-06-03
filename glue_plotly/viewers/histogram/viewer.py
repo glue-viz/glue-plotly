@@ -15,7 +15,9 @@ __all__ = ["PlotlyHistogramView"]
 @viewer_registry("plotly_histogram")
 class PlotlyHistogramView(PlotlyBaseView):
 
-    tools = ['plotly:home', 'plotly:zoom', 'plotly:pan', 'plotly:xrange', 'plotly:hover']
+    tools = ['plotly:save', 'plotly:home',
+             'plotly:zoom', 'plotly:pan',
+             'plotly:xrange', 'plotly:hover']
 
     allow_duplicate_data = False
     allow_duplicate_subset = False

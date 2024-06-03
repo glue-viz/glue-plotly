@@ -7,11 +7,11 @@ from plotly.offline import plot
 import plotly.graph_objs as go
 from plotly.subplots import make_subplots
 
-from .base import PlotlyBaseBqplotExport
+from ...jupyter_base_export_tool import JupyterBaseExportTool
 
 
 @viewer_tool
-class PlotlyImageBqplotExport(PlotlyBaseBqplotExport):
+class PlotlyImageBqplotExport(JupyterBaseExportTool):
     tool_id = 'save:bqplot_plotlyimage2d'
 
     def save_figure(self, filepath):
