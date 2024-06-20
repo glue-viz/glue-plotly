@@ -96,10 +96,10 @@ class PlotlyBaseView(IPyWidgetView):
         return self.figure.layout.yaxis
 
     def update_x_axislabel(self, label):
-        self.axis_x['title'] = label
+        self.axis_x['title'].update(text=label)
 
     def update_y_axislabel(self, label):
-        self.axis_y['title'] = label
+        self.axis_y['title'].update(text=label)
 
     def _update_selection_layer_bounds(self):
         x0 = 0.5 * (self.state.x_min + self.state.x_max)
