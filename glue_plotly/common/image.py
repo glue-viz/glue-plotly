@@ -181,7 +181,7 @@ def colorscale_info(layer_state, interval, contrast_bias):
     unmapped_space = np.linspace(0, 1, 60)
     mapped_space = np.linspace(mapped_bounds[0], mapped_bounds[1], 60)
     color_space = [cmap(b)[:3] for b in mapped_space]
-    color_values = [tuple(256 * v for v in p) for p in color_space]
+    color_values = [tuple(float(256 * v) for v in p) for p in color_space]
     colorscale = [[0, 'rgb{0}'.format(color_values[0])]] + \
                  [[u, 'rgb{0}'.format(c)] for u, c in zip(unmapped_space, color_values)] + \
                  [[1, 'rgb{0}'.format(color_values[-1])]]
