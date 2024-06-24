@@ -1,5 +1,4 @@
 from glue.core.subset import XRangeROI, roi_to_subset_state
-from glue.viewers.histogram.state import HistogramViewerState
 from glue_plotly.common import base_layout_config, base_rectilinear_axis
 from glue_plotly.viewers import PlotlyBaseView
 from glue_plotly.viewers.histogram.layer_artist import PlotlyHistogramLayerArtist
@@ -7,6 +6,7 @@ from glue_plotly.viewers.histogram.layer_artist import PlotlyHistogramLayerArtis
 from glue_jupyter.registries import viewer_registry
 from glue_jupyter.common.state_widgets.layer_histogram import HistogramLayerStateWidget
 from glue_jupyter.common.state_widgets.viewer_histogram import HistogramViewerStateWidget
+from glue_plotly.viewers.histogram.state import PlotlyHistogramViewerState
 
 
 __all__ = ["PlotlyHistogramView"]
@@ -22,7 +22,7 @@ class PlotlyHistogramView(PlotlyBaseView):
     allow_duplicate_data = False
     allow_duplicate_subset = False
 
-    _state_cls = HistogramViewerState
+    _state_cls = PlotlyHistogramViewerState
     _options_cls = HistogramViewerStateWidget
     _data_artist_cls = PlotlyHistogramLayerArtist
     _subset_artist_cls = PlotlyHistogramLayerArtist
@@ -32,6 +32,8 @@ class PlotlyHistogramView(PlotlyBaseView):
         super().__init__(*args, **kwargs)
         self.state.add_callback('x_att', self._update_axes)
         self.state.add_callback('normalize', self._update_axes)
+        self.state.add_callback('gaps', self._gaps_changed)
+        self.state.add_callback('gap_fraction', self._gaps_changed)
         self._update_axes()
 
     def _create_layout_config(self):
@@ -53,6 +55,10 @@ class PlotlyHistogramView(PlotlyBaseView):
             self.state.y_axislabel = 'Normalized number'
         else:
             self.state.y_axislabel = 'Number'
+
+    def _gaps_changed(self, *args):
+        gap = self.state.gap_fraction if self.state.gaps else 0
+        self.figure.layout.update(bargap=gap)
 
     def _roi_to_subset_state(self, roi):
         return roi_to_subset_state(roi, x_att=self.state.x_att)
