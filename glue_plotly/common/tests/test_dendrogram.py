@@ -4,6 +4,7 @@ import pytest
 
 from glue.config import settings
 from glue.core import Data
+from glue.tests.helpers import make_skipper
 from glue_qt.app import GlueApplication
 from glue_qt.plugins.dendro_viewer import DendrogramViewer
 
@@ -12,6 +13,11 @@ from glue_plotly.common.common import base_rectilinear_axis
 from glue_plotly.common.dendrogram import trace_for_layer, x_axis
 
 
+NUMPY_LT_2, requires_numpy_lt2 = make_skipper('numpy', version='2.0', skip_if='ge')
+
+
+# Workaround until for the issue solved in https://github.com/glue-viz/glue-qt/pull/19
+@requires_numpy_lt2
 class TestDendrogram:
 
     def setup_method(self, method):
