@@ -13,8 +13,6 @@ from glue_jupyter.view import IPyWidgetView
 
 __all__ = ['PlotlyBaseView']
 
-INTERACT_COLOR = "#cbcbcb"
-
 
 class PlotlyBaseView(IPyWidgetView):
 
@@ -22,7 +20,7 @@ class PlotlyBaseView(IPyWidgetView):
         include_dimensions=False,
         hovermode=False, hoverdistance=1,
         dragmode=False, showlegend=False, grid=None,
-        newselection=dict(line=dict(color=INTERACT_COLOR), mode='immediate'),
+        newselection=dict(line=dict(dash="dash"), mode='immediate'),
         modebar=dict(remove=['toimage', 'zoom', 'pan', 'lasso', 'zoomIn2d',
                              'zoomOut2d', 'select', 'autoscale', 'resetScale2d',
                              'resetViews'])
