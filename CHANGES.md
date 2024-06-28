@@ -1,5 +1,30 @@
 # Full changelog
 
+## v0.7.3 - 2024-06-28
+
+<!-- Release notes generated using configuration in .github/release.yml at main -->
+### What's Changed
+
+#### New Features
+
+* Add exporter for volume viewer by @Carifio24 in https://github.com/glue-viz/glue-plotly/pull/70
+* Add export to HTML viewer tools by @Carifio24 in https://github.com/glue-viz/glue-plotly/pull/71
+* Allow gaps between histogram bars and fix axis labels by @Carifio24 in https://github.com/glue-viz/glue-plotly/pull/72
+
+#### Bug Fixes
+
+* Fix CI issues and fix colormap validation with numpy 2 by @Carifio24 in https://github.com/glue-viz/glue-plotly/pull/75
+
+#### Documentation
+
+* Documentation updates by @Carifio24 in https://github.com/glue-viz/glue-plotly/pull/69
+
+#### Other Changes
+
+* Make selection box easier to see by @Carifio24 in https://github.com/glue-viz/glue-plotly/pull/76
+
+**Full Changelog**: https://github.com/glue-viz/glue-plotly/compare/v0.7.2...v0.7.3
+
 ## v0.7.2 - 2024-05-10
 
 <!-- Release notes generated using configuration in .github/release.yml at main -->
