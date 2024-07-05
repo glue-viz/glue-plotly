@@ -6,6 +6,7 @@ from numpy import repeat
 from glue_plotly.common import color_info
 from glue_plotly.common.scatter2d import LINESTYLES, rectilinear_lines, scatter_mode, size_info
 from glue.core import BaseData
+from glue.core.exceptions import IncompatibleAttribute
 from glue.utils import ensure_numerical
 from glue.viewers.common.layer_artist import LayerArtist
 from glue.viewers.scatter.state import ScatterLayerState
@@ -67,10 +68,6 @@ class PlotlyScatterLayerArtist(LayerArtist):
             layer=layer
         )
 
-        self._viewer_state.add_global_callback(self._update_display)
-        self.state.add_global_callback(self._update_display)
-        self.state.add_callback("zorder", self._update_zorder)
-
         self.view = view
 
         # Somewhat annoyingly, the trace that we pass in to be added
@@ -93,6 +90,10 @@ class PlotlyScatterLayerArtist(LayerArtist):
         self._error_id = uuid4().hex
         self._vector_id = uuid4().hex
 
+        self._viewer_state.add_global_callback(self._update_display)
+        self.state.add_global_callback(self._update_display)
+        self.state.add_callback("zorder", self._update_zorder)
+
     def remove(self):
         self.view._remove_traces([self._get_scatter()])
         self.view._remove_traces(self._get_lines())
@@ -104,7 +105,14 @@ class PlotlyScatterLayerArtist(LayerArtist):
         return self.view.figure.select_traces(dict(meta=id))
 
     def _get_scatter(self):
-        return next(self._get_traces_with_id(self._scatter_id))
+        # The scatter trace should always exist
+        # so if somehow it doesn't, then create it
+        try:
+            return next(self._get_traces_with_id(self._scatter_id))
+        except StopIteration:
+            scatter = self._create_scatter()
+            self.view.figure.add_trace(scatter)
+            return scatter
 
     def _get_lines(self):
         return self._get_traces_with_id(self._lines_id)
@@ -120,8 +128,23 @@ class PlotlyScatterLayerArtist(LayerArtist):
 
     def _update_data(self):
 
-        x = ensure_numerical(self.layer[self._viewer_state.x_att].ravel())
-        y = ensure_numerical(self.layer[self._viewer_state.y_att].ravel())
+        try:
+            x = ensure_numerical(self.layer[self._viewer_state.x_att].ravel())
+        except (IncompatibleAttribute, IndexError):
+            if self._viewer_state.x_att is not None:
+                self.disable_invalid_attributes(self._viewer_state.x_att)
+            return
+        else:
+            self.enable()
+
+        try:
+            y = ensure_numerical(self.layer[self._viewer_state.y_att].ravel())
+        except (IncompatibleAttribute, IndexError):
+            if self._viewer_state.y_att is not None:
+                self.disable_invalid_attributes(self._viewer_state.y_att)
+            return
+        else:
+            self.enable()
 
         scatter = self._get_scatter()
         if self._viewer_state.using_rectilinear:
