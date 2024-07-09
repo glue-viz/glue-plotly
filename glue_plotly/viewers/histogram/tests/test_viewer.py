@@ -62,7 +62,7 @@ class TestHistogramViewer:
         assert all(f.family == DEFAULT_FONT for f in
                    (x_axis.title.font, x_axis.tickfont, y_axis.title.font, y_axis.tickfont))
 
-        common_items = dict(showgrid=False, showline=False, mirror=True, rangemode='normal',
+        common_items = dict(showgrid=False, showline=True, mirror=True, rangemode='normal',
                             zeroline=False, showspikes=False, showticklabels=True)
         for axis in x_axis, y_axis:
             assert all(axis[key] == value for key, value in common_items.items())
