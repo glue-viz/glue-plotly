@@ -41,9 +41,7 @@ class PlotlyHistogramView(PlotlyBaseView):
                                     width=1000, height=600,
                                     **self.LAYOUT_SETTINGS)
         x_axis = base_rectilinear_axis(self.state, 'x')
-        x_axis.update(showline=False)
         y_axis = base_rectilinear_axis(self.state, 'y')
-        y_axis.update(showline=False)
         config.update(xaxis=x_axis, yaxis=y_axis)
         return config
 
