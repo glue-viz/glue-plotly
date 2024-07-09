@@ -45,10 +45,7 @@ class PlotlyScatterView(PlotlyBaseView):
 
     def _create_layout_config(self):
         if self.state.using_rectilinear:
-            config = rectilinear_layout_config(self, **self.LAYOUT_SETTINGS)
-            config['xaxis']['showline'] = False
-            config['yaxis']['showline'] = False
-            return config
+            return rectilinear_layout_config(self, **self.LAYOUT_SETTINGS)
         else:  # For now, that means polar
             return polar_layout_config(self, radial_axis, **self.LAYOUT_SETTINGS)
 
