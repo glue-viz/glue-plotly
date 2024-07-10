@@ -1,5 +1,16 @@
 # Full changelog
 
+## 0.7.5 - 2024-07-10
+
+<!-- Release notes generated using configuration in .github/release.yml at main -->
+### What's Changed
+
+#### Other Changes
+
+* Show axis lines by @Carifio24 in https://github.com/glue-viz/glue-plotly/pull/78
+
+**Full Changelog**: https://github.com/glue-viz/glue-plotly/compare/v0.7.4...v0.7.5
+
 ## v0.7.4 - 2024-07-05
 
 <!-- Release notes generated using configuration in .github/release.yml at main -->
