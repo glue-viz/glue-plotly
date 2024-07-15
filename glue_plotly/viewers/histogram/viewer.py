@@ -36,8 +36,12 @@ class PlotlyHistogramView(PlotlyBaseView):
         self.state.add_callback('gap_fraction', self._gaps_changed)
         self._update_axes()
 
+    def _gap_from_state(self):
+        return self.state.gap_fraction if self.state.gaps else 0
+
     def _create_layout_config(self):
-        config = base_layout_config(self, barmode="overlay", bargap=0,
+        config = base_layout_config(self, barmode="overlay",
+                                    bargap=self._gap_from_state(),
                                     width=1000, height=600,
                                     **self.LAYOUT_SETTINGS)
         x_axis = base_rectilinear_axis(self.state, 'x')
@@ -55,8 +59,7 @@ class PlotlyHistogramView(PlotlyBaseView):
             self.state.y_axislabel = 'Number'
 
     def _gaps_changed(self, *args):
-        gap = self.state.gap_fraction if self.state.gaps else 0
-        self.figure.layout.update(bargap=gap)
+        self.figure.layout.update(bargap=self._gap_from_state())
 
     def _roi_to_subset_state(self, roi):
         return roi_to_subset_state(roi, x_att=self.state.x_att)
