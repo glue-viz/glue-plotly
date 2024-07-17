@@ -1,5 +1,20 @@
 # Full changelog
 
+## v0.8.0 - 2024-07-17
+
+<!-- Release notes generated using configuration in .github/release.yml at main -->
+### What's Changed
+
+#### New Features
+
+* Add unique class to each viewer instance by @Carifio24 in https://github.com/glue-viz/glue-plotly/pull/81
+
+#### Other Changes
+
+* Initialize histogram viewer config with correct gaps by @Carifio24 in https://github.com/glue-viz/glue-plotly/pull/80
+
+**Full Changelog**: https://github.com/glue-viz/glue-plotly/compare/v0.7.5...v0.8.0
+
 ## 0.7.5 - 2024-07-10
 
 <!-- Release notes generated using configuration in .github/release.yml at main -->
