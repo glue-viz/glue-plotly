@@ -37,6 +37,9 @@ class PlotlyBaseView(IPyWidgetView):
         layout = self._create_layout_config()
         self.figure = go.FigureWidget(layout=layout)
 
+        self._unique_class = f"glue-plotly-{uuid4().hex}"
+        self.figure.add_class(self._unique_class)
+
         self.selection_layer_id = uuid4().hex
         selection_layer = go.Heatmap(x0=0.5,
                                      dx=1,
@@ -156,3 +159,8 @@ class PlotlyBaseView(IPyWidgetView):
     # TODO: Should we have anything here?
     def redraw(self):
         pass
+
+    @property
+    def unique_class(self):
+        """This is a unique identifier, based on a v4 UUID, that is assigned to the root widget as a class."""
+        return self._unique_class

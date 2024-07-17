@@ -5,12 +5,14 @@ from glue_jupyter import JupyterApplication
 from plotly.graph_objects import Scatter
 
 from glue_plotly.common import DEFAULT_FONT
+from glue_plotly.viewers.common.tests import BasePlotlyViewTests
 from glue_plotly.viewers.scatter import PlotlyScatterView
 
 
-class TestScatterView:
+class TestScatterView(BasePlotlyViewTests):
 
     def setup_method(self, method):
+        super().setup_method(method)
         self.data = Data(label="histogram", x=[1, 3, 5, 7, 9], y=[2, 4, 6, 8, 10])
         self.app = JupyterApplication()
         self.app.session.data_collection.append(self.data)
@@ -33,6 +35,7 @@ class TestScatterView:
     def teardown_method(self, method):
         self.viewer = None
         self.app = None
+        super().teardown_method(method)
 
     def test_basic(self):
         assert len(self.viewer.layers) == 1

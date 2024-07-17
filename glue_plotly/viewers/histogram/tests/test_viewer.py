@@ -3,10 +3,11 @@ from glue_jupyter import JupyterApplication
 from plotly.graph_objects import Bar
 
 from glue_plotly.common import DEFAULT_FONT
+from glue_plotly.viewers.common.tests import BasePlotlyViewTests
 from glue_plotly.viewers.histogram import PlotlyHistogramView
 
 
-class TestHistogramViewer:
+class TestHistogramViewer(BasePlotlyViewTests):
 
     def setup_method(self, method):
         self.data = Data(label="histogram", x=[1, 1, 1, 2, 2, 3, 3, 3, 4, 6, 6])
