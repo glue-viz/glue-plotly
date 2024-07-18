@@ -21,9 +21,6 @@ class PlotlyBaseView(IPyWidgetView):
         hovermode=False, hoverdistance=1,
         dragmode=False, showlegend=False, grid=None,
         newselection=dict(line=dict(dash="dash"), mode='immediate'),
-        modebar=dict(remove=['toimage', 'zoom', 'pan', 'lasso', 'zoomIn2d',
-                             'zoomOut2d', 'select', 'autoscale', 'resetScale2d',
-                             'resetViews'])
     )
 
     allow_duplicate_data = False
@@ -36,6 +33,7 @@ class PlotlyBaseView(IPyWidgetView):
 
         layout = self._create_layout_config()
         self.figure = go.FigureWidget(layout=layout)
+        self.figure._config = self.figure._config | {"displayModeBar": False}
 
         self._unique_class = f"glue-plotly-{uuid4().hex}"
         self.figure.add_class(self._unique_class)
