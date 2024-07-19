@@ -33,7 +33,7 @@ class PlotlyBaseView(IPyWidgetView):
 
         layout = self._create_layout_config()
         self.figure = go.FigureWidget(layout=layout)
-        self.figure._config = self.figure._config | {"displayModeBar": False}
+        self.figure._config = self.figure._config = {**self.figure._config, "displayModeBar": False}
 
         self._unique_class = f"glue-plotly-{uuid4().hex}"
         self.figure.add_class(self._unique_class)
