@@ -20,3 +20,7 @@ class BasePlotlyViewTests:
         assert UUID(unique_class[prefix_len:])
 
         assert unique_class in self.viewer.figure._dom_classes
+
+    def test_config(self):
+        config = self.viewer.figure._config
+        assert config["displayModeBar"] is False
