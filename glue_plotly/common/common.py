@@ -25,7 +25,7 @@ def dimensions(viewer):
     elif isinstance(viewer, BqplotBaseView):
         return 1200, 600  # TODO: What to do here?
     else:  # For now, this means a Plotly-based viewer
-        return viewer.figure.layout.width, viewer.figure.layout.height
+        return viewer.figure.layout.width or 600, viewer.figure.layout.height or 400
 
 
 def layers_to_export(viewer):
