@@ -1,5 +1,20 @@
 # Full changelog
 
+## v0.8.1 - 2024-07-26
+
+<!-- Release notes generated using configuration in .github/release.yml at main -->
+### What's Changed
+
+#### Bug Fixes
+
+* Add default viewer dimensions for Plotly-based viewers by @Carifio24 in https://github.com/glue-viz/glue-plotly/pull/83
+
+#### Other Changes
+
+* Remove viewer modebar via config by @Carifio24 in https://github.com/glue-viz/glue-plotly/pull/82
+
+**Full Changelog**: https://github.com/glue-viz/glue-plotly/compare/v0.8.0...v0.8.1
+
 ## v0.8.0 - 2024-07-17
 
 <!-- Release notes generated using configuration in .github/release.yml at main -->
