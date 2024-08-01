@@ -13,7 +13,7 @@ from plotly.offline import plot
 
 @viewer_tool
 class PlotlyScatter3DStaticExport(JupyterBaseExportTool):
-    tool_id = 'save:jupyter_plotly3dvolume'
+    tool_id = 'save:jupyter_plotlyvolume'
 
     def save_figure(self, filepath):
 

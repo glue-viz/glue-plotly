@@ -98,7 +98,7 @@ def setup_jupyter():
         pass
     else:
         JupyterVispyScatterViewer.tools += ['save:jupyter_plotly3dscatter']
-        JupyterVispyVolumeViewer.tools += ['save:jupyter_plotly3dvolume']
+        JupyterVispyVolumeViewer.tools += ['save:jupyter_plotlyvolume']
 
     BqplotHistogramView.tools += ['save:bqplot_plotlyhist']
     BqplotImageView.tools += ['save:bqplot_plotlyimage2d']
