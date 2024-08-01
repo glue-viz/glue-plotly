@@ -7,7 +7,7 @@ except ImportError:
 
 from glue.core.layout import Rectangle, snap_to_grid
 
-from glue_plotly.common import histogram, profile, scatter2d, \
+from glue_plotly.common import dendrogram, histogram, profile, scatter2d, \
     data_count, layers_to_export, base_rectilinear_axis
 
 SYM = {'o': 'circle', 's': 'square', '+': 'cross', '^': 'triangle-up',
@@ -139,6 +139,20 @@ def export_profile(viewer):
     yaxis = profile.axis_from_mpl(viewer, 'y', glue_ticks=False)
 
     return traces, xaxis, yaxis
+
+
+def export_dendrogram(viewer):
+    traces = []
+    layers = layers_to_export(viewer)
+    add_data_label = data_count(layers) > 1
+    for layer in layers:
+        data = layer.mpl_artists[0].get_xydata()
+        trace = dendrogram.trace_for_layer(layer.state, data, add_data_label=add_data_label)
+        traces.append(trace)
+
+    config = dendrogram.layout_config_from_mpl(viewer)
+
+    return traces, config["xaxis"], config["yaxis"]
 
 
 def build_plotly_call(app):
