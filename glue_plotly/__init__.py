@@ -85,11 +85,20 @@ def setup_qt():
 
 
 def setup_jupyter():
-    from .html_exporters import bqplot  # noqa
+    from .html_exporters import jupyter # noqa
     from glue_jupyter.bqplot.histogram import BqplotHistogramView
     from glue_jupyter.bqplot.image import BqplotImageView
     from glue_jupyter.bqplot.profile import BqplotProfileView
     from glue_jupyter.bqplot.scatter import BqplotScatterView
+
+    try:
+        from glue_vispy_viewers.scatter.jupyter import JupyterVispyScatterViewer
+        from glue_vispy_viewers.volume.jupyter import JupyterVispyVolumeViewer
+    except ImportError:
+        pass
+    else:
+        JupyterVispyScatterViewer.tools += ['save:jupyter_plotly3dscatter']
+        JupyterVispyVolumeViewer.tools += ['save:jupyter_plotlyvolume']
 
     BqplotHistogramView.tools += ['save:bqplot_plotlyhist']
     BqplotImageView.tools += ['save:bqplot_plotlyimage2d']
