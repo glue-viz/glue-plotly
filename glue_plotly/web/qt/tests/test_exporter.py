@@ -11,6 +11,12 @@ from plotly.exceptions import PlotlyError
 from glue.core import Data, DataCollection
 from glue_qt.app import GlueApplication
 from glue_qt.viewers.histogram import HistogramViewer
+from glue_qt.viewers.profile import ProfileViewer
+from glue_qt.viewers.scatter import ScatterViewer
+try:
+    from glue_qt.plugins.dendro_viewer import DendrogramViewer
+except ImportError:
+    DendrogramViewer = None
 
 from glue_plotly.web.export_plotly import build_plotly_call
 
@@ -59,11 +65,25 @@ class TestQtPlotlyExporter:
         self.app = GlueApplication(dc)
 
         data.style.color = '#000000'
-        v = self.app.new_data_viewer(HistogramViewer, data=data)
-        v.component = data.id['y']
-        v.xmin = 0
-        v.xmax = 10
-        v.bins = 20
+        hv = self.app.new_data_viewer(HistogramViewer, data=data)
+        hv.component = data.id['y']
+        hv.xmin = 0
+        hv.xmax = 10
+        hv.bins = 20
+
+        sv = self.app.new_data_viewer(ScatterViewer, data=data)
+        sv.state.x_att = data.id['x']
+        sv.state.y_att = data.id['y']
+
+        pv = self.app.new_data_viewer(ProfileViewer, data=data)
+        pv.state.x_att = data.id['Pixel Axis 0 [x]']
+
+        if DendrogramViewer is not None:
+            dendro_data = Data(label='dendrogram', parent=[-1, 0, 1, 1], height=[1.3, 2.2, 3.2, 4.4])
+            dc.append(dendro_data)
+            dv = self.app.new_data_viewer(DendrogramViewer, data=dendro_data)
+            dv.state.height_att = dendro_data.id['height']
+            dv.state.parent_att = dendro_data.id['parent']
 
         self.args, self.kwargs = build_plotly_call(self.app)
 
