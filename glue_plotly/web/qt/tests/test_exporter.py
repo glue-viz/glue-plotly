@@ -1,10 +1,13 @@
 from __future__ import absolute_import, division, print_function
 
 import json
+from importlib.metadata import version
+from packaging.version import Version
 
 import mock
 import pytest
 from mock import patch
+from numpy import __version__ as numpy_version
 from chart_studio.plotly import plotly
 from plotly.exceptions import PlotlyError
 
@@ -25,6 +28,11 @@ from ....web.qt import setup
 
 plotly_sign_in = mock.MagicMock()
 plotly_plot = mock.MagicMock()
+
+
+# glue-qt doesn't have a __version__ so we need to do this
+GLUE_QT_GE_031 = Version(version("glue_qt")) > Version('0.3.1')
+NUMPY_LT_2 = Version(numpy_version) < Version('2')
 
 
 SIGN_IN_ERROR = """
@@ -78,7 +86,8 @@ class TestQtPlotlyExporter:
         pv = self.app.new_data_viewer(ProfileViewer, data=data)
         pv.state.x_att = data.id['Pixel Axis 0 [x]']
 
-        if DendrogramViewer is not None:
+        # Workaround until for the issue solved in https://github.com/glue-viz/glue-qt/pull/19
+        if (NUMPY_LT_2 or GLUE_QT_GE_031) and DendrogramViewer is not None:
             dendro_data = Data(label='dendrogram', parent=[-1, 0, 1, 1], height=[1.3, 2.2, 3.2, 4.4])
             dc.append(dendro_data)
             dv = self.app.new_data_viewer(DendrogramViewer, data=dendro_data)
