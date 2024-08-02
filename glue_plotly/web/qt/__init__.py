@@ -1,3 +1,6 @@
+from glue_plotly.web.export_plotly import export_dendrogram
+
+
 def setup():
 
     from glue.config import exporters
@@ -6,6 +9,11 @@ def setup():
                                                export_profile)
     from glue_plotly.web.qt.exporter import save_plotly
 
+    try:
+        from glue_qt.plugins.dendro_viewer import DendrogramViewer
+        DISPATCH[DendrogramViewer] = export_dendrogram
+    except ImportError:
+        pass
     from glue_qt.viewers.scatter import ScatterViewer
     from glue_qt.viewers.histogram import HistogramViewer
     from glue_qt.viewers.profile import ProfileViewer
