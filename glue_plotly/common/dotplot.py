@@ -13,7 +13,7 @@ def dot_radius(viewer, layer_state):
     diam_world = min([edges[i + 1] - edges[i] for i in range(len(edges) - 1)])
     width, height = dimensions(viewer)
     diam = diam_world * width / abs(viewer_state.x_max - viewer_state.x_min)
-    if viewer_state.y_min is not None and viewer_state.y_max is not None:
+    if viewer_state.y_min is not None and viewer_state.y_max is not None and viewer_state.y_min != viewer_state.y_max:
         max_diam_world_v = 1
         diam_pixel_v = max_diam_world_v * height / abs(viewer_state.y_max - viewer_state.y_min)
         diam = min(diam_pixel_v, diam)
