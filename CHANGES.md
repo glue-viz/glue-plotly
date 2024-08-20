@@ -1,5 +1,25 @@
 # Full changelog
 
+## v0.9.0 - 2024-08-20
+
+<!-- Release notes generated using configuration in .github/release.yml at main -->
+### What's Changed
+
+#### New Features
+
+* Add exporters for Jupyter VisPy viewers by @Carifio24 in https://github.com/glue-viz/glue-plotly/pull/84
+* Add dendrogram viewer to Chart Studio exporter by @Carifio24 in https://github.com/glue-viz/glue-plotly/pull/85
+
+#### Bug Fixes
+
+* Prevent divide by zero when zoomed in on section with no data by @johnarban in https://github.com/glue-viz/glue-plotly/pull/86
+
+### New Contributors
+
+* @johnarban made their first contribution in https://github.com/glue-viz/glue-plotly/pull/86
+
+**Full Changelog**: https://github.com/glue-viz/glue-plotly/compare/v0.8.1...v0.9.0
+
 ## v0.8.1 - 2024-07-26
 
 <!-- Release notes generated using configuration in .github/release.yml at main -->
