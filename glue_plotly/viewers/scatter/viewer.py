@@ -5,11 +5,11 @@ from glue.viewers.scatter.state import ScatterViewerState
 
 from glue_plotly.common.scatter2d import polar_layout_config, radial_axis, rectilinear_layout_config
 
-from glue_jupyter.common.state_widgets.viewer_scatter import ScatterViewerStateWidget
 from glue_jupyter.common.state_widgets.layer_scatter import ScatterLayerStateWidget
 from glue_jupyter.registries import viewer_registry
 
 from .layer_artist import PlotlyScatterLayerArtist
+from .viewer_state_widget import PlotlyScatterViewerStateWidget
 from glue_plotly.viewers import PlotlyBaseView
 
 
@@ -30,7 +30,7 @@ class PlotlyScatterView(PlotlyBaseView):
     large_data_size = 1e7
 
     _state_cls = ScatterViewerState
-    _options_cls = ScatterViewerStateWidget
+    _options_cls = PlotlyScatterViewerStateWidget
     _data_artist_cls = PlotlyScatterLayerArtist
     _subset_artist_cls = PlotlyScatterLayerArtist
     _layer_style_widget_cls = ScatterLayerStateWidget

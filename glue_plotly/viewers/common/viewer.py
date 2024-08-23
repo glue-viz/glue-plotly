@@ -52,8 +52,10 @@ class PlotlyBaseView(IPyWidgetView):
         self.state.add_callback('y_axislabel', self.update_y_axislabel)
         self.state.add_callback('x_min', self._update_plotly_x_limits)
         self.state.add_callback('x_max', self._update_plotly_x_limits)
+        self.state.add_callback('x_log', self._update_x_log)
         self.state.add_callback('y_min', self._update_plotly_y_limits)
         self.state.add_callback('y_max', self._update_plotly_y_limits)
+        self.state.add_callback('y_log', self._update_y_log)
         self.state.add_callback('show_axes', self._update_axes_visible)
 
         self.axis_x.on_change(lambda _obj, x_range: self._set_x_state_bounds(x_range), 'range')
@@ -99,6 +101,14 @@ class PlotlyBaseView(IPyWidgetView):
 
     def update_y_axislabel(self, label):
         self.axis_y['title'].update(text=label)
+
+    def _update_x_log(self, log):
+        axis_type = 'log' if log else 'linear'
+        self.axis_x.update(type=axis_type)
+
+    def _update_y_log(self, log):
+        axis_type = 'log' if log else 'linear'
+        self.axis_y.update(type=axis_type)
 
     def _update_selection_layer_bounds(self):
         x0 = 0.5 * (self.state.x_min + self.state.x_max)
