@@ -3,6 +3,7 @@ from uuid import uuid4
 
 from echo import delay_callback
 from glue.core.command import ApplySubsetState
+from numpy import log10
 
 import plotly.graph_objects as go
 
@@ -104,11 +105,11 @@ class PlotlyBaseView(IPyWidgetView):
 
     def _update_x_log(self, log):
         axis_type = 'log' if log else 'linear'
-        self.axis_x.update(type=axis_type)
+        self.figure.update_xaxes(type=axis_type, range=self._x_axis_range_from_state())
 
     def _update_y_log(self, log):
         axis_type = 'log' if log else 'linear'
-        self.axis_y.update(type=axis_type)
+        self.figure.update_yaxes(type=axis_type, range=self._y_axis_range_from_state())
 
     def _update_selection_layer_bounds(self):
         x0 = 0.5 * (self.state.x_min + self.state.x_max)
@@ -125,15 +126,27 @@ class PlotlyBaseView(IPyWidgetView):
     def set_selection_callback(self, on_selection):
         self.selection_layer.on_selection(on_selection)
 
+    def _x_axis_range_from_state(self): 
+        x_range = [self.state.x_min, self.state.x_max]
+        if self.state.x_log:
+            x_range = list(log10(x_range))
+        return x_range
+
+    def _y_axis_range_from_state(self): 
+        y_range = [self.state.y_min, self.state.y_max]
+        if self.state.y_log:
+            y_range = list(log10(y_range))
+        return y_range
+
     def _update_plotly_x_limits(self, *args):
         with self.figure.batch_update():
             if self.state.x_min is not None and self.state.x_max is not None:
-                self.axis_x['range'] = [self.state.x_min, self.state.x_max]
+                self.axis_x['range'] = self._x_axis_range_from_state()
 
     def _update_plotly_y_limits(self, *args):
         with self.figure.batch_update():
             if self.state.y_min is not None and self.state.y_max is not None:
-                self.axis_y['range'] = [self.state.y_min, self.state.y_max]
+                self.axis_y['range'] = self._y_axis_range_from_state()
 
     def _update_axes_visible(self, *args):
         with self.figure.batch_update():
@@ -142,11 +155,15 @@ class PlotlyBaseView(IPyWidgetView):
 
     def _set_x_state_bounds(self, x_range):
         with delay_callback(self.state, 'x_min', 'x_max'):
+            if self.state.x_log:
+                x_range = [pow(10, x) for x in x_range]
             self.state.x_min = x_range[0]
             self.state.x_max = x_range[1]
 
     def _set_y_state_bounds(self, y_range):
         with delay_callback(self.state, 'y_min', 'y_max'):
+            if self.state.y_log:
+                y_range = [pow(10, y) for y in y_range]
             self.state.y_min = y_range[0]
             self.state.y_max = y_range[1]
 
