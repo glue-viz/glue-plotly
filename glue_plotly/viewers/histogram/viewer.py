@@ -7,6 +7,7 @@ from glue_jupyter.registries import viewer_registry
 from glue_jupyter.common.state_widgets.layer_histogram import HistogramLayerStateWidget
 from glue_jupyter.common.state_widgets.viewer_histogram import HistogramViewerStateWidget
 from glue_plotly.viewers.histogram.state import PlotlyHistogramViewerState
+from glue_plotly.viewers.histogram.viewer_state_widget import PlotlyHistogramViewerStateWidget
 
 
 __all__ = ["PlotlyHistogramView"]
@@ -23,7 +24,7 @@ class PlotlyHistogramView(PlotlyBaseView):
     allow_duplicate_subset = False
 
     _state_cls = PlotlyHistogramViewerState
-    _options_cls = HistogramViewerStateWidget
+    _options_cls = PlotlyHistogramViewerStateWidget
     _data_artist_cls = PlotlyHistogramLayerArtist
     _subset_artist_cls = PlotlyHistogramLayerArtist
     _layer_style_widget_cls = HistogramLayerStateWidget
