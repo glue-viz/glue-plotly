@@ -3,6 +3,7 @@ from uuid import uuid4
 
 from echo import delay_callback
 from glue.core.command import ApplySubsetState
+from glue.utils import avoid_circular
 from numpy import log10
 
 import plotly.graph_objects as go
@@ -53,10 +54,10 @@ class PlotlyBaseView(IPyWidgetView):
         self.state.add_callback('y_axislabel', self.update_y_axislabel)
         self.state.add_callback('x_min', self._update_plotly_x_limits)
         self.state.add_callback('x_max', self._update_plotly_x_limits)
-        self.state.add_callback('x_log', self._update_x_log)
+        self.state.add_callback('x_log', self._update_x_log, priority=10000)
         self.state.add_callback('y_min', self._update_plotly_y_limits)
         self.state.add_callback('y_max', self._update_plotly_y_limits)
-        self.state.add_callback('y_log', self._update_y_log)
+        self.state.add_callback('y_log', self._update_y_log, priority=10000)
         self.state.add_callback('show_axes', self._update_axes_visible)
 
         self.axis_x.on_change(lambda _obj, x_range: self._set_x_state_bounds(x_range), 'range')
@@ -129,20 +130,22 @@ class PlotlyBaseView(IPyWidgetView):
     def _x_axis_range_from_state(self): 
         x_range = [self.state.x_min, self.state.x_max]
         if self.state.x_log:
-            x_range = list(log10(x_range))
+            x_range = list(log10([float(x) for x in x_range]))
         return x_range
 
     def _y_axis_range_from_state(self): 
         y_range = [self.state.y_min, self.state.y_max]
         if self.state.y_log:
-            y_range = list(log10(y_range))
+            y_range = list(log10([float(y) for y in y_range]))
         return y_range
 
+    @avoid_circular
     def _update_plotly_x_limits(self, *args):
         with self.figure.batch_update():
             if self.state.x_min is not None and self.state.x_max is not None:
                 self.axis_x['range'] = self._x_axis_range_from_state()
 
+    @avoid_circular
     def _update_plotly_y_limits(self, *args):
         with self.figure.batch_update():
             if self.state.y_min is not None and self.state.y_max is not None:
@@ -153,6 +156,7 @@ class PlotlyBaseView(IPyWidgetView):
             self.axis_x.visible = self.state.show_axes
             self.axis_y.visible = self.state.show_axes
 
+    @avoid_circular
     def _set_x_state_bounds(self, x_range):
         with delay_callback(self.state, 'x_min', 'x_max'):
             if self.state.x_log:
@@ -160,6 +164,7 @@ class PlotlyBaseView(IPyWidgetView):
             self.state.x_min = x_range[0]
             self.state.x_max = x_range[1]
 
+    @avoid_circular
     def _set_y_state_bounds(self, y_range):
         with delay_callback(self.state, 'y_min', 'y_max'):
             if self.state.y_log:
