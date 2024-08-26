@@ -127,16 +127,16 @@ class PlotlyBaseView(IPyWidgetView):
     def set_selection_callback(self, on_selection):
         self.selection_layer.on_selection(on_selection)
 
-    def _x_axis_range_from_state(self): 
+    def _x_axis_range_from_state(self):
         x_range = [self.state.x_min, self.state.x_max]
         if self.state.x_log:
-            x_range = list(log10([float(x) for x in x_range]))
+            x_range = tuple(log10([float(x) for x in x_range]))
         return x_range
 
-    def _y_axis_range_from_state(self): 
+    def _y_axis_range_from_state(self):
         y_range = [self.state.y_min, self.state.y_max]
         if self.state.y_log:
-            y_range = list(log10([float(y) for y in y_range]))
+            y_range = tuple(log10([float(y) for y in y_range]))
         return y_range
 
     @avoid_circular
@@ -160,7 +160,7 @@ class PlotlyBaseView(IPyWidgetView):
     def _set_x_state_bounds(self, x_range):
         with delay_callback(self.state, 'x_min', 'x_max'):
             if self.state.x_log:
-                x_range = [pow(10, x) for x in x_range]
+                x_range = tuple(pow(10, x) for x in x_range)
             self.state.x_min = x_range[0]
             self.state.x_max = x_range[1]
 
@@ -168,7 +168,7 @@ class PlotlyBaseView(IPyWidgetView):
     def _set_y_state_bounds(self, y_range):
         with delay_callback(self.state, 'y_min', 'y_max'):
             if self.state.y_log:
-                y_range = [pow(10, y) for y in y_range]
+                y_range = tuple(pow(10, y) for y in y_range)
             self.state.y_min = y_range[0]
             self.state.y_max = y_range[1]
 

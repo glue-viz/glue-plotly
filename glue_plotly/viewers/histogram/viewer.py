@@ -5,7 +5,6 @@ from glue_plotly.viewers.histogram.layer_artist import PlotlyHistogramLayerArtis
 
 from glue_jupyter.registries import viewer_registry
 from glue_jupyter.common.state_widgets.layer_histogram import HistogramLayerStateWidget
-from glue_jupyter.common.state_widgets.viewer_histogram import HistogramViewerStateWidget
 from glue_plotly.viewers.histogram.state import PlotlyHistogramViewerState
 from glue_plotly.viewers.histogram.viewer_state_widget import PlotlyHistogramViewerStateWidget
 
