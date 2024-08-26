@@ -12,6 +12,8 @@ class ExampleState(ViewerState):
     x_max = CallbackProperty(1)
     y_min = CallbackProperty(0)
     y_max = CallbackProperty(1)
+    x_log = CallbackProperty(False)
+    y_log = CallbackProperty(False)
     show_axes = CallbackProperty(True)
 
     def reset_limits(self):
