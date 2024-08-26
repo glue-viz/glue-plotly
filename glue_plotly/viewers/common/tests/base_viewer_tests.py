@@ -1,7 +1,5 @@
 from uuid import UUID
 
-from numpy import log10, float64
-
 
 class BasePlotlyViewTests:
 
@@ -44,7 +42,6 @@ class BasePlotlyViewTests:
     def test_set_x_axis_bounds(self):
         self.viewer.state.x_min = 1
         self.viewer.state.x_max = 25
-        print(self.viewer.axis_x['range'])
         assert self.viewer.axis_x['range'] == (1, 25)
         self.viewer.state.x_log = True
         self.viewer.state.x_min = 10
