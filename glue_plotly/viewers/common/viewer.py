@@ -50,6 +50,8 @@ class PlotlyBaseView(IPyWidgetView):
                                      visible=False)
         self.figure.add_trace(selection_layer)
 
+        # Note that we need the log updates to be high priority for the histogram viewer
+        # so that the axes are updated before the limits are reset
         self.state.add_callback('x_axislabel', self.update_x_axislabel)
         self.state.add_callback('y_axislabel', self.update_y_axislabel)
         self.state.add_callback('x_min', self._update_plotly_x_limits)
