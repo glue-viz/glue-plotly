@@ -93,6 +93,21 @@ def error_bar_info(layer_state, mask):
     return errs
 
 
+_IPYVOLUME_GEOMETRY_SYMBOLS = {
+    "sphere": "circle",
+    "box": "square",
+    "diamond": "diamond",
+    "circle2d": "circle",
+}
+
+
+def symbol_for_geometry(geometry: str) -> str:
+    symbol = _IPYVOLUME_GEOMETRY_SYMBOLS.get(geometry)
+    if symbol is not None:
+        return symbol
+    raise ValueError(f"Invalid geometry: {geometry}")
+
+
 def traces_for_layer(viewer_state, layer_state, hover_data=None, add_data_label=True):
 
     x, y, z, mask = clipped_data(viewer_state, layer_state)
@@ -102,6 +117,10 @@ def traces_for_layer(viewer_state, layer_state, hover_data=None, add_data_label=
                   size=size_info(layer_state, mask),
                   opacity=layer_state.alpha,
                   line=dict(width=0))
+
+    if hasattr(layer_state, "geo"):
+        symbol = symbol_for_geometry(layer_state.geo)
+        marker["symbol"] = symbol
 
     if hover_data is None or np.sum(hover_data) == 0:
         hoverinfo = 'skip'
