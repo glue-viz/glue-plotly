@@ -21,7 +21,14 @@ def dimensions(viewer_state):
 
 
 def projection_type(viewer_state):
-    return "perspective" if viewer_state.perspective_view else "orthographic"
+    return "perspective" if getattr(viewer_state, "perspective_view", True) else "orthographic"
+
+
+# TODO: Update other methods to not rely on these being reversed
+def bounds(viewer_state):
+    return [(viewer_state.z_min, viewer_state.z_max),
+            (viewer_state.y_min, viewer_state.y_max),
+            (viewer_state.x_min, viewer_state.x_max)]
 
 
 def axis(viewer_state, ax):
@@ -84,6 +91,9 @@ def plotly_up_from_vispy(vispy_up):
 
 def layout_config(viewer_state):
     width, height, depth = dimensions(viewer_state)
+    x_stretch = getattr(viewer_state, "x_stretch", 1.)
+    y_stretch = getattr(viewer_state, "y_stretch", 1.)
+    z_stretch = getattr(viewer_state, "z_stretch", 1.)
     return dict(
         margin=dict(r=50, l=50, b=50, t=50),  # noqa
         width=1200,
@@ -99,9 +109,9 @@ def layout_config(viewer_state):
                 # Currently there's no way to change this in glue
                 up=plotly_up_from_vispy("+z")
             ),
-            aspectratio=dict(x=1 * viewer_state.x_stretch,
-                             y=height / width * viewer_state.y_stretch,
-                             z=depth / width * viewer_state.z_stretch),
+            aspectratio=dict(x=1 * x_stretch,
+                             y=height / width * y_stretch,
+                             z=depth / width * z_stretch),
             aspectmode='manual'
         )
     )
