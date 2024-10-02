@@ -26,7 +26,7 @@ class PlotlyScatter3DStaticExport(JupyterBaseExportTool):
 
         layers = layers_to_export(self.viewer)
         add_data_label = data_count(layers) > 1
-        bds = bounds(self.viewer.state)
+        bds = bounds(self.viewer.state, with_resolution=True)
         count = 5
         for layer in layers:
             if isinstance(layer, ScatterLayerArtist):

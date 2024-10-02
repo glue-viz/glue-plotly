@@ -24,11 +24,34 @@ def projection_type(viewer_state):
     return "perspective" if getattr(viewer_state, "perspective_view", True) else "orthographic"
 
 
+def get_resolution(viewer_state):
+    try:
+        from glue_vispy_viewers.volume.viewer_state import Vispy3DVolumeViewerState
+        if isinstance(viewer_state, Vispy3DVolumeViewerState):
+            return viewer_state.resolution
+    except ImportError:
+        pass
+
+    try:
+        from glue_jupyter.common.state3d import VolumeViewerState
+        if isinstance(viewer_state, VolumeViewerState):
+            return max((getattr(state, 'max_resolution', 256) for state in viewer_state.layers), default=256)
+    except ImportError:
+        pass
+
+    return 256
+
+
 # TODO: Update other methods to not rely on these being reversed
-def bounds(viewer_state):
-    return [(viewer_state.z_min, viewer_state.z_max),
-            (viewer_state.y_min, viewer_state.y_max),
-            (viewer_state.x_min, viewer_state.x_max)]
+def bounds(viewer_state, with_resolution=False):
+    bds = [(viewer_state.z_min, viewer_state.z_max),
+           (viewer_state.y_min, viewer_state.y_max),
+           (viewer_state.x_min, viewer_state.x_max)]
+    if with_resolution:
+        resolution = get_resolution(viewer_state)
+        return [(*b, resolution) for b in bds]
+
+    return bds
 
 
 def axis(viewer_state, ax):
