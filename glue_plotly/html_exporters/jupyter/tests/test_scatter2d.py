@@ -6,9 +6,9 @@ from pytest import importorskip
 
 importorskip('glue_jupyter')
 
-from glue_jupyter.bqplot.scatter import BqplotScatterView  # noqa
+from glue_jupyter.bqplot.scatter import BqplotScatterView  # noqa: E402
 
-from .test_base import BaseTestJupyterExporter  # noqa
+from .test_base import BaseTestJupyterExporter  # noqa: E402
 
 
 class TestScatter2D(BaseTestJupyterExporter):

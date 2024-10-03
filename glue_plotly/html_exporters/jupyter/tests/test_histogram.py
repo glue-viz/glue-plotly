@@ -6,9 +6,9 @@ from pytest import importorskip
 
 importorskip('glue_jupyter')
 
-from glue_jupyter.bqplot.histogram import BqplotHistogramView  # noqa
+from glue_jupyter.bqplot.histogram import BqplotHistogramView  # noqa: E402
 
-from .test_base import BaseTestJupyterExporter  # noqa
+from .test_base import BaseTestJupyterExporter  # noqa: E402
 
 
 class TestHistogram(BaseTestJupyterExporter):

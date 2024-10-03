@@ -1,13 +1,13 @@
 import os
 
 from glue.core import Data
-from glue_plotly.html_exporters.jupyter.tests.test_base import BaseTestJupyterExporter 
+from glue_plotly.html_exporters.jupyter.tests.test_base import BaseTestJupyterExporter
 
 from pytest import importorskip
 
 importorskip('glue_jupyter')
 
-from glue_jupyter.ipyvolume import IpyvolumeScatterView
+from glue_jupyter.ipyvolume import IpyvolumeScatterView  # noqa: E402
 
 
 class TestScatter3D(BaseTestJupyterExporter):

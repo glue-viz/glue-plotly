@@ -7,14 +7,14 @@ from pytest import importorskip
 
 importorskip('glue_jupyter')
 
-from glue_jupyter.ipyvolume import IpyvolumeVolumeView
+from glue_jupyter.ipyvolume import IpyvolumeVolumeView  # noqa: E402
 
 from numpy import arange, ones  # noqa: E402
 
 
 class TestVolume(BaseTestJupyterExporter):
 
-    viewer_type = IpyvolumeVolumeView 
+    viewer_type = IpyvolumeVolumeView
     tool_id = 'save:jupyter_plotlyvolume'
 
     def make_data(self):
