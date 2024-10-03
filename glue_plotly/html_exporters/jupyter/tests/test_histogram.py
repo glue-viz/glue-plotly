@@ -8,10 +8,10 @@ importorskip('glue_jupyter')
 
 from glue_jupyter.bqplot.histogram import BqplotHistogramView  # noqa
 
-from .test_base import TestBqplotExporter  # noqa
+from .test_base import BaseTestJupyterExporter  # noqa
 
 
-class TestHistogram(TestBqplotExporter):
+class TestHistogram(BaseTestJupyterExporter):
 
     viewer_type = BqplotHistogramView
     tool_id = 'save:bqplot_plotlyhist'

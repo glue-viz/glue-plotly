@@ -1,20 +1,19 @@
 import os
 
 from glue.core import Data
+from glue_plotly.html_exporters.jupyter.tests.test_base import BaseTestJupyterExporter 
 
 from pytest import importorskip
 
 importorskip('glue_jupyter')
 
-from glue_jupyter.bqplot.scatter import BqplotScatterView  # noqa
-
-from .test_base import BaseTestJupyterExporter  # noqa
+from glue_jupyter.ipyvolume import IpyvolumeScatterView
 
 
-class TestScatter2D(BaseTestJupyterExporter):
+class TestScatter3D(BaseTestJupyterExporter):
 
-    viewer_type = BqplotScatterView
-    tool_id = 'save:bqplot_plotly2d'
+    viewer_type = IpyvolumeScatterView
+    tool_id = 'save:jupyter_plotly3dscatter'
 
     def make_data(self):
         return Data(x=[1, 2, 3], y=[4, 5, 6], z=[7, 8, 9], label='d1')
