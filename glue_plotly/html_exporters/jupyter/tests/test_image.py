@@ -6,14 +6,14 @@ from pytest import importorskip
 
 importorskip('glue_jupyter')
 
-from glue_jupyter.bqplot.image import BqplotImageView  # noqa
+from glue_jupyter.bqplot.image import BqplotImageView  # noqa: E402
 
-from numpy import arange, ones  # noqa
+from numpy import arange, ones  # noqa: E402
 
-from .test_base import TestBqplotExporter  # noqa
+from .test_base import BaseTestJupyterExporter  # noqa: E402
 
 
-class TestImage(TestBqplotExporter):
+class TestImage(BaseTestJupyterExporter):
 
     viewer_type = BqplotImageView
     tool_id = 'save:bqplot_plotlyimage2d'

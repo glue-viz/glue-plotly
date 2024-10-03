@@ -1,21 +1,20 @@
 import os
 
 from glue.core import Data
-from glue_plotly.html_exporters.jupyter.tests.test_base import TestBqplotExporter
+from glue_plotly.html_exporters.jupyter.tests.test_base import BaseTestJupyterExporter
 
 from pytest import importorskip
 
 importorskip('glue_jupyter')
-importorskip('glue_vispy_viewers')
 
-from glue_vispy_viewers.volume.jupyter import JupyterVispyVolumeViewer  # noqa: E402
+from glue_jupyter.ipyvolume import IpyvolumeVolumeView  # noqa: E402
 
 from numpy import arange, ones  # noqa: E402
 
 
-class TestVolume(TestBqplotExporter):
+class TestVolume(BaseTestJupyterExporter):
 
-    viewer_type = JupyterVispyVolumeViewer
+    viewer_type = IpyvolumeVolumeView
     tool_id = 'save:jupyter_plotlyvolume'
 
     def make_data(self):

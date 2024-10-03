@@ -6,12 +6,12 @@ from pytest import importorskip
 
 importorskip('glue_jupyter')
 
-from glue_jupyter.bqplot.histogram import BqplotHistogramView  # noqa
+from glue_jupyter.bqplot.histogram import BqplotHistogramView  # noqa: E402
 
-from .test_base import TestBqplotExporter  # noqa
+from .test_base import BaseTestJupyterExporter  # noqa: E402
 
 
-class TestHistogram(TestBqplotExporter):
+class TestHistogram(BaseTestJupyterExporter):
 
     viewer_type = BqplotHistogramView
     tool_id = 'save:bqplot_plotlyhist'

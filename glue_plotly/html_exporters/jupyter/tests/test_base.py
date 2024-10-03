@@ -1,7 +1,7 @@
 from glue_jupyter import jglue
 
 
-class TestBqplotExporter:
+class BaseTestJupyterExporter:
 
     viewer_type = None
     tool_id = None

@@ -1,5 +1,8 @@
 from re import match, sub
 
+from glue.core import BaseData
+from glue.viewers.common.state import LayerState
+
 __all__ = [
     'cleaned_labels',
     'mpl_ticks_values',
@@ -93,3 +96,35 @@ def rgba_components(color):
 def components_to_hex(r, g, b, a=None):
     components = [hex_string(t) for t in (r, g, b, a) if t is not None]
     return f"#{''.join(components)}"
+
+
+def data_for_layer(layer_or_state):
+    if isinstance(layer_or_state.layer, BaseData):
+        return layer_or_state.layer
+    else:
+        return layer_or_state.layer.data
+
+
+def frb_for_layer(viewer_state,
+                  layer_or_state,
+                  bounds):
+
+    data = data_for_layer(layer_or_state)
+    layer_state = layer_or_state if isinstance(layer_or_state, LayerState) else layer_or_state.state
+    is_data_layer = data is layer_or_state.layer
+    target_data = getattr(viewer_state, 'reference_data', data)
+    data_frb = data.compute_fixed_resolution_buffer(
+        target_data=target_data,
+        bounds=bounds,
+        target_cid=layer_state.attribute
+    )
+
+    if is_data_layer:
+        return data_frb
+    else:
+        subcube = data.compute_fixed_resolution_buffer(
+            target_data=target_data,
+            bounds=bounds,
+            subset_state=layer_state.layer.subset_state
+        )
+        return subcube * data_frb

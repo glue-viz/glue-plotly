@@ -90,6 +90,16 @@ def setup_jupyter():
     from glue_jupyter.bqplot.image import BqplotImageView
     from glue_jupyter.bqplot.profile import BqplotProfileView
     from glue_jupyter.bqplot.scatter import BqplotScatterView
+    from glue_jupyter.ipyvolume import IpyvolumeScatterView, IpyvolumeVolumeView
+
+    from glue_jupyter.ipyvolume.common.viewer import IpyvolumeBaseView
+    print(IpyvolumeBaseView.tools)
+    BqplotHistogramView.tools += ['save:bqplot_plotlyhist']
+    BqplotImageView.tools += ['save:bqplot_plotlyimage2d']
+    BqplotProfileView.tools += ['save:bqplot_plotlyprofile']
+    BqplotScatterView.tools += ['save:bqplot_plotly2d']
+    IpyvolumeScatterView.tools = [tool for tool in IpyvolumeScatterView.tools] + ['save:jupyter_plotly3dscatter']
+    IpyvolumeVolumeView.tools = [tool for tool in IpyvolumeVolumeView.tools] + ['save:jupyter_plotlyvolume']
 
     try:
         from glue_vispy_viewers.scatter.jupyter import JupyterVispyScatterViewer
@@ -99,8 +109,3 @@ def setup_jupyter():
     else:
         JupyterVispyScatterViewer.tools += ['save:jupyter_plotly3dscatter']
         JupyterVispyVolumeViewer.tools += ['save:jupyter_plotlyvolume']
-
-    BqplotHistogramView.tools += ['save:bqplot_plotlyhist']
-    BqplotImageView.tools += ['save:bqplot_plotlyimage2d']
-    BqplotProfileView.tools += ['save:bqplot_plotlyprofile']
-    BqplotScatterView.tools += ['save:bqplot_plotly2d']

@@ -1,4 +1,4 @@
-from glue_plotly.utils import rgba_components
+from glue_plotly.utils import frb_for_layer, rgba_components
 from numpy import linspace, meshgrid, nan_to_num, nanmin
 
 from glue.core import BaseData
@@ -30,23 +30,9 @@ def values(viewer_state, layer_state, bounds, precomputed=None):
     parent = layer_state.layer.data if subset_layer else layer_state.layer
     parent_label = parent.label
     if precomputed is not None and parent_label in precomputed:
-        data = precomputed[parent_label]
+        values = precomputed[parent_label]
     else:
-        data = parent.compute_fixed_resolution_buffer(
-                   target_data=viewer_state.reference_data,
-                   bounds=bounds,
-                   target_cid=layer_state.attribute
-               )
-
-    if subset_layer:
-        subcube = parent.compute_fixed_resolution_buffer(
-            target_data=viewer_state.reference_data,
-            bounds=bounds,
-            subset_state=layer_state.layer.subset_state
-        )
-        values = subcube * data
-    else:
-        values = data
+        values = frb_for_layer(viewer_state, layer_state, bounds)
 
     # This accounts for two transformations: the fact that the viewer bounds are in reverse order,
     # plus a need to change R -> L handedness for Plotly

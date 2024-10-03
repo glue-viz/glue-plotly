@@ -1,7 +1,7 @@
 import os
 
 from glue.core import Data
-from glue_plotly.html_exporters.jupyter.tests.test_base import TestBqplotExporter
+from glue_plotly.html_exporters.jupyter.tests.test_base import BaseTestJupyterExporter
 
 from pytest import importorskip
 
@@ -11,7 +11,7 @@ importorskip('glue_vispy_viewers')
 from glue_vispy_viewers.scatter.jupyter import JupyterVispyScatterViewer  # noqa: E402
 
 
-class TestScatter3D(TestBqplotExporter):
+class TestScatter3D(BaseTestJupyterExporter):
 
     viewer_type = JupyterVispyScatterViewer
     tool_id = 'save:jupyter_plotly3dscatter'
