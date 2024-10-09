@@ -6,7 +6,7 @@ from glue_qt.app import GlueApplication
 from glue_qt.viewers.histogram import HistogramViewer
 
 from glue_plotly.common import sanitize
-from glue_plotly.common.dotplot import traces_for_layer
+from glue_plotly.common.dotplot import dot_radius, traces_for_layer
 
 from glue_plotly.viewers.histogram.viewer import PlotlyHistogramView
 from glue_plotly.viewers.histogram.dotplot_layer_artist import PlotlyDotplotLayerArtist
@@ -76,3 +76,15 @@ class TestDotplot:
 
         assert dots.y == expected_y
         assert dots.marker.size == 16  # Default figure is 640x480
+
+    def test_dot_radius_defined(self):
+        """
+        This test makes sure that we correctly get the default value for the dot radius
+        when both axes have no range.
+        """
+        self.viewer.state.x_min = 1
+        self.viewer.state.x_max = 1
+        self.viewer.state.y_min = 1
+        self.viewer.state.y_max = 1
+
+        assert dot_radius(self.viewer, self.layer.state) == 0.5

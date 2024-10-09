@@ -1,5 +1,6 @@
 from uuid import uuid4
 
+from numpy import isfinite
 from plotly.graph_objs import Scatter
 
 from glue.core import BaseData
@@ -17,6 +18,8 @@ def dot_radius(viewer, layer_state):
         max_diam_world_v = 1
         diam_pixel_v = max_diam_world_v * height / abs(viewer_state.y_max - viewer_state.y_min)
         diam = min(diam_pixel_v, diam)
+    if not isfinite(diam):
+        diam = 1
     return diam / 2
 
 
