@@ -1,5 +1,21 @@
 # Full changelog
 
+## v0.10.0 - 2024-10-09
+
+<!-- Release notes generated using configuration in .github/release.yml at main -->
+### What's Changed
+
+#### New Features
+
+* Log axes for viewers by @Carifio24 in https://github.com/glue-viz/glue-plotly/pull/88
+* Add support for ipyvolume viewers by @Carifio24 in https://github.com/glue-viz/glue-plotly/pull/92
+
+#### Bug Fixes
+
+* Prevent non-finite dot radius by @Carifio24 in https://github.com/glue-viz/glue-plotly/pull/93
+
+**Full Changelog**: https://github.com/glue-viz/glue-plotly/compare/v0.9.0...v0.10.0
+
 ## v0.9.0 - 2024-08-20
 
 <!-- Release notes generated using configuration in .github/release.yml at main -->
