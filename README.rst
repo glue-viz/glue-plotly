@@ -46,8 +46,7 @@ Chart Studio
 ============
 
 The Chart Studio exporter allows exporting a Qt glue session to Chart Studio, provided that all of the
-viewers in the session are supported. Currently supported viewers are the matplotlib scatter, histogram,
-and profile viewers.
+viewers in the session are supported. Currently supported viewers are the matplotlib scatter, histogram, profile, and dendrogram viewers.
 
 To access the exporter inside Qt glue, navigate to File > Advanced Exporters > Plotly.
 
