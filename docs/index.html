@@ -1,0 +1,112 @@
+<!DOCTYPE HTML>
+<!--
+	Arcana by HTML5 UP
+	html5up.net | @n33co
+	Free for personal and commercial use under the CCA 3.0 license (html5up.net/license)
+-->
+
+<html>
+  <head>
+    <script async src="https://www.googletagmanager.com/gtag/js?id=UA-76450307-1"></script>
+		<script>
+			window.dataLayer = window.dataLayer || [];
+			function gtag(){dataLayer.push(arguments);}
+			gtag('js', new Date());
+
+			gtag('config', 'UA-76450307-1');
+		</script>
+
+		<title>glue-plotly: Plot.ly Plugin For glue</title>
+		<meta charset="utf-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1" />
+		<link rel="icon" href="favicon.ico">
+		<!--[if lte IE 8]><script src="assets/js/ie/html5shiv.js"></script><![endif]-->
+		<link rel="stylesheet" href="assets/css/main.css" />
+  </head>
+
+  <body>
+    <div id="header">
+      <img height=50 src="assets/img/logo.png">
+      <h1 id="logo">glue-plotly</h1>
+      <img height=50 src="assets/img/plotly.png">
+    </div>
+
+    <nav id="nav">
+      <ul>
+        <li><a href="#overview">Overview</a></li>
+        <li><a href="#quickstart">Quickstart</a></li>
+        <li><a href="#html-exporters">HTML Exporters</a></li>
+        <li><a href="#chart-studio">Chart Studio</a></li>
+        <li><a href="#viewers">Viewers</a></li>
+      </ul>
+    </nav>
+
+    <section id="overview" class="nav-item container">
+      <h2>Overview</h2>
+      <p>glue-plotly is a plugin for the <a href="https://glueviz.org">glue</a> visualization software which connections glue to <a href="https://plotly.com/">Plotly</a>. This consists of three main pieces of functionality:
+      <div class="row 200%">
+        <section class="4u (12u narrower)">
+          <div class="box highlight">
+            <h3>Standalone HTML Exporters</h3>
+            <p>Export glue viewers directly to interactive Plotly HTML pages. Exported HTML is completely standalone and can be used with any static file hosting service, to allow easily sharing interactive figures with your audience.</p>
+
+          </div>
+        </section>
+
+        <section class="4u 12u(narrower)">
+          <div class="box highlight">
+            <h3>Chart Studio Exporter</h3>
+            <p>Export a Qt glue session to Plotly's <a href="https://chart-studio.plotly.com">Chart Studio</a></p>
+          </div>
+        </section>
+
+        <section class="4u 12u(narrower)">
+          <div class="box highlight">
+            <h3>Viewers</h3>
+            <p>Two experimental Plotly-powered viewers which can be used with glue-jupyter: a scatter viewer and a histogram viewer. See the examples below for guidance on how to use these in your project.</p>
+          </div>
+        </section>
+      </div>
+    </section>
+
+    <hr class="divider">
+
+    <section id="quickstart" class="nav-item container">
+      <h2>Quickstart</h2>
+      <p>glue-plotly is installable via pip via the command below. Once installed, see the following sections for information on how to access the exporters and viewers.</p>
+      <p><code>pip install glue-plotly</code><span class="icon fa-copy"></p>
+      <p>For developers, you can find the source code on our <a href="https://github.com/glue-viz/glue-plotly">GitHub repository</a>.</p>
+    </section>
+
+    <hr class="divider">
+
+    <section id="html-exporters" class="nav-item container">
+      <h2>HTML Exporters</h2>
+      <p>The HTML exporters are exposed as viewer tools in both the Qt and Jupyter versions of glue.</p>
+      <p>For Qt glue, the exporters are located in the "save" tool menu:</p>
+      <img src="assets/img/QtToolbarExport.gif">
+      <p>The Jupyter glue viewers don't yet support subtools, so the Plotly exporters are top-level tools in the toolbar:</p>
+      <img src="assets/img/BqplotToolbarHighlighted.png">
+      <p>HTML export is supported for a variety of glue viewers:</p>
+      <ul>
+        <li>All built-in viewers in Qt glue: scatter, histogram, profile, image, dendrogram, and table</li>
+        <li>The 3D scatter and volume viewers from <a href="https://docs.glueviz.org/en/stable/gui_guide/3d_viewers.html">glue-vispy-viewers</a></li>
+        <li>Several of the glue-jupyter bqplot viewers: scatter, image, profile, and histogram</li>
+      </ul>
+    </section>
+
+    <section id="chart-studio" class="nav-item container">
+      <h2>Chart Studio Exporter</h2>
+      <p>The Chart Studio exporter allows exporting a Qt glue session to Chart Studio, provided that all of the viewers in the session are supported. Currently, we support the following Qt viewers: scatter, histogram, profile, and dendrogram.</p>
+      <p>To access the exporter in Qt glue, navigate to File &gt; Advanced Exporters &gt; Plotly</p>
+      <img src="assets/img/QtChartStudioExport.gif">
+    </section>
+
+    <section id="viewers" class="nav-item container">
+      <h2>Viewers</h2>
+      <p>glue-plotly contains two experimental Plotly-powered viewers for use with glue-jupyter: a scatter viewer and a histogram viewer. If you're working with integral data, we also provide the ability to visualize histograms as dotplots.</p>
+      <p>For examples of using these, see <a href="PlotlyViewerExample.ipynb">this notebook</a>, which demonstrates necessary imports, viewer creation, and manipulating viewer options.</p>
+    </section>
+  </body>
+
+</html>
