@@ -61,7 +61,7 @@ Viewers
 This package contains two experimental Plotly-powered viewers which can be used with glue-jupyter - a
 scatter viewer and a histogram viewer. More viewers to come in the future!
 
-`This notebook <https://github.com/glue-viz/glue-plotly/blob/main/doc/PlotlyViewerExample.ipynb>`_ demonstrates
+`This notebook <https://github.com/glue-viz/glue-plotly/blob/main/docs/PlotlyViewerExample.ipynb>`_ demonstrates
 basic usage of the these viewers, such as importing and viewer creation.
 
 
@@ -81,9 +81,9 @@ Package Structure
 .. |Coverage Status| image:: https://codecov.io/gh/glue-viz/glue-plotly/branch/master/graph/badge.svg
     :target: https://codecov.io/gh/glue-viz/glue-plotly
     :alt: Glue-plotly's Coverage Status
-.. |Qt toolbar demo| image:: https://raw.githubusercontent.com/glue-viz/glue-plotly/main/doc/QtToolbarExport.gif
+.. |Qt toolbar demo| image:: https://raw.githubusercontent.com/glue-viz/glue-plotly/main/docs/assets/img/QtToolbarExport.gif
     :alt: Qt Plotly export demo
-.. |bqplot toolbar| image:: https://raw.githubusercontent.com/glue-viz/glue-plotly/main/doc/BqplotToolbarHighlighted.png
+.. |bqplot toolbar| image:: https://raw.githubusercontent.com/glue-viz/glue-plotly/main/docs/assets/img/BqplotToolbarHighlighted.png
     :alt: bqplot Plotly export tool
-.. |Chart Studio demo| image:: https://raw.githubusercontent.com/glue-viz/glue-plotly/main/doc/QtChartStudioExport.gif
+.. |Chart Studio demo| image:: https://raw.githubusercontent.com/glue-viz/glue-plotly/main/docs/assets/img/QtChartStudioExport.gif
     :alt: Qt Chart Studio export demo
