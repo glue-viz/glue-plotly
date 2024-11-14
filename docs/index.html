@@ -92,25 +92,46 @@
     <section id="html-exporters" class="nav-item container">
       <h2>HTML Exporters</h2>
       <p>The HTML exporters are exposed as viewer tools in both the Qt and Jupyter versions of glue.</p>
-      <p>For Qt glue, the exporters are located in the "save" tool menu:</p>
-      <img src="assets/img/QtToolbarExport.gif">
-      <p>The Jupyter glue viewers don't yet support subtools, so the Plotly exporters are top-level tools in the toolbar:</p>
-      <img src="assets/img/BqplotToolbarHighlighted.png">
+     
+      <div class="row 200%">
+        <section class="6u 12u(narrower)">
+          <p>For Qt glue, the exporters are located in the "save" tool menu:</p>
+          <img src="assets/img/QtToolbarExport.gif">
+        </section>
+        <section class="6u 12u(narrower)">
+          <p>The Jupyter glue viewers don't yet support subtools, so the Plotly exporters are top-level tools in the toolbar:</p>
+          <img src="assets/img/BqplotToolbarHighlighted.png">
+        </section>
+      </div>
+
+      <h3>Supported viewers</h3>
       <p>HTML export is supported for a variety of glue viewers:</p>
       <ul>
         <li>All built-in viewers in Qt glue: scatter, histogram, profile, image, dendrogram, and table</li>
         <li>The 3D scatter and volume viewers from <a href="https://docs.glueviz.org/en/stable/gui_guide/3d_viewers.html">glue-vispy-viewers</a></li>
         <li>Several of the glue-jupyter bqplot viewers: scatter, image, profile, and histogram</li>
       </ul>
+
+      <h3>Example</h3>
+      <p>The figure below is an example of an interactive Plotly graph that was exported directly from glue!</p>
+      <div id="airplanes-container">
+        <iframe id="airplanes" src="airplanes.html" scrolling="no"></iframe>
+      </div>
     </section>
 
     <section id="chart-studio" class="nav-item container">
       <h2>Chart Studio Exporter</h2>
       <p>The Chart Studio exporter allows exporting a Qt glue session to Chart Studio, provided that all of the viewers in the session are supported. Currently, we support the following Qt viewers: scatter, histogram, profile, and dendrogram.</p>
-      <p>To access the exporter in Qt glue, navigate to File &gt; Advanced Exporters &gt; Plotly</p>
-      <img src="assets/img/QtChartStudioExport.gif">
-      <p>You can also watch a video demonstrating the Chart Studio exporter in action:</p>
-      <iframe width="560" height="315" src="https://www.youtube.com/embed/-jqB7whGuvs?si=Zm1sssNSKqEN36X9" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe>
+      <div class="row 200%">
+        <section class="6u 12u(narrower)">
+          <p>To access the exporter in Qt glue, navigate to File &gt; Advanced Exporters &gt; Plotly:</p>
+          <img src="assets/img/QtChartStudioExport.gif">
+        </section>
+        <section class="6u 12u(narrower)">
+          <p>Watch a video demonstrating the Chart Studio exporter in action:</p>
+          <iframe width="560" height="315" src="https://www.youtube.com/embed/-jqB7whGuvs?si=Zm1sssNSKqEN36X9" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe>
+        </section>
+      </div>
     </section>
 
     <section id="viewers" class="nav-item container">
