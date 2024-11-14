@@ -45,8 +45,11 @@
       <h2>Overview</h2>
       <p>glue-plotly is a plugin for the <a href="https://glueviz.org">glue</a> visualization software which connections glue to <a href="https://plotly.com/">Plotly</a>. This consists of three main pieces of functionality:
       <div class="row 200%">
-        <section class="4u (12u narrower)">
+        <section class="4u 12u(narrower)">
           <div class="box highlight">
+            <div class="highlight-image-container">
+              <img id="plotly-text-logo" class="highlight-image" height=150 src="assets/img/plotly_text.svg">
+            </div>
             <h3>Standalone HTML Exporters</h3>
             <p>Export glue viewers directly to interactive Plotly HTML pages. Exported HTML is completely standalone and can be used with any static file hosting service, to allow easily sharing interactive figures with your audience.</p>
 
@@ -55,6 +58,9 @@
 
         <section class="4u 12u(narrower)">
           <div class="box highlight">
+            <div class="highlight-image-container">
+              <img id="chart-studio-logo" class="highlight-image" height=150 src="assets/img/chart_studio.svg">
+            </div>
             <h3>Chart Studio Exporter</h3>
             <p>Export a Qt glue session to Plotly's <a href="https://chart-studio.plotly.com">Chart Studio</a></p>
           </div>
@@ -62,6 +68,9 @@
 
         <section class="4u 12u(narrower)">
           <div class="box highlight">
+            <div class="highlight-image-container">
+              <img id="histogram-viewer-image" class="highlight-image" src="assets/img/HistogramViewer.png">
+            </div>
             <h3>Viewers</h3>
             <p>Two experimental Plotly-powered viewers which can be used with glue-jupyter: a scatter viewer and a histogram viewer. See the examples below for guidance on how to use these in your project.</p>
           </div>
@@ -100,6 +109,8 @@
       <p>The Chart Studio exporter allows exporting a Qt glue session to Chart Studio, provided that all of the viewers in the session are supported. Currently, we support the following Qt viewers: scatter, histogram, profile, and dendrogram.</p>
       <p>To access the exporter in Qt glue, navigate to File &gt; Advanced Exporters &gt; Plotly</p>
       <img src="assets/img/QtChartStudioExport.gif">
+      <p>You can also watch a video demonstrating the Chart Studio exporter in action:</p>
+      <iframe width="560" height="315" src="https://www.youtube.com/embed/-jqB7whGuvs?si=Zm1sssNSKqEN36X9" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe>
     </section>
 
     <section id="viewers" class="nav-item container">
