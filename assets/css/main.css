@@ -3210,6 +3210,44 @@
     }
 }
 
+.highlight-image-container {
+  width: 100%;
+  height: 300px;
+}
+
+.highlight-image {
+  width: 100%;
+  margin: auto;
+  position: relative;
+  top: 50%;
+  transform: translateY(-50%);
+}
+
+#plotly-text-logo {
+  aspect-ratio: 1100 / 417;
+}
+
+#chart-studio-logo {
+  aspect-ratio: 74 / 41;
+}
+
+#histogram-viewer-image {
+  aspect-ratio: 5 / 3;
+  max-height: 300px;
+}
+
+#airplanes-container {
+  overflow: hidden;
+  width: fit-content;
+  margin: auto;
+}
+
+#airplanes {
+  height: 400px;
+  width: 605px;
+}
+
+
 /*
 .img-link img {
   transition: height 0.25s;
