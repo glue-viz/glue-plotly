@@ -88,8 +88,8 @@ class TestScatter2DRectilinear(TestScatter2D):
         assert common_items.items() <= x_axis.items()
         assert common_items.items() <= y_axis.items()
 
-        assert x_axis['title'] == 'X Axis'
-        assert y_axis['title'] == 'Y Axis'
+        assert x_axis['title']['text'] == 'X Axis'
+        assert y_axis['title']['text'] == 'Y Axis'
         assert x_axis['type'] == 'log' if log_x else 'linear'
         assert y_axis['type'] == 'log' if log_y else 'linear'
 
@@ -105,8 +105,8 @@ class TestScatter2DRectilinear(TestScatter2D):
         assert y_axis['range'] == expected_y_range
 
         base_font_dict = dict(family=DEFAULT_FONT, color=settings.FOREGROUND_COLOR)
-        assert x_axis['titlefont'] == dict(**base_font_dict, size=24)
-        assert y_axis['titlefont'] == dict(**base_font_dict, size=16)
+        assert x_axis['title']['font'] == dict(**base_font_dict, size=24)
+        assert y_axis['title']['font'] == dict(**base_font_dict, size=16)
         assert x_axis['tickfont'] == dict(**base_font_dict, size=9)
         assert y_axis['tickfont'] == dict(**base_font_dict, size=18)
 

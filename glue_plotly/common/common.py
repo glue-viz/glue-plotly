@@ -64,11 +64,13 @@ def base_rectilinear_axis(viewer_state, axis):
     range = [getattr(viewer_state, f'{axis}_min'), getattr(viewer_state, f'{axis}_max')]
     log = getattr(viewer_state, f'{axis}_log')
     axis_dict = dict(
-        title=title,
-        titlefont=dict(
-            family=DEFAULT_FONT,
-            size=2 * axislabel_size,
-            color=settings.FOREGROUND_COLOR
+        title=dict(
+            text=title,
+            font=dict(
+                family=DEFAULT_FONT,
+                size=2 * axislabel_size,
+                color=settings.FOREGROUND_COLOR
+            )
         ),
         showspikes=False,
         linecolor=settings.FOREGROUND_COLOR,
