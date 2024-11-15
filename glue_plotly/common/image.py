@@ -92,21 +92,25 @@ def axes_data_from_mpl(viewer):
 
             if axis == 'b':
                 axis_info.update(
-                    title=viewer.axes.get_xlabel(),
-                    titlefont=dict(
-                        family=DEFAULT_FONT,
-                        size=2 * axes.xaxis.get_label().get_size(),
-                        color=settings.FOREGROUND_COLOR
+                    title=dict(
+                        text=viewer.axes.get_xlabel(),
+                        font=dict(
+                            family=DEFAULT_FONT,
+                            size=2 * axes.xaxis.get_label().get_size(),
+                            color=settings.FOREGROUND_COLOR
+                        )
                     )
                 )
                 axes_data['xaxis'] = axis_info
             elif axis == 'l':
                 axis_info.update(
-                    title=viewer.axes.get_ylabel(),
-                    titlefont=dict(
-                        family=DEFAULT_FONT,
-                        size=2 * axes.yaxis.get_label().get_size(),
-                        color=settings.FOREGROUND_COLOR
+                    title=dict(
+                        text=viewer.axes.get_ylabel(),
+                        font=dict(
+                            family=DEFAULT_FONT,
+                            size=2 * axes.yaxis.get_label().get_size(),
+                            color=settings.FOREGROUND_COLOR
+                        )
                     )
                 )
                 axes_data['yaxis'] = axis_info
