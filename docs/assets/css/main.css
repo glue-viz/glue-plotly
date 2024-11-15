@@ -3236,15 +3236,25 @@
   max-height: 300px;
 }
 
-#airplanes-container {
+.example-container {
   overflow: hidden;
   width: fit-content;
   margin: auto;
 }
 
-#airplanes {
+.example-iframe {
   height: 400px;
-  width: 605px;
+  width: 610px;
+}
+
+.flex-row {
+  width: 100%;
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: 2em 5px;
 }
 
 
