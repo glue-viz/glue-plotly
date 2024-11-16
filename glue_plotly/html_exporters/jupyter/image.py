@@ -28,6 +28,7 @@ class PlotlyImageBqplotExport(JupyterBaseExportTool):
         config.update(**ax)
         secondary_x = 'xaxis2' in ax
         secondary_y = 'yaxis2' in ax
+        config["showlegend"] = len(layers) > 1
 
         if secondary_x or secondary_y:
             fig = make_subplots(specs=[[{"secondary_y": True}]], horizontal_spacing=0, vertical_spacing=0)
