@@ -3247,6 +3247,11 @@
   width: 610px;
 }
 
+.example-image {
+  width: 100%;
+  max-width: 550px;
+}
+
 .flex-row {
   width: 100%;
   display: flex;
