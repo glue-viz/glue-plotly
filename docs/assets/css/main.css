@@ -3262,6 +3262,12 @@
   gap: 2em 5px;
 }
 
+#chart-studio-video {
+  width: 100%;
+  max-width: 560px;
+  height: 315px;
+}
+
 
 /*
 .img-link img {
