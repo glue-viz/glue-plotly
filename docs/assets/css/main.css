@@ -3223,6 +3223,12 @@
   transform: translateY(-50%);
 }
 
+@media screen and (max-width: 840px) {
+  .highlight-image-container {
+    height: 200px;
+  }
+}
+
 #plotly-text-logo {
   aspect-ratio: 1100 / 417;
 }
