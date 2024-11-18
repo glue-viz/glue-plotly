@@ -3253,6 +3253,20 @@
   width: 610px;
 }
 
+#example-export-links {
+  display: none;
+}
+
+@media screen and (max-width: 600px) {
+  #example-export-graphs {
+    display: none;
+  }
+
+  #example-export-links {
+    display: block;
+  }
+}
+
 .example-image {
   width: 100%;
   max-width: 550px;
@@ -3273,7 +3287,6 @@
   max-width: 560px;
   height: 315px;
 }
-
 
 /*
 .img-link img {
