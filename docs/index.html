@@ -59,7 +59,7 @@
 
     <section id="overview" class="nav-item container">
       <h2>Overview</h2>
-      <p>glue-plotly is a plugin for the <a href="https://glueviz.org">glue</a> visualization software which connections glue to <a href="https://plotly.com/">Plotly</a>. This consists of three main pieces of functionality:
+      <p>glue-plotly is a plugin for the <a href="https://glueviz.org">glue</a> visualization software which connects glue to <a href="https://plotly.com/">Plotly</a>. This consists of three main pieces of functionality:
       <div class="row 200%">
         <section class="4u 12u(narrower)">
           <div class="box highlight">
@@ -112,11 +112,11 @@
       <div class="row 200%">
         <section class="6u 12u(narrower)">
           <p>For Qt glue, the exporters are located in the "save" tool menu:</p>
-          <img src="assets/img/QtToolbarExport.gif">
+          <img class="example-image" src="assets/img/QtToolbarExport.gif">
         </section>
         <section class="6u 12u(narrower)">
           <p>The Jupyter glue viewers don't yet support subtools, so the Plotly exporters are top-level tools in the toolbar:</p>
-          <img src="assets/img/BqplotToolbarHighlighted.png">
+          <img class="example-image" src="assets/img/BqplotToolbarHighlighted.png">
         </section>
       </div>
 
@@ -129,8 +129,8 @@
       </ul>
 
       <h3>Examples</h3>
-      <p>The examples below are all interactive Plotly graphs that were exported directly from glue! Each graph is labeled with the glue viewer that it was exported from.</p>
-      <div class="flex-row 200%">
+      <div id="example-export-graphs" class="flex-row 200%">
+        <p>The examples below are all interactive Plotly graphs that were exported directly from glue! Each graph is labeled with the glue viewer that it was exported from.</p>
         <div class="box highlight">
           <h3>2D Scatter</h3>
           <div class="example-container">
@@ -168,6 +168,46 @@
           </div>
         </div>
       </div>
+
+      <div id="example-export-links">
+        <p>To see examples of interactive Plotly graphs that were exported from glue, click on the images below! Each graph is labeled with the glue viewer that it was exported from.</p>
+        <div class="box highlight 6u 12u(narrower)">
+          <p>2D Scatter</p>
+          <a class="img-link" href="airplanes.html">
+            <img class="example-image" src="assets/img/airplanes.png">
+          </a>
+        </div>
+        <div class="box highlight 6u 12u(narrower)">
+          <p>Histogram</p>
+          <a class="img-link" href="airplanes_histogram.html">
+            <img class="example-image" src="assets/img/airplanes_histogram.png">
+          </a>
+        </div>
+        <div class="box highlight 6u 12u(narrower)">
+          <p>Image</p>
+          <a class="img-link" href="w5_image.html">
+            <img class="example-image" src="assets/img/w5_image.png">
+          </a>
+        </div>
+        <div class="box highlight 6u 12u(narrower)">
+          <p>3D Scatter</p>
+          <a class="img-link" href="airplanes_3d.html">
+            <img class="example-image" src="assets/img/airplanes_3d.png">
+          </a>
+        </div>
+        <div class="box highlight 6u 12u(narrower)">
+          <p>Profile</p>
+          <a class="img-link" href="profile.html">
+            <img class="example-image" src="assets/img/profile.png">
+          </a>
+        </div>
+        <div class="box highlight 6u 12u(narrower)">
+          <p>Dendrogram</p>
+          <a class="img-link" href="w5_dendro.html">
+            <img class="example-image" src="assets/img/w5_dendro.png">
+          </a>
+        </div>
+      </div>
     </section>
 
     <section id="chart-studio" class="nav-item container">
@@ -176,11 +216,11 @@
       <div class="row 200%">
         <section class="6u 12u(narrower)">
           <p>To access the exporter in Qt glue, navigate to File &gt; Advanced Exporters &gt; Plotly:</p>
-          <img src="assets/img/QtChartStudioExport.gif">
+          <img class="example-image" src="assets/img/QtChartStudioExport.gif">
         </section>
         <section class="6u 12u(narrower)">
           <p>Watch a video demonstrating the Chart Studio exporter in action:</p>
-          <iframe width="560" height="315" src="https://www.youtube.com/embed/-jqB7whGuvs?si=Zm1sssNSKqEN36X9" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin" allow="fullscreen"></iframe>
+          <iframe id="chart-studio-video" src="https://www.youtube.com/embed/-jqB7whGuvs?si=Zm1sssNSKqEN36X9" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin" allow="fullscreen"></iframe>
         </section>
       </div>
     </section>
