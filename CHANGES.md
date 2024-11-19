@@ -1,5 +1,27 @@
 # Full changelog
 
+## v0.10.1 - 2024-11-19
+
+<!-- Release notes generated using configuration in .github/release.yml at main -->
+### What's Changed
+
+#### Documentation
+
+* Create docs page by @Carifio24 in https://github.com/glue-viz/glue-plotly/pull/94
+* Add workflow job for deploying to GitHub Pages by @Carifio24 in https://github.com/glue-viz/glue-plotly/pull/96
+* Updates to documentation page by @Carifio24 in https://github.com/glue-viz/glue-plotly/pull/97
+* Add more examples of exported graphs by @Carifio24 in https://github.com/glue-viz/glue-plotly/pull/99
+* Add meta tags to docs page by @Carifio24 in https://github.com/glue-viz/glue-plotly/pull/101
+* Use logo with text for OG and Twitter tags by @Carifio24 in https://github.com/glue-viz/glue-plotly/pull/102
+* Layout updates for docs by @Carifio24 in https://github.com/glue-viz/glue-plotly/pull/104
+
+#### Other Changes
+
+* Don't show legend for image exports with only one layer by @Carifio24 in https://github.com/glue-viz/glue-plotly/pull/100
+* Move selection layer to top when active by @Carifio24 in https://github.com/glue-viz/glue-plotly/pull/103
+
+**Full Changelog**: https://github.com/glue-viz/glue-plotly/compare/v0.10.0...v0.10.1
+
 ## v0.10.0 - 2024-10-09
 
 <!-- Release notes generated using configuration in .github/release.yml at main -->
