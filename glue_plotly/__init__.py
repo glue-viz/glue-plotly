@@ -92,8 +92,6 @@ def setup_jupyter():
     from glue_jupyter.bqplot.scatter import BqplotScatterView
     from glue_jupyter.ipyvolume import IpyvolumeScatterView, IpyvolumeVolumeView
 
-    from glue_jupyter.ipyvolume.common.viewer import IpyvolumeBaseView
-    print(IpyvolumeBaseView.tools)
     BqplotHistogramView.tools += ['save:bqplot_plotlyhist']
     BqplotImageView.tools += ['save:bqplot_plotlyimage2d']
     BqplotProfileView.tools += ['save:bqplot_plotlyprofile']
