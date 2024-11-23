@@ -32,19 +32,13 @@ class PlotlyImage2DExport(Tool):
     tool_tip = 'Save Plotly HTML page'
 
     @messagebox_on_error(PLOTLY_ERROR_MESSAGE)
-    def _export_to_plotly(self, filename, checked_dictionary):
+    def _export_to_plotly(self, filename, checked_dictionary, config):
 
         layers = layers_to_export(self.viewer)
         add_data_label = data_count(layers) > 1
 
-        config = layout_config(self.viewer)
-
-        # TODO: Need to determine how to makes axes from bqplot
-        ax = axes_data_from_mpl(self.viewer)
-        config.update(**ax)
-        secondary_x = 'xaxis2' in ax
-        secondary_y = 'yaxis2' in ax
-        config["showlegend"] = len(layers) > 1
+        secondary_x = 'xaxis2' in config
+        secondary_y = 'yaxis2' in config
 
         if secondary_x or secondary_y:
             fig = make_subplots(specs=[[{"secondary_y": True}]], horizontal_spacing=0, vertical_spacing=0)
@@ -87,9 +81,19 @@ class PlotlyImage2DExport(Tool):
         if not filename:
             return
 
-        worker = Worker(self._export_to_plotly, filename, checked_dictionary)
-        exp_dialog = export_dialog.ExportDialog(parent=self.viewer)
-        worker.result.connect(exp_dialog.close)
-        worker.error.connect(exp_dialog.close)
-        worker.start()
-        exp_dialog.exec_()
+        # It would be better to create the layout config in `_export_to_plotly`.
+        # But we get some of our axis font sizes from matplotlib, some of which seems to cause problems
+        # when run in a QThread. So for now, we get the layout config here.
+        config = layout_config(self.viewer)
+        ax = axes_data_from_mpl(self.viewer)
+        config.update(**ax)
+        config["showlegend"] = len(layers) > 1
+
+        # worker = Worker(self._export_to_plotly, filename, checked_dictionary, config)
+        # exp_dialog = export_dialog.ExportDialog(parent=self.viewer)
+        # worker.result.connect(exp_dialog.close)
+        # worker.error.connect(exp_dialog.close)
+        # worker.start()
+        # exp_dialog.exec_()
+
+        self._export_to_plotly(filename, checked_dictionary, config)
