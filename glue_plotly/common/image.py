@@ -49,6 +49,14 @@ def layout_config(viewer):
                               showlegend=True)
 
 
+def get_mpl_renderer(figure):
+    if hasattr(figure.canvas, "get_renderer"):
+        return figure.canvas.get_renderer()
+    elif hasattr(figure, "_get_renderer"):
+        return figure._get_renderer()
+    return None
+
+
 def axes_data_from_mpl(viewer):
     axes_data = {}
 
@@ -58,10 +66,17 @@ def axes_data_from_mpl(viewer):
 
     for helper in axes.coords:
         ticks = helper.ticks
-        ticklabels = helper.ticklabels
+        if hasattr(helper, '_ticklabels'):
+            # We need to use the private attribute due to a bug in astropy 7
+            # See https://github.com/astropy/astropy/pull/17444
+            ticklabels = helper._ticklabels
+        else:
+            ticklabels = helper.ticklabels
         for axis in ticklabels.get_visible_axes():
             ax = 'x' if axis in ['t', 'b'] else 'y'
             ax_idx = 0 if ax == 'x' else 1
+            if not hasattr(ticks, "ticks_locs"):
+                ticks.draw(get_mpl_renderer(viewer.figure))
             locations = sorted([loc[0][ax_idx] for loc in ticks.ticks_locs[axis]])
             labels = ticklabels.text[axis]
             if ax == 'y':
