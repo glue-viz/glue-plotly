@@ -89,11 +89,9 @@ class PlotlyImage2DExport(Tool):
         config.update(**ax)
         config["showlegend"] = len(layers) > 1
 
-        # worker = Worker(self._export_to_plotly, filename, checked_dictionary, config)
-        # exp_dialog = export_dialog.ExportDialog(parent=self.viewer)
-        # worker.result.connect(exp_dialog.close)
-        # worker.error.connect(exp_dialog.close)
-        # worker.start()
-        # exp_dialog.exec_()
-
-        self._export_to_plotly(filename, checked_dictionary, config)
+        worker = Worker(self._export_to_plotly, filename, checked_dictionary, config)
+        exp_dialog = export_dialog.ExportDialog(parent=self.viewer)
+        worker.result.connect(exp_dialog.close)
+        worker.error.connect(exp_dialog.close)
+        worker.start()
+        exp_dialog.exec_()
