@@ -18,7 +18,7 @@ class JupyterBaseExportTool(Tool):
     action_text = "Save Plotly HTML page"
     tool_tip = "Save Plotly HTML page"
 
-    def activate(self):
+    def open_file_dialog(self):
         file_chooser = FileChooser(getcwd())
         ok_btn = v.Btn(color='success', disabled=True, children=['Ok'])
         close_btn = v.Btn(color='error', children=['Close'])
@@ -70,6 +70,7 @@ class JupyterBaseExportTool(Tool):
 
             def on_yes_click(button, event, data):
                 self.save_figure(filepath)
+                check_dialog.v_model = False
                 self.viewer.output_widget.clear_output()
 
             def on_no_click(button, event, data):
@@ -86,3 +87,8 @@ class JupyterBaseExportTool(Tool):
 
     def save_figure(self, filepath):
         raise NotImplementedError()
+
+    # Subclasses should override this if they have another dialog
+    # to display before the file chooser dialog
+    def activate(self):
+        self.open_file_dialog()

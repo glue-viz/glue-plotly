@@ -18,19 +18,26 @@ class JupyterSaveHoverDialog(BaseSaveHoverDialog, VuetifyTemplate):
     component_selected = List().tag(sync=True)
 
     def __init__(self,
-                 data_collection=None,
+                 data_collection,
                  checked_dictionary=None,
                  on_cancel=None,
-                 on_export=None):
+                 on_export=None,
+                 display=False):
 
         BaseSaveHoverDialog.__init__(self, data_collection=data_collection, checked_dictionary=checked_dictionary)
         VuetifyTemplate.__init__(self)
 
         if self.checked_dictionary is None:
-            self.checked_dictionary = {}
+            self.checked_dictionary = {
+                data.label: [False for _ in data.components]
+                for data in data_collection
+            }
 
         self.on_cancel = on_cancel
         self.on_export = on_export
+
+        if display:
+            self.dialog_open = True
 
         link_glue_choices(self, self.state, 'data')
 
@@ -38,7 +45,7 @@ class JupyterSaveHoverDialog(BaseSaveHoverDialog, VuetifyTemplate):
 
     def _on_data_change(self, *args):
         super()._on_data_change(*args)
-        data_components = self.state.data.main_components
+        data_components = self.state.data.components
         self.component_items = [
             {"text": component.label, "value": index}
             for index, component in enumerate(data_components)
@@ -50,7 +57,7 @@ class JupyterSaveHoverDialog(BaseSaveHoverDialog, VuetifyTemplate):
     def _on_component_selected_changed(self, change):
         selections = change["new"]
         current_layer = self.state.data.label
-        self.checked_dictionary[current_layer] = [i in selections for i in range(len(self.state.data.main_components))]
+        self.checked_dictionary[current_layer] = [i in selections for i in range(len(self.state.data.components))]
 
     def vue_select_none(self, *args):
         self.component_selected = []
@@ -59,7 +66,7 @@ class JupyterSaveHoverDialog(BaseSaveHoverDialog, VuetifyTemplate):
         self.component_selected = list(range(len(self.component_items)))
 
     def vue_cancel_dialog(self, *args):
-        # self.checked_dictionary = {}
+        self.checked_dictionary = {}
         self.dialog_open = False
         if self.on_cancel is not None:
             self.on_cancel()
