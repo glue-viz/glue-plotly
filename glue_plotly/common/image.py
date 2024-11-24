@@ -68,6 +68,7 @@ def axes_data_from_mpl(viewer):
         ticks = helper.ticks
         if hasattr(helper, '_ticklabels'):
             # We need to use the private attribute due to a bug in astropy 7
+            # See https://github.com/astropy/astropy/pull/17444
             ticklabels = helper._ticklabels
         else:
             ticklabels = helper.ticklabels
