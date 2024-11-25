@@ -30,16 +30,17 @@
           </v-list-item>
         </v-list-item-group>
       </v-list>
-      <v-row>
+      <v-row class="d-flex justify-space-around">
         <v-btn @click="select_none">
           Select None
         </v-btn>
-        <v-spacer></v-spacer>
         <v-btn @click="select_all">
           Select All
         </v-btn>
       </v-row>
-      <p>Once you click on "Export" you will be prompted to choose the filename.
+      <v-row class="py-3">
+        <p>Once you click on "Export" you will be prompted to choose the filename.
+      </v-row>
       <v-row>
         <v-spacer></v-spacer>
         <v-btn @click="cancel_dialog">Cancel</v-btn>
