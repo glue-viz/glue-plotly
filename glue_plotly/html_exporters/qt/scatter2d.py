@@ -11,12 +11,13 @@ from glue.viewers.common.tool import Tool
 from glue_qt.core.dialogs import warn
 from glue_qt.utils import messagebox_on_error
 
-from ... import save_hover
 
 from glue_plotly import PLOTLY_ERROR_MESSAGE, PLOTLY_LOGO
 from glue_plotly.common import data_count, layers_to_export
 from glue_plotly.common.scatter2d import polar_layout_config_from_mpl, rectilinear_layout_config, \
     traces_for_layer
+from glue_plotly.html_exporters.hover_utils import hover_data_collection_for_viewer
+from glue_plotly.html_exporters.qt.save_hover import SaveHoverDialog
 
 from plotly.offline import plot
 import plotly.graph_objs as go
@@ -37,16 +38,7 @@ class PlotlyScatter2DStaticExport(Tool):
     @messagebox_on_error(PLOTLY_ERROR_MESSAGE)
     def activate(self):
 
-        # grab hover info
-        dc_hover = DataCollection()
-        for layer in self.viewer.layers:
-            layer_state = layer.state
-            if layer_state.visible and layer.enabled:
-                data = Data(label=layer_state.layer.label)
-                for component in layer_state.layer.components:
-                    data[component.label] = np.ones(10)
-                dc_hover.append(data)
-
+        dc_hover = hover_data_collection_for_viewer(self.viewer)
         checked_dictionary = {}
 
         # figure out which hover info user wants to display
@@ -55,7 +47,7 @@ class PlotlyScatter2DStaticExport(Tool):
             if layer_state.visible and layer.enabled:
                 checked_dictionary[layer_state.layer.label] = np.zeros((len(layer_state.layer.components))).astype(bool)
 
-        dialog = save_hover.SaveHoverDialog(data_collection=dc_hover, checked_dictionary=checked_dictionary)
+        dialog = SaveHoverDialog(data_collection=dc_hover, checked_dictionary=checked_dictionary)
         result = dialog.exec_()
         if result == QDialog.Rejected:
             return

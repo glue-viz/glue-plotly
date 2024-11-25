@@ -6,9 +6,9 @@ import plotly.graph_objs as go
 
 from glue_plotly.common.common import data_count, layers_to_export
 from glue_plotly.common.scatter2d import rectilinear_layout_config, traces_for_layer
+from glue_plotly.html_exporters.hover_utils import hover_data_collection_for_viewer
 from glue_plotly.html_exporters.jupyter.save_hover import JupyterSaveHoverDialog
-
-from ...jupyter_base_export_tool import JupyterBaseExportTool
+from glue_plotly.jupyter_base_export_tool import JupyterBaseExportTool
 
 
 @viewer_tool
@@ -22,8 +22,9 @@ class PlotlyScatter2DBqplotExport(JupyterBaseExportTool):
             nonlocal done
             done = True
 
+        dc_hover = hover_data_collection_for_viewer(self.viewer)
         self.save_hover_dialog = \
-            JupyterSaveHoverDialog(data_collection=self.viewer.state.data_collection,
+            JupyterSaveHoverDialog(data_collection=dc_hover,
                                    checked_dictionary=None,
                                    display=True,
                                    on_cancel=on_cancel,

@@ -1,21 +1,19 @@
 from __future__ import absolute_import, division, print_function
 
-import numpy as np
-
 from qtpy import compat
 from qtpy.QtWidgets import QDialog
 
 from glue.config import viewer_tool
-from glue.core import DataCollection, Data
 from glue_qt.utils import messagebox_on_error
 from glue_qt.utils.threading import Worker
 from glue_qt.viewers.common.tool import Tool
 
-from ... import save_hover, export_dialog
-
 from glue_plotly import PLOTLY_ERROR_MESSAGE, PLOTLY_LOGO
 from glue_plotly.common import data_count, layers_to_export
 from glue_plotly.common.image import axes_data_from_mpl, layers_by_type, layout_config, traces
+from glue_plotly import export_dialog
+from glue_plotly.html_exporters.hover_utils import hover_data_collection_for_viewer
+from glue_plotly.html_exporters.qt.save_hover import SaveHoverDialog
 
 import plotly.graph_objects as go
 from plotly.offline import plot
@@ -59,23 +57,20 @@ class PlotlyImage2DExport(Tool):
         layers = layers_by_type(self.viewer)
         scatter_layers = layers["scatter"]
 
-        checked_dictionary = {}
         if len(scatter_layers) > 0:
-            dc_hover = DataCollection()
-            for layer in scatter_layers:
-                layer_state = layer.state
-                if layer_state.visible and layer.enabled:
-                    data = Data(label=layer_state.layer.label)
-                    for component in layer_state.layer.components:
-                        data[component.label] = np.ones(10)
-                    dc_hover.append(data)
-                    checked_dictionary[layer_state.layer.label] = np.zeros((len(layer_state.layer.components))).astype(
-                        bool)
+            dc_hover = hover_data_collection_for_viewer(
+                    self.viewer,
+                    layer_condition=lambda layer: layer.state.visible \
+                            and layer.enabled
+                            and layer in scatter_layers)
 
-            dialog = save_hover.SaveHoverDialog(data_collection=dc_hover, checked_dictionary=checked_dictionary)
+            dialog = SaveHoverDialog(data_collection=dc_hover)
             result = dialog.exec_()
             if result == QDialog.Rejected:
                 return
+            checked_dictionary = dialog.checked_dictionary
+        else:
+            checked_dictionary = None
 
         filename, _ = compat.getsavefilename(parent=self.viewer, basedir="plot.html")
         if not filename:
