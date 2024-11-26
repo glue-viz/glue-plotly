@@ -18,9 +18,13 @@ def hover_dummy_data(data_or_subset):
     return dummy_data
 
 
+def default_layer_condition(layer):
+    return layer.enabled and layer.state.visible
+
+
 def hover_data_collection_for_viewer(viewer,
                                      layer_condition=None):
     if layer_condition is None:
-        layer_condition = lambda layer: layer.enabled and layer.state.visible
+        layer_condition = default_layer_condition
 
     return DataCollection([hover_dummy_data(layer.layer) for layer in viewer.layers if layer_condition(layer)])

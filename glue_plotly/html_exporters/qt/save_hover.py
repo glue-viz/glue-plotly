@@ -8,8 +8,6 @@ from echo.qt import autoconnect_callbacks_to_qt
 
 from glue_qt.utils import load_ui
 
-import numpy as np
-
 from ..base_save_hover import BaseSaveHoverDialog
 
 __all__ = ['SaveHoverDialog']
@@ -42,7 +40,7 @@ class SaveHoverDialog(BaseSaveHoverDialog, QDialog):
         components = getattr(type(self.state), 'component').get_choices(self.state)
         self.ui.list_component.clear()
 
-        for (component, k) in zip(components, np.arange(0, len(components))):
+        for component in components:
 
             if isinstance(component, ChoiceSeparator):
                 item = QListWidgetItem(str(component))
@@ -50,7 +48,7 @@ class SaveHoverDialog(BaseSaveHoverDialog, QDialog):
                 item.setForeground(Qt.gray)
             else:
                 item = QListWidgetItem(component.label)
-                if self.checked_dictionary[self.state.data.label][k]:
+                if self.checked_dictionary[self.state.data.label][component.label]:
                     item.setCheckState(Qt.Checked)
                 else:
                     item.setCheckState(Qt.Unchecked)
@@ -63,9 +61,10 @@ class SaveHoverDialog(BaseSaveHoverDialog, QDialog):
         any_checked = False
         for idx in range(self.ui.list_component.count()):
             item = self.ui.list_component.item(idx)
+            label = item.text()
             checked = item.checkState() == Qt.Checked
             any_checked = any_checked or checked
-            self.checked_dictionary[current_layer][idx] = checked
+            self.checked_dictionary[current_layer][label] = checked
 
         self.button_ok.setEnabled(any_checked)
 
@@ -76,23 +75,7 @@ class SaveHoverDialog(BaseSaveHoverDialog, QDialog):
         self._set_all_checked(True)
 
     def _set_all_checked(self, checked):
-        state = Qt.Checked if checked else Qt.Unchecked 
+        state = Qt.Checked if checked else Qt.Unchecked
         for idx in range(self.ui.list_component.count()):
             item = self.ui.list_component.item(idx)
             item.setCheckState(state)
-
-    def accept(self):
-        components = []
-        for idx in range(self.ui.list_component.count()):
-            item = self.ui.list_component.item(idx)
-            if item.checkState() == Qt.Checked:
-                components.append(self.state.data.id[item.text()])
-
-        # if self.state.subset is None:
-        #     data = self.state.data
-        # else:
-        #     data = self.state.subset
-
-        # return checked_dictionary
-        # export_data(data, components=components, exporter=self.state.exporter.function)
-        QDialog.accept(self)

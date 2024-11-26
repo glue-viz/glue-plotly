@@ -28,10 +28,9 @@ class PlotlyImageBqplotExport(JupyterBaseExportTool):
 
         if len(scatter_layers) > 0:
             dc_hover = hover_data_collection_for_viewer(
-                    self.viewer,
-                    layer_condition=lambda layer: layer.state.visible \
-                            and layer.enabled
-                            and layer in scatter_layers)
+                self.viewer,
+                layer_condition=lambda layer: layer.state.visible and layer.enabled and layer in scatter_layers
+            )
 
             dialog = \
                 JupyterSaveHoverDialog(data_collection=dc_hover,
@@ -45,7 +44,6 @@ class PlotlyImageBqplotExport(JupyterBaseExportTool):
                 display(dialog)
         else:
             self.checked_dictionary = None
-
 
     def save_figure(self, filepath):
 

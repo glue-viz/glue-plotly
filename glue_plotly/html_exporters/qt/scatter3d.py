@@ -1,12 +1,9 @@
 from __future__ import absolute_import, division, print_function
 
-import numpy as np
-
 from qtpy import compat
 from qtpy.QtWidgets import QDialog
 
 from glue.config import viewer_tool, settings
-from glue.core import DataCollection, Data
 from glue.viewers.common.tool import Tool
 from glue_qt.core.dialogs import warn
 from glue_qt.utils import messagebox_on_error
@@ -17,6 +14,7 @@ from glue_plotly.common import data_count, layers_to_export
 from glue_plotly.common.base_3d import layout_config
 from glue_plotly.common.scatter3d import traces_for_layer
 from glue_plotly.html_exporters.hover_utils import hover_data_collection_for_viewer
+from glue_plotly.export_dialog import ExportDialog
 from glue_plotly.html_exporters.qt.save_hover import SaveHoverDialog
 
 from plotly.offline import plot
@@ -53,14 +51,15 @@ class PlotlyScatter3DStaticExport(Tool):
 
     def activate(self):
 
-        dc_hover = hover_data_collection_for_viewer(self.viewer) 
+        dc_hover = hover_data_collection_for_viewer(self.viewer)
         checked_dictionary = {}
 
         # figure out which hover info user wants to display
         for layer in self.viewer.layers:
             layer_state = layer.state
             if layer_state.visible and layer.enabled:
-                checked_dictionary[layer_state.layer.label] = np.zeros((len(layer_state.layer.components))).astype(bool)
+                checked_dictionary[layer_state.layer.label] = {component.label: False
+                                                               for component in layer_state.layer.components}
 
         proceed = warn('Scatter 3d plotly may look different',
                        'Plotly and Matlotlib graphics differ and your graph may look different when exported. Do you '
@@ -81,7 +80,7 @@ class PlotlyScatter3DStaticExport(Tool):
             return
 
         worker = Worker(self._export_to_plotly, filename, checked_dictionary)
-        exp_dialog = export_dialog.ExportDialog(parent=self.viewer)
+        exp_dialog = ExportDialog(parent=self.viewer)
         worker.result.connect(exp_dialog.close)
         worker.error.connect(exp_dialog.close)
         worker.start()

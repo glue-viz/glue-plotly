@@ -262,8 +262,6 @@ def base_marker(layer_state, mask=None):
 
 def trace_data_for_layer(viewer, layer_state, hover_data=None, add_data_label=True):
     traces = {}
-    if hover_data is None:
-        hover_data = []
 
     x = layer_state.layer[viewer.state.x_att].copy()
     y = layer_state.layer[viewer.state.y_att].copy()
@@ -299,15 +297,14 @@ def trace_data_for_layer(viewer, layer_state, hover_data=None, add_data_label=Tr
             if yerr_traces:
                 traces['yerr'] = yerr_traces
 
-    if np.sum(hover_data) == 0:
+    if hover_data is None or np.sum(hover_data) == 0:
         hoverinfo = 'skip'
         hovertext = None
     else:
         hoverinfo = 'text'
         hovertext = ["" for _ in range(mask.size)]
-        for i in range(len(layer_state.layer.components)):
-            if hover_data[i]:
-                label = layer_state.layer.components[i].label
+        for label in layer_state.layer.components:
+            if hover_data[label]:
                 hover_values = layer_state.layer[label][mask]
                 for k in range(len(hover_values)):
                     hovertext[k] = (hovertext[k] + "{}: {} <br>"

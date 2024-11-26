@@ -59,10 +59,9 @@ class PlotlyImage2DExport(Tool):
 
         if len(scatter_layers) > 0:
             dc_hover = hover_data_collection_for_viewer(
-                    self.viewer,
-                    layer_condition=lambda layer: layer.state.visible \
-                            and layer.enabled
-                            and layer in scatter_layers)
+                self.viewer,
+                layer_condition=lambda layer: layer.state.visible and layer.enabled and layer in scatter_layers
+            )
 
             dialog = SaveHoverDialog(data_collection=dc_hover)
             result = dialog.exec_()

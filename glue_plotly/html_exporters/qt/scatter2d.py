@@ -1,12 +1,9 @@
 from __future__ import absolute_import, division, print_function
 
-import numpy as np
-
 from qtpy import compat
 from qtpy.QtWidgets import QDialog
 
 from glue.config import viewer_tool, settings
-from glue.core import DataCollection, Data
 from glue.viewers.common.tool import Tool
 from glue_qt.core.dialogs import warn
 from glue_qt.utils import messagebox_on_error
@@ -45,7 +42,8 @@ class PlotlyScatter2DStaticExport(Tool):
         for layer in self.viewer.layers:
             layer_state = layer.state
             if layer_state.visible and layer.enabled:
-                checked_dictionary[layer_state.layer.label] = np.zeros((len(layer_state.layer.components))).astype(bool)
+                checked_dictionary[layer_state.layer.label] = {component.label: False
+                                                               for component in layer_state.layer.components}
 
         dialog = SaveHoverDialog(data_collection=dc_hover, checked_dictionary=checked_dictionary)
         result = dialog.exec_()

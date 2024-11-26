@@ -58,12 +58,12 @@ class SaveHoverState(State):
 class BaseSaveHoverDialog:
 
     def __init__(self, data_collection, checked_dictionary=None):
-        
+
         if checked_dictionary is not None:
             self.checked_dictionary = checked_dictionary
         else:
             self.checked_dictionary = {
-                data.label: [False for _ in data.components]
+                data.label: {component.label: False for component in data.components}
                 for data in data_collection
             }
         self.state = SaveHoverState(data_collection=data_collection)

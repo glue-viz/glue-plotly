@@ -27,12 +27,6 @@ class JupyterSaveHoverDialog(BaseSaveHoverDialog, VuetifyTemplate):
         BaseSaveHoverDialog.__init__(self, data_collection=data_collection, checked_dictionary=checked_dictionary)
         VuetifyTemplate.__init__(self)
 
-        if self.checked_dictionary is None:
-            self.checked_dictionary = {
-                data.label: [False for _ in data.components]
-                for data in data_collection
-            }
-
         self.on_cancel = on_cancel
         self.on_export = on_export
 
@@ -50,14 +44,16 @@ class JupyterSaveHoverDialog(BaseSaveHoverDialog, VuetifyTemplate):
             {"text": component.label, "value": index}
             for index, component in enumerate(data_components)
         ]
-        current_selections = self.checked_dictionary.get(self.state.data.label, [False for _ in data_components])
+        current_selections = self.checked_dictionary.get(self.state.data.label,
+                                                         {component.label: False for component in data_components})
         self.component_selected = [i for i in range(len(data_components)) if current_selections[i]]
 
     @observe('component_selected')
     def _on_component_selected_changed(self, change):
         selections = change["new"]
         current_layer = self.state.data.label
-        self.checked_dictionary[current_layer] = [i in selections for i in range(len(self.state.data.components))]
+        self.checked_dictionary[current_layer] = {component.label: i in selections
+                                                  for i, component in enumerate(self.state.data.components)}
 
     def vue_select_none(self, *args):
         self.component_selected = []
