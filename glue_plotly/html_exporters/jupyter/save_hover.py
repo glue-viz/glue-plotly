@@ -46,7 +46,8 @@ class JupyterSaveHoverDialog(BaseSaveHoverDialog, VuetifyTemplate):
         ]
         current_selections = self.checked_dictionary.get(self.state.data.label,
                                                          {component.label: False for component in data_components})
-        self.component_selected = [i for i in range(len(data_components)) if current_selections[i]]
+        self.component_selected = [i for i, component in enumerate(data_components)
+                                   if current_selections[component.label]]
 
     @observe('component_selected')
     def _on_component_selected_changed(self, change):

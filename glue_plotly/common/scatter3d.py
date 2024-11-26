@@ -128,8 +128,9 @@ def traces_for_layer(viewer_state, layer_state, hover_data=None, add_data_label=
     else:
         hoverinfo = 'text'
         hovertext = ["" for _ in range(mask.size)]
-        for label in layer_state.layer.components:
-            if hover_data[label]:
+        for component in layer_state.layer.components:
+            label = component.label
+            if hover_data.get(label, False):
                 hover_values = layer_state.layer[label][mask]
                 for k in range(len(hover_values)):
                     hovertext[k] = (hovertext[k] + "{}: {} <br>"
