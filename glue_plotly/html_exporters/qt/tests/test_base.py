@@ -1,7 +1,7 @@
 from mock import patch
 
 from glue_qt.app import GlueApplication
-from glue_plotly.save_hover import SaveHoverDialog
+from glue_plotly.html_exporters.qt.save_hover import SaveHoverDialog
 from glue_plotly.sort_components import SortComponentsDialog
 from qtpy.QtWidgets import QMessageBox
 

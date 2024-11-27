@@ -317,20 +317,19 @@ def traces_for_scatter_layer(viewer_state, layer_state, hover_data=None, add_dat
                   size=scatter_size_info(layer_state, mask),
                   sizemin=1)
 
-    if np.sum(hover_data) == 0:
+    if hover_data is None or np.sum(hover_data) == 0:
         hoverinfo = 'skip'
         hovertext = None
     else:
         hoverinfo = 'text'
         hovertext = ['' for _ in range(layer_state.layer.shape[0])]
-        for i in range(len(layer_state.layer.components)):
-            if hover_data[i]:
-                label = layer_state.layer.components[i].label
+        for component in layer_state.layer.components:
+            label = component.label
+            if hover_data.get(label, False):
                 hover_values = layer_state.layer[label][mask]
                 for k in range(len(hover_values)):
                     hovertext[k] = (hovertext[k] + '{}: {} <br>'
-                                    .format(layer_state.layer.components[i].label,
-                                            hover_values[k]))
+                                    .format(label, hover_values[k]))
 
     name = layer_state.layer.label
     if add_data_label and not isinstance(layer_state.layer, BaseData):
@@ -418,8 +417,9 @@ def traces(viewer, secondary_x=False, secondary_y=False, hover_selections=None, 
             traces += traces_for_nonpixel_subset_layer(viewer.state, layer.state, full_view, transpose)
 
     for layer in layers['scatter']:
+        hover_data = hover_selections[layer.state.layer.label] if hover_selections else None
         traces += traces_for_scatter_layer(viewer.state, layer.state,
-                                           hover_data=hover_selections[layer.state.layer.label],
+                                           hover_data=hover_data,
                                            add_data_label=add_data_label)
 
     if secondary_x or secondary_y:
