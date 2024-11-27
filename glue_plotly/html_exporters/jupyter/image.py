@@ -41,8 +41,6 @@ class PlotlyImageBqplotExport(JupyterBaseExportTool):
 
             with self.viewer.output_widget:
                 display(self.save_hover_dialog)
-        else:
-            self.checked_dictionary = None
 
     def save_figure(self, filepath):
 
@@ -67,10 +65,11 @@ class PlotlyImageBqplotExport(JupyterBaseExportTool):
             layout = go.Layout(**config)
             fig = go.Figure(layout=layout)
 
+        checked_dictionary = self.save_hover_dialog.checked_dictionary if hasattr(self, 'save_hover_dialog') else None
         traces_to_add = traces(self.viewer,
                                secondary_x=secondary_x,
                                secondary_y=secondary_y,
-                               hover_selections=self.save_hover_dialog.checked_dictionary,
+                               hover_selections=checked_dictionary,
                                add_data_label=add_data_label)
         fig.add_traces(traces_to_add)
 

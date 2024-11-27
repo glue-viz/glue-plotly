@@ -44,10 +44,12 @@ class PlotlyScatter2DBqplotExport(JupyterBaseExportTool):
 
         layers = layers_to_export(self.viewer)
         add_data_label = data_count(layers) > 1
+        checked_dictionary = self.save_hover_dialog.checked_dictionary if hasattr(self, 'save_hover_dialog') else None
         for layer in layers:
+            hover_data = checked_dictionary[layer.layer.label] if checked_dictionary is not None else None
             traces = traces_for_layer(self.viewer,
                                       layer.state,
-                                      hover_data=self.save_hover_dialog.checked_dictionary[layer.state.layer.label],
+                                      hover_data=hover_data,
                                       add_data_label=add_data_label)
             fig.add_traces(traces)
 

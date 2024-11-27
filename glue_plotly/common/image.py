@@ -417,8 +417,9 @@ def traces(viewer, secondary_x=False, secondary_y=False, hover_selections=None, 
             traces += traces_for_nonpixel_subset_layer(viewer.state, layer.state, full_view, transpose)
 
     for layer in layers['scatter']:
+        hover_data = hover_selections[layer.state.layer.label] if hover_selections else None
         traces += traces_for_scatter_layer(viewer.state, layer.state,
-                                           hover_data=hover_selections[layer.state.layer.label],
+                                           hover_data=hover_data,
                                            add_data_label=add_data_label)
 
     if secondary_x or secondary_y:
