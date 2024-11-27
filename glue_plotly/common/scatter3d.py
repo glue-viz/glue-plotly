@@ -7,7 +7,7 @@ from plotly.graph_objs import Cone, Scatter3d
 from uuid import uuid4
 
 from glue_plotly.common import color_info, sanitize
-from glue_plotly.common.base_3d import bbox_mask 
+from glue_plotly.common.base_3d import bbox_mask
 
 try:
     from glue_vispy_viewers.scatter.layer_state import ScatterLayerState
