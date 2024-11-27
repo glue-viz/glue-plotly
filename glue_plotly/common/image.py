@@ -309,7 +309,16 @@ def traces_for_nonpixel_subset_layer(viewer_state, layer_state, full_view, trans
 def traces_for_scatter_layer(viewer_state, layer_state, hover_data=None, add_data_label=True):
     x = layer_state.layer[viewer_state.x_att].copy()
     y = layer_state.layer[viewer_state.y_att].copy()
-    mask, (x, y) = sanitize(x, y)
+    arrs = [x, y]
+    if layer_state.cmap_mode == "Linear":
+        cvals = layer_state.layer[layer_state.cmap_att].copy()
+        arrs.append(cvals)
+    if layer_state.size_mode == "Linear":
+        svals = layer_state.layer[layer_state.size_att].copy()
+        arrs.append(svals)
+
+    mask, sanitized = sanitize(*arrs)
+    x, y = sanitized[:2]
 
     marker = dict(color=color_info(layer_state),
                   opacity=layer_state.alpha,

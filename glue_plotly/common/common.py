@@ -134,7 +134,8 @@ def rgb_colors(layer_state, mask, cmap_att):
     return rgba_strs
 
 
-def color_info(layer_state, mask=None,
+def color_info(layer_state,
+               mask=None,
                mode_att="cmap_mode",
                cmap_att="cmap_att"):
     if getattr(layer_state, mode_att, "Fixed") == "Fixed":

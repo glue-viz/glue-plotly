@@ -92,10 +92,7 @@ def bbox_mask(viewer_state, x, y, z):
            (z >= viewer_state.z_min) & (z <= viewer_state.z_max)
 
 
-def clipped_data(viewer_state, layer_state):
-    x = layer_state.layer[viewer_state.x_att]
-    y = layer_state.layer[viewer_state.y_att]
-    z = layer_state.layer[viewer_state.z_att]
+def clipped_data(viewer_state, x, y, z):
 
     # Plotly doesn't show anything outside the bounding box
     mask = bbox_mask(viewer_state, x, y, z)
