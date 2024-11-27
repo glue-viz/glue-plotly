@@ -15,7 +15,7 @@ except ImportError:
     ScatterLayerState = type(None)
 
 
-def size_info(layer_state, mask):
+def size_info(layer_state, mask, size_att="size_attribute"):
 
     # set all points to be the same size, with set scaling
     if layer_state.size_mode == 'Fixed':
@@ -23,7 +23,7 @@ def size_info(layer_state, mask):
 
     # scale size of points by set size scaling
     else:
-        s = ensure_numerical(layer_state.layer[layer_state.size_attribute][mask].ravel())
+        s = ensure_numerical(layer_state.layer[getattr(layer_state, size_att)][mask].ravel())
         s = ((s - layer_state.size_vmin) /
              (layer_state.size_vmax - layer_state.size_vmin))
         # The following ensures that the sizes are in the
@@ -121,10 +121,10 @@ def traces_for_layer(viewer_state, layer_state, hover_data=None, add_data_label=
 
     vispy_layer_state = isinstance(layer_state, ScatterLayerState)
     cmap_mode_attr = "color_mode" if vispy_layer_state else "cmap_mode"
+    cmap_attr = "cmap_attribute" if vispy_layer_state else "cmap_att"
     size_attr = "size_attribute" if vispy_layer_state else "size_att"
     arrs = [x, y, z]
     if getattr(layer_state, cmap_mode_attr) == "Linear":
-        cmap_attr = "cmap_attribute" if vispy_layer_state else "cmap_att"
         cvals = layer_state.layer[getattr(layer_state, cmap_attr)].copy()
         arrs.append(cvals)
     if layer_state.size_mode == "Linear":
@@ -137,9 +137,9 @@ def traces_for_layer(viewer_state, layer_state, hover_data=None, add_data_label=
     x, y, z = x[mask], y[mask], z[mask]
 
     marker = dict(color=color_info(layer_state, mask=mask,
-                                   mode_att="color_mode",
-                                   cmap_att="cmap_attribute"),
-                  size=size_info(layer_state, mask),
+                                   mode_att=cmap_mode_attr,
+                                   cmap_att=cmap_attr),
+                  size=size_info(layer_state, mask, size_att=size_attr),
                   opacity=layer_state.alpha,
                   line=dict(width=0))
 
