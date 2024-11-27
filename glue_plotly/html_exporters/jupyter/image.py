@@ -32,16 +32,15 @@ class PlotlyImageBqplotExport(JupyterBaseExportTool):
                 layer_condition=lambda layer: layer.state.visible and layer.enabled and layer in scatter_layers
             )
 
-            dialog = \
+            self.save_hover_dialog = \
                 JupyterSaveHoverDialog(data_collection=dc_hover,
                                        checked_dictionary=None,
                                        display=True,
                                        on_cancel=on_cancel,
                                        on_export=self.open_file_dialog)
-            self.checked_dictionary = dialog.checked_dictionary
 
             with self.viewer.output_widget:
-                display(dialog)
+                display(self.save_hover_dialog)
         else:
             self.checked_dictionary = None
 
@@ -71,7 +70,7 @@ class PlotlyImageBqplotExport(JupyterBaseExportTool):
         traces_to_add = traces(self.viewer,
                                secondary_x=secondary_x,
                                secondary_y=secondary_y,
-                               hover_selections=self.checked_dictionary,
+                               hover_selections=self.save_hover_dialog.checked_dictionary,
                                add_data_label=add_data_label)
         fig.add_traces(traces_to_add)
 
