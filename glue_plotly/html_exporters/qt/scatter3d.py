@@ -61,7 +61,7 @@ class PlotlyScatter3DStaticExport(Tool):
                 checked_dictionary[layer_state.layer.label] = {component.label: False
                                                                for component in layer_state.layer.components}
 
-        proceed = warn('Scatter 3d plotly may look different',
+        proceed = warn('3D Scatter Plots May Look Different',
                        'Plotly and Matlotlib graphics differ and your graph may look different when exported. Do you '
                        'want to proceed?',
                        default='Cancel', setting='SHOW_WARN_PLOTLY_3D_GRAPHICS_DIFFERENT')
