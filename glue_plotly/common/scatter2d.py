@@ -265,7 +265,16 @@ def trace_data_for_layer(viewer, layer_state, hover_data=None, add_data_label=Tr
 
     x = layer_state.layer[viewer.state.x_att].copy()
     y = layer_state.layer[viewer.state.y_att].copy()
-    mask, (x, y) = sanitize(x, y)
+    arrs = [x, y]
+    if layer_state.cmap_mode == "Linear":
+        cvals = layer_state.layer[layer_state.cmap_att].copy()
+        arrs.append(cvals)
+    if layer_state.size_mode == "Linear":
+        svals = layer_state.layer[layer_state.size_att].copy()
+        arrs.append(svals)
+
+    mask, sanitized = sanitize(*arrs)
+    x, y = sanitized[:2]
 
     legend_group = uuid4().hex
 
