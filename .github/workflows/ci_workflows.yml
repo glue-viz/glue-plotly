@@ -32,38 +32,38 @@ jobs:
           - libhdf5-dev
       envs: |
         # Standard tests
-        - linux: py38-test
-        - linux: py39-test
         - linux: py310-test
         - linux: py311-test
-        # - linux: py311-test-devdeps
-        - linux: py311-glue116-test
-        - linux: py311-glue117-test
-        - linux: py311-glue118-test
-        - linux: py311-glue119-test
-        - linux: py311-glue120-test
+        - linux: py312-test
+        - linux: py313-test
+        # - linux: py313-test-devdeps
+        - linux: py312-glue116-test
+        - linux: py312-glue117-test
+        - linux: py312-glue118-test
+        - linux: py312-glue119-test
+        - linux: py312-glue120-test
 
-        - macos: py38-test
-        - macos: py39-test
         - macos: py310-test
         - macos: py311-test
-        # - macos: py311-test-devdeps
-        - macos: py311-glue116-test
-        - macos: py311-glue117-test
-        - macos: py311-glue118-test
-        - macos: py311-glue119-test
-        - macos: py311-glue120-test
+        - macos: py312-test
+        - macos: py313-test
+        # - macos: py313-test-devdeps
+        - macos: py312-glue116-test
+        - macos: py312-glue117-test
+        - macos: py312-glue118-test
+        - macos: py312-glue119-test
+        - macos: py312-glue120-test
 
-        - windows: py38-test
-        - windows: py39-test
         - windows: py310-test
         - windows: py311-test
-        # - windows: py311-test-devdeps
-        - windows: py311-glue116-test
-        - windows: py311-glue117-test
-        - windows: py311-glue118-test
-        - windows: py311-glue119-test
-        - windows: py311-glue120-test
+        - windows: py312-test
+        - windows: py313-test
+        # - windows: py313-test-devdeps
+        - windows: py312-glue116-test
+        - windows: py312-glue117-test
+        - windows: py312-glue118-test
+        - windows: py312-glue119-test
+        - windows: py312-glue120-test
 
   pages:
     needs: initial_checks
