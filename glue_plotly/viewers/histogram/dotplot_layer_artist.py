@@ -52,7 +52,7 @@ class PlotlyDotplotLayerArtist(LayerArtist):
         try:
             self.state.reset_cache()
             self.bins, self.hist_unscaled = self.state.histogram
-        except IncompatibleAttribute:
+        except (IncompatibleAttribute, ValueError):
             self.disable('Could not compute histogram')
             self.bins = self.hist_unscaled = None
 
@@ -121,11 +121,14 @@ class PlotlyDotplotLayerArtist(LayerArtist):
                 for trace in old_dots:
                     self.view._remove_trace_index(trace)
 
-        dots = traces_for_layer(self.view, self.state, add_data_label=True)
-        for trace in dots:
-            trace.update(hoverinfo='all', unselected=dict(marker=dict(opacity=self.state.alpha)))
-        self._dots_id = dots[0].meta if dots else None
-        self.view.figure.add_traces(dots)
+        try:
+            dots = traces_for_layer(self.view, self.state, add_data_label=True)
+            for trace in dots:
+                trace.update(hoverinfo='all', unselected=dict(marker=dict(opacity=self.state.alpha)))
+            self._dots_id = dots[0].meta if dots else None
+            self.view.figure.add_traces(dots)
+        except (IncompatibleAttribute, ValueError):
+            pass
 
     def _update_zorder(self, *args):
         current_traces = self.view.figure.data
