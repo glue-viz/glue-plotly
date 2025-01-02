@@ -28,7 +28,7 @@ jobs:
         apt:
           - '^libxcb.*-dev'
           - libxkbcommon-x11-0
-          - libegl1-mesa
+          - libegl1-mesa-dev
           - libhdf5-dev
       envs: |
         # Standard tests
@@ -83,7 +83,7 @@ jobs:
     needs: tests
     uses: OpenAstronomy/github-actions-workflows/.github/workflows/publish_pure_python.yml@v1
     with:
-      libraries: '^libxcb.*-dev libxkbcommon-x11-dev libgl1-mesa-glx xvfb'
+      libraries: '^libxcb.*-dev libxkbcommon-x11-dev libgl1 libglx-mesa0 xvfb'
       test_extras: 'test,qt,jupyter'
       test_command: Xvfb :99 -screen 0 1024x768x24 > /dev/null 2>&1 & sleep 3; DISPLAY=:99.0 pytest --pyargs glue_plotly
     secrets:
