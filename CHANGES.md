@@ -1,5 +1,27 @@
 # Full changelog
 
+## v0.11.0 - 2025-01-02
+
+<!-- Release notes generated using configuration in .github/release.yml at main -->
+### What's Changed
+
+#### New Features
+
+* Add save hover dialog for Jupyter exporters by @Carifio24 in https://github.com/glue-viz/glue-plotly/pull/107
+
+#### Bug Fixes
+
+* Fix technical issues with Qt image exporter by @Carifio24 in https://github.com/glue-viz/glue-plotly/pull/106
+* Catch `ValueError`s that can arise while doing histogram computations by @Carifio24 in https://github.com/glue-viz/glue-plotly/pull/112
+
+#### Other Changes
+
+* Title-case 3D scatter warning dialog title by @Carifio24 in https://github.com/glue-viz/glue-plotly/pull/108
+* Update masks for scatter layers by @Carifio24 in https://github.com/glue-viz/glue-plotly/pull/109
+* Bump Python version to 3.10 by @Carifio24 in https://github.com/glue-viz/glue-plotly/pull/111
+
+**Full Changelog**: https://github.com/glue-viz/glue-plotly/compare/v0.10.1...v0.10.2
+
 ## v0.10.1 - 2024-11-19
 
 <!-- Release notes generated using configuration in .github/release.yml at main -->
