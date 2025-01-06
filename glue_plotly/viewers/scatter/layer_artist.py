@@ -18,7 +18,7 @@ __all__ = ["PlotlyScatterLayerArtist"]
 
 
 CMAP_PROPERTIES = {"cmap_mode", "cmap_att", "cmap_vmin", "cmap_vmax", "cmap"}
-BORDER_PROPERTIES = {"border_visible", "border_size", "border_color"}
+BORDER_PROPERTIES = {"border_visible", "border_size", "border_color", "border_color_match_layer"}
 MARKER_PROPERTIES = {
     "size_mode",
     "size_att",
@@ -254,14 +254,16 @@ class PlotlyScatterLayerArtist(LayerArtist):
                     any(prop in changed for prop in BORDER_PROPERTIES) or \
                     any(prop in changed for prop in ["color", "fill"]):
 
-                color = color_info(self.state) if self.state.fill else "rgba(0, 0, 0, 0)"
+                layer_color = color_info(self.state)
+                marker_color = layer_color if self.state.fill else "rgba(0, 0, 0, 0)"
                 if self.state.border_visible:
-                    line = dict(width=self.state.border_size, color=self.state.border_color)
+                    border_color = layer_color if self.state.border_color_match_layer else self.state.border_color
+                    line = dict(width=self.state.border_size, color=border_color)
                 else:
                     line = dict(width=0)
 
                 scatter.marker.update(
-                    color=color,
+                    color=marker_color,
                     line=line,
                     opacity=self.state.alpha
                 )

@@ -71,11 +71,16 @@
                         hide-details />
                 </div>
                 <div>
+                    <v-subheader class="pl-0 slider-label">match border color to layer</v-subheader>
+                      <v-switch v-model="glue_state.border_color_match_layer" hide-details style="margin-top: 0" />
+                </div>
+                <div>
                     <v-subheader class="pl-0 slider-label">border color</v-subheader>
-                    <v-menu v-model="border_color_menu_open">
+                    <v-menu v-model="border_color_menu_open"
+                            :disabled="glue_state.border_color_match_layer">
                         <template v-slot:activator="{ on }">
                             <span class="glue-color-menu"
-                                  :style="`background: ${glue_state.border_color}`"
+                                  :style="`background: ${glue_state.border_color_match_layer ? 'gray' : glue_state.border_color}`"
                                   @click.stop="on.click"
                             >&nbsp;</span>
                         </template>
