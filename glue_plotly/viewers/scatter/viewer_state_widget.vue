@@ -21,10 +21,10 @@
     </div>
 </template>
 
-<style id="viewer_image">
-    .glue-viewer-scatter-plotly .v-subheader.slider-label {
-        font-size: 12px;
-        height: 16px;
-        margin-top: 6px;
-    }
+<style id="viewer_scatter">
+.glue-viewer-scatter-plotly .v-subheader.slider-label {
+    font-size: 12px;
+    height: 16px;
+    margin-top: 6px;
+}
 </style>

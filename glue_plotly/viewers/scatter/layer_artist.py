@@ -5,11 +5,11 @@ from numpy import repeat
 
 from glue_plotly.common import color_info
 from glue_plotly.common.scatter2d import LINESTYLES, rectilinear_lines, scatter_mode, size_info
+from glue_plotly.viewers.scatter.state import PlotlyScatterLayerState
 from glue.core import BaseData
 from glue.core.exceptions import IncompatibleAttribute
 from glue.utils import ensure_numerical
 from glue.viewers.common.layer_artist import LayerArtist
-from glue.viewers.scatter.state import ScatterLayerState
 
 from plotly.graph_objs import Scatter, Scatterpolar
 
@@ -18,6 +18,7 @@ __all__ = ["PlotlyScatterLayerArtist"]
 
 
 CMAP_PROPERTIES = {"cmap_mode", "cmap_att", "cmap_vmin", "cmap_vmax", "cmap"}
+BORDER_PROPERTIES = {"border_visible", "border_size", "border_color", "border_color_match_layer"}
 MARKER_PROPERTIES = {
     "size_mode",
     "size_att",
@@ -31,6 +32,7 @@ DENSITY_PROPERTIES = {"dpi", "stretch", "density_contrast"}
 VISUAL_PROPERTIES = (
     CMAP_PROPERTIES
     | MARKER_PROPERTIES
+    | BORDER_PROPERTIES
     | DENSITY_PROPERTIES
     | {"color", "alpha", "zorder", "visible"}
 )
@@ -58,7 +60,7 @@ LINE_PROPERTIES = {"line_visible", "cmap_mode", "linestyle", "linewidth", "color
 
 class PlotlyScatterLayerArtist(LayerArtist):
 
-    _layer_state_cls = ScatterLayerState
+    _layer_state_cls = PlotlyScatterLayerState
 
     def __init__(self, view, viewer_state, layer_state=None, layer=None):
 
@@ -249,19 +251,22 @@ class PlotlyScatterLayerArtist(LayerArtist):
         if self.state.markers_visible:
             if force or \
                     any(prop in changed for prop in CMAP_PROPERTIES) or \
+                    any(prop in changed for prop in BORDER_PROPERTIES) or \
                     any(prop in changed for prop in ["color", "fill"]):
 
-                color = color_info(self.state)
-                if self.state.fill:
-                    scatter.marker.update(color=color,
-                                          line=dict(width=0),
-                                          opacity=self.state.alpha)
+                layer_color = color_info(self.state)
+                marker_color = layer_color if self.state.fill else "rgba(0, 0, 0, 0)"
+                if self.state.border_visible:
+                    border_color = layer_color if self.state.border_color_match_layer else self.state.border_color
+                    line = dict(width=self.state.border_size, color=border_color)
                 else:
-                    scatter.marker.update(color='rgba(0, 0, 0, 0)',
-                                          opacity=self.state.alpha,
-                                          line=dict(width=1,
-                                                    color=color)
-                                          )
+                    line = dict(width=0)
+
+                scatter.marker.update(
+                    color=marker_color,
+                    line=line,
+                    opacity=self.state.alpha
+                )
 
             if force or any(prop in changed for prop in MARKER_PROPERTIES):
                 scatter.marker['size'] = size_info(self.state)
