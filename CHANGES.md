@@ -1,5 +1,20 @@
 # Full changelog
 
+## v0.12.0 - 2025-01-08
+
+<!-- Release notes generated using configuration in .github/release.yml at main -->
+### What's Changed
+
+#### New Features
+
+* Add support for borders for scatter layers by @Carifio24 in https://github.com/glue-viz/glue-plotly/pull/114
+
+#### Bug Fixes
+
+* Initialize border color by @Carifio24 in https://github.com/glue-viz/glue-plotly/pull/115
+
+**Full Changelog**: https://github.com/glue-viz/glue-plotly/compare/v0.11.0...v0.12.0
+
 ## v0.11.0 - 2025-01-02
 
 <!-- Release notes generated using configuration in .github/release.yml at main -->
