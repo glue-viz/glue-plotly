@@ -57,6 +57,11 @@
                 </div>
             </template>
             <template v-else>
+               <div>
+                    <v-subheader class="pl-0 slider-label">size scaling</v-subheader>
+                    <glue-throttled-slider wait="300" min="0.1" max="10" step="0.01" :value.sync="glue_state.size_scaling"
+                        hide-details />
+                </div>
                 <div>
                       <v-subheader class="pl-0 slider-label">fill markers</v-subheader>
                       <v-switch v-model="glue_state.fill" hide-details style="margin-top: 0" />
@@ -91,11 +96,6 @@
                             <v-color-picker v-model="glue_state.border_color"></v-color-picker>
                         </div>
                     </v-menu>
-                </div>
-                <div>
-                    <v-subheader class="pl-0 slider-label">size scaling</v-subheader>
-                    <glue-throttled-slider wait="300" min="0.1" max="10" step="0.01" :value.sync="glue_state.size_scaling"
-                        hide-details />
                 </div>
             </template>
         </template>
