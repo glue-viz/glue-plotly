@@ -33,13 +33,6 @@ class PlotlyBaseView(IPyWidgetView):
 
         super(PlotlyBaseView, self).__init__(session, state=state)
 
-        layout = self._create_layout_config()
-        self.figure = go.FigureWidget(layout=layout)
-        self.figure._config = self.figure._config = {**self.figure._config, "displayModeBar": False}
-
-        self._unique_class = f"glue-plotly-{uuid4().hex}"
-        self.figure.add_class(self._unique_class)
-
         self.selection_layer_id = uuid4().hex
         selection_layer = go.Heatmap(x0=0.5,
                                      dx=1,
@@ -48,7 +41,13 @@ class PlotlyBaseView(IPyWidgetView):
                                      meta=self.selection_layer_id,
                                      z=[[[0, 0, 0, 0]]],
                                      visible=False)
-        self.figure.add_trace(selection_layer)
+
+        layout = self._create_layout_config()
+        self.figure = go.FigureWidget(layout=layout, data=selection_layer)
+        self.figure._config = {**self.figure._config, "displayModeBar": False}
+
+        self._unique_class = f"glue-plotly-{uuid4().hex}"
+        self.figure.add_class(self._unique_class)
 
         # Note that we need the log updates to be high priority for the histogram viewer
         # so that the axes are updated before the limits are reset
@@ -121,15 +120,9 @@ class PlotlyBaseView(IPyWidgetView):
         dy = self.state.y_max - self.state.y_min
         self.selection_layer.update(x0=x0, dx=dx, y0=y0, dy=dy)
 
-    def _bring_selection_layer_to_top(self):
-        selection_layer = self.selection_layer
-        self.figure.data = [trace for trace in self.figure.data if trace is not selection_layer] + [selection_layer]
-
     def set_selection_active(self, active):
         if active:
             self._update_selection_layer_bounds()
-            self._bring_selection_layer_to_top()
-        # self.selection_layer.update(visible=active)
 
     def set_selection_callback(self, on_selection):
         self.selection_layer.on_selection(on_selection)
