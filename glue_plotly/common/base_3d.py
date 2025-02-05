@@ -59,11 +59,13 @@ def axis(viewer_state, ax):
     title = getattr(viewer_state, f'{ax}_att').label
     range = [getattr(viewer_state, f'{ax}_min'), getattr(viewer_state, f'{ax}_max')]
     return dict(
-        title=title,
-        titlefont=dict(
-            family=DEFAULT_FONT,
-            size=20,
-            color=settings.FOREGROUND_COLOR
+        title=dict(
+            text=title,
+            font=dict(
+                family=DEFAULT_FONT,
+                size=20,
+                color=settings.FOREGROUND_COLOR
+            )
         ),
         backgroundcolor=settings.BACKGROUND_COLOR,
         showspikes=False,

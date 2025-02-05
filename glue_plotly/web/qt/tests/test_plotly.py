@@ -1,10 +1,12 @@
 from __future__ import absolute_import, division, print_function
-from glue_qt.app.application import get_icon
 
 import pytest
 import numpy as np
 
+from glue.config import settings
 from glue.core import Data, DataCollection
+
+from glue_plotly.common.common import DEFAULT_FONT
 
 pytest.importorskip('qtpy')
 
@@ -15,8 +17,6 @@ from glue_qt.viewers.profile import ProfileViewer  # noqa: E402
 
 from ...export_plotly import build_plotly_call  # noqa: E402
 from ....common.tests.utils import SimpleCoordinates  # noqa: E402
-
-get_icon
 
 
 class TestPlotly(object):
@@ -98,12 +98,35 @@ class TestPlotly(object):
         viewer.state.y_max = 4
         viewer.state.y_att = self.data.id['y']
 
+        viewer.state.x_axislabel_size = 10
+        viewer.state.y_axislabel_size = 15
+
         args, kwargs = build_plotly_call(self.app)
 
-        xaxis = dict(type='log', rangemode='normal',
-                     range=[1, 2], title=viewer.state.x_axislabel, zeroline=False)
-        yaxis = dict(type='linear', rangemode='normal',
-                     range=[2, 4], title=viewer.state.y_axislabel, zeroline=False)
+        xaxis = dict(type='log',
+                     rangemode='normal',
+                     range=[1, 2],
+                     title=dict(
+                         text=viewer.state.x_axislabel,
+                         font=dict(
+                             family=DEFAULT_FONT,
+                             size=20,
+                             color=settings.FOREGROUND_COLOR
+                         )
+                     ),
+                     zeroline=False)
+        yaxis = dict(type='linear',
+                     rangemode='normal',
+                     range=[2, 4],
+                     title=dict(
+                         text=viewer.state.y_axislabel,
+                         font=dict(
+                             family=DEFAULT_FONT,
+                             size=30,
+                             color=settings.FOREGROUND_COLOR
+                         )
+                     ),
+                     zeroline=False)
         layout = args[0]['layout']
         for k, v in layout['xaxis'].items():
             assert xaxis.get(k, v) == v
@@ -186,10 +209,30 @@ class TestPlotly(object):
 
         args, kwargs = build_plotly_call(self.app)
 
-        xaxis = dict(type='linear', rangemode='normal',
-                     range=[0.92, 3.08], title='x', zeroline=False)
-        yaxis = dict(type='linear', rangemode='normal',
-                     range=[-0.62, 2.62], title='z', zeroline=False)
+        xaxis = dict(type='linear',
+                     rangemode='normal',
+                     range=[0.92, 3.08],
+                     title=dict(
+                         text='x',
+                         font=dict(
+                             family=DEFAULT_FONT,
+                             size=20,
+                             color=settings.FOREGROUND_COLOR
+                         )
+                     ),
+                     zeroline=False)
+        yaxis = dict(type='linear',
+                     rangemode='normal',
+                     range=[-0.62, 2.62],
+                     title=dict(
+                         text='z',
+                         font=dict(
+                             family=DEFAULT_FONT,
+                             size=20,
+                             color=settings.FOREGROUND_COLOR
+                         )
+                     ),
+                     zeroline=False)
         layout = args[0]['layout']
         for k, v in layout['xaxis'].items():
             assert xaxis.get(k, v) == v
@@ -206,10 +249,30 @@ class TestPlotly(object):
 
         args, kwargs = build_plotly_call(self.app)
 
-        xaxis = dict(type='linear', rangemode='normal',
-                     range=[-0.5, 2.5], title=viewer.state.x_axislabel, zeroline=False)
-        yaxis = dict(type='linear', rangemode='normal',
-                     range=[0, 1.2], title=viewer.state.y_axislabel, zeroline=False)
+        xaxis = dict(type='linear',
+                     rangemode='normal',
+                     range=[-0.5, 2.5],
+                     title=dict(
+                         text=viewer.state.x_axislabel,
+                         font=dict(
+                            family=DEFAULT_FONT,
+                            size=20,
+                            color=settings.FOREGROUND_COLOR
+                         )
+                     ),
+                     zeroline=False)
+        yaxis = dict(type='linear',
+                     rangemode='normal',
+                     range=[0, 1.2],
+                     title=dict(
+                         text=viewer.state.y_axislabel,
+                         font=dict(
+                            family=DEFAULT_FONT,
+                            size=20,
+                            color=settings.FOREGROUND_COLOR
+                         )
+                     ),
+                     zeroline=False)
         layout = args[0]['layout']
         for k, v in layout['xaxis'].items():
             assert xaxis.get(k, v) == v
