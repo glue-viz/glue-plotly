@@ -2,6 +2,7 @@ import re
 
 from glue.config import settings
 from glue_plotly.common import DEFAULT_FONT
+from glue_plotly.utils import PLOTLY_MAJOR_VERSION, add_title, font
 
 
 def dimensions(viewer_state):
@@ -56,15 +57,8 @@ def bounds(viewer_state, with_resolution=False):
 
 
 def axis(viewer_state, ax):
-    title = getattr(viewer_state, f'{ax}_att').label
     range = [getattr(viewer_state, f'{ax}_min'), getattr(viewer_state, f'{ax}_max')]
-    return dict(
-        title=title,
-        titlefont=dict(
-            family=DEFAULT_FONT,
-            size=20,
-            color=settings.FOREGROUND_COLOR
-        ),
+    axis_dict = dict(
         backgroundcolor=settings.BACKGROUND_COLOR,
         showspikes=False,
         linecolor=settings.FOREGROUND_COLOR,
@@ -84,6 +78,10 @@ def axis(viewer_state, ax):
         rangemode='normal',
         visible=viewer_state.visible_axes
     )
+
+    title = getattr(viewer_state, f'{ax}_att').label
+    font_dict = font(family=DEFAULT_FONT, size=20, color=settings.FOREGROUND_COLOR)
+    add_title(config=axis_dict, text=title, font=font_dict)
 
 
 def bbox_mask(viewer_state, x, y, z):
