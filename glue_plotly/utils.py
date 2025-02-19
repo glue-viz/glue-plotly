@@ -143,8 +143,13 @@ def font(family, size, color) -> dict:
     )
 
 
-def add_title(config, text, font):
+def add_title(config, text, font=None):
     if PLOTLY_MAJOR_VERSION == 6:
-        config.update(title=dict(text=text, font=font))
+        title = dict(text=text)
+        if font:
+            title["font"] = font
+        config.update(title=title)
     else:
-        config.update(title=text, titlefont=font)
+        config["title"] = text
+        if font:
+            config["titlefont"] = font
