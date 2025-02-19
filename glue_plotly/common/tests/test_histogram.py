@@ -68,8 +68,13 @@ class TestHistogram:
         assert common_items.items() <= x_axis.items()
         assert common_items.items() <= y_axis.items()
 
-        assert x_axis['title'] == 'X Axis'
-        assert y_axis['title'] == 'Y Axis'
+        if PLOTLY_MAJOR_VERSION == 6:
+            assert y_axis['title']['text'] == 'Y Axis'
+            assert x_axis['title']['text'] == 'X Axis'
+        else:
+            assert x_axis['title'] == 'X Axis'
+            assert y_axis['title'] == 'Y Axis'
+
         assert x_axis['type'] == 'log' if log_x else 'linear'
         assert y_axis['type'] == 'log' if log_y else 'linear'
 
