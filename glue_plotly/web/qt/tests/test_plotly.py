@@ -6,6 +6,8 @@ import numpy as np
 
 from glue.core import Data, DataCollection
 
+from glue_plotly.utils import add_title
+
 pytest.importorskip('qtpy')
 
 from glue_qt.app import GlueApplication  # noqa: E402
@@ -98,17 +100,19 @@ class TestPlotly(object):
         viewer.state.y_max = 4
         viewer.state.y_att = self.data.id['y']
 
-        args, kwargs = build_plotly_call(self.app)
+        args, _kwargs = build_plotly_call(self.app)
 
         xaxis = dict(type='log', rangemode='normal',
-                     range=[1, 2], title=viewer.state.x_axislabel, zeroline=False)
+                     range=[1, 2], zeroline=False)
+        add_title(xaxis, text=viewer.state.x_axislabel)
         yaxis = dict(type='linear', rangemode='normal',
-                     range=[2, 4], title=viewer.state.y_axislabel, zeroline=False)
+                     range=[2, 4], zeroline=False)
+        add_title(yaxis, text=viewer.state.y_axislabel)
         layout = args[0]['layout']
-        for k, v in layout['xaxis'].items():
-            assert xaxis.get(k, v) == v
-        for k, v in layout['yaxis'].items():
-            assert yaxis.get(k, v) == v
+        for k, v in xaxis.items():
+            assert layout['xaxis'][k] == v
+        for k, v in yaxis.items():
+            assert layout['yaxis'][k] == v
 
         viewer.close(warn=False)
 
@@ -187,14 +191,16 @@ class TestPlotly(object):
         args, kwargs = build_plotly_call(self.app)
 
         xaxis = dict(type='linear', rangemode='normal',
-                     range=[0.92, 3.08], title='x', zeroline=False)
+                     range=[0.92, 3.08], zeroline=False)
+        add_title(xaxis, text="x")
         yaxis = dict(type='linear', rangemode='normal',
-                     range=[-0.62, 2.62], title='z', zeroline=False)
+                     range=[-0.62, 2.62], zeroline=False)
+        add_title(yaxis, text="z")
         layout = args[0]['layout']
-        for k, v in layout['xaxis'].items():
-            assert xaxis.get(k, v) == v
-        for k, v in layout['yaxis'].items():
-            assert yaxis.get(k, v) == v
+        for k, v in xaxis.items():
+            assert layout['xaxis'][k] == v
+        for k, v in yaxis.items():
+            assert layout['yaxis'][k] == v
 
         viewer.close(warn=False)
 
@@ -207,13 +213,15 @@ class TestPlotly(object):
         args, kwargs = build_plotly_call(self.app)
 
         xaxis = dict(type='linear', rangemode='normal',
-                     range=[-0.5, 2.5], title=viewer.state.x_axislabel, zeroline=False)
+                     range=[-0.5, 2.5], zeroline=False)
+        add_title(xaxis, text=viewer.state.x_axislabel)
         yaxis = dict(type='linear', rangemode='normal',
-                     range=[0, 1.2], title=viewer.state.y_axislabel, zeroline=False)
+                     range=[0, 1.2], zeroline=False)
+        add_title(yaxis, text=viewer.state.y_axislabel)
         layout = args[0]['layout']
-        for k, v in layout['xaxis'].items():
-            assert xaxis.get(k, v) == v
-        for k, v in layout['yaxis'].items():
-            assert yaxis.get(k, v) == v
+        for k, v in xaxis.items():
+            assert layout['xaxis'][k] == v
+        for k, v in yaxis.items():
+            assert layout['yaxis'][k] == v
 
         viewer.close(warn=False)
