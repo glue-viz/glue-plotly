@@ -5,7 +5,7 @@ from glue.core import BaseData
 from glue.viewers.common.state import LayerState
 
 
-PLOTLY_MAJOR_VERSION = version("plotly").split(".")[0]
+PLOTLY_MAJOR_VERSION = int(version("plotly").split(".")[0])
 
 
 __all__ = [
