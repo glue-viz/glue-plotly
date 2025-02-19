@@ -113,8 +113,7 @@ def axes_data_from_mpl(viewer):
                 )
                 add_title(config=axis_info,
                           text=viewer.axes.get_xlabel(),
-                          font=title_font
-                )
+                          font=title_font)
                 axes_data['xaxis'] = axis_info
             elif axis == 'l':
                 title_font = font(

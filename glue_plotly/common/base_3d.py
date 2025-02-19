@@ -2,7 +2,7 @@ import re
 
 from glue.config import settings
 from glue_plotly.common import DEFAULT_FONT
-from glue_plotly.utils import PLOTLY_MAJOR_VERSION, add_title, font
+from glue_plotly.utils import add_title, font
 
 
 def dimensions(viewer_state):
