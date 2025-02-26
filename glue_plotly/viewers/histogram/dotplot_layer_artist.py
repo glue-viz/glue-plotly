@@ -9,7 +9,7 @@ from glue.viewers.common.layer_artist import LayerArtist
 from glue.viewers.histogram.state import HistogramLayerState
 from glue_plotly.common.common import fixed_color
 
-from glue_plotly.common.dotplot import dot_positions, dot_radius, dots_for_layer, traces_for_layer
+from glue_plotly.common.dotplot import dot_positions, dot_radius, dots_for_layer
 
 __all__ = ["PlotlyDotplotLayerArtist"]
 
