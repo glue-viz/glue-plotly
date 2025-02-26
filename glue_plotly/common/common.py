@@ -13,7 +13,7 @@ try:
 except ImportError:
     BqplotBaseView = type(None)
 
-from glue_plotly.utils import is_rgba_hex, opacity_value_string, rgba_hex_to_rgb_hex
+from glue_plotly.utils import add_title, font, is_rgba_hex, opacity_value_string, rgba_hex_to_rgb_hex
 
 DEFAULT_FONT = 'Arial, sans-serif'
 
@@ -64,12 +64,6 @@ def base_rectilinear_axis(viewer_state, axis):
     range = [getattr(viewer_state, f'{axis}_min'), getattr(viewer_state, f'{axis}_max')]
     log = getattr(viewer_state, f'{axis}_log')
     axis_dict = dict(
-        title=title,
-        titlefont=dict(
-            family=DEFAULT_FONT,
-            size=2 * axislabel_size,
-            color=settings.FOREGROUND_COLOR
-        ),
         showspikes=False,
         linecolor=settings.FOREGROUND_COLOR,
         tickcolor=settings.FOREGROUND_COLOR,
@@ -91,6 +85,12 @@ def base_rectilinear_axis(viewer_state, axis):
     if log:
         axis_dict.update(dtick=1, minor_ticks='outside',
                          range=list(np.log10(range)))
+
+    font_dict = font(family=DEFAULT_FONT,
+                     size=2 * axislabel_size,
+                     color=settings.FOREGROUND_COLOR)
+    add_title(config=axis_dict, text=title, font=font_dict)
+
     return axis_dict
 
 

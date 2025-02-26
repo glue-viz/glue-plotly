@@ -1,7 +1,12 @@
+from importlib.metadata import version
 from re import match, sub
 
 from glue.core import BaseData
 from glue.viewers.common.state import LayerState
+
+
+PLOTLY_MAJOR_VERSION = int(version("plotly").split(".")[0])
+
 
 __all__ = [
     'cleaned_labels',
@@ -128,3 +133,23 @@ def frb_for_layer(viewer_state,
             subset_state=layer_state.layer.subset_state
         )
         return subcube * data_frb
+
+
+def font(family, size, color) -> dict:
+    return dict(
+        family=family,
+        size=size,
+        color=color
+    )
+
+
+def add_title(config, text, font=None):
+    if PLOTLY_MAJOR_VERSION == 6:
+        title = dict(text=text)
+        if font:
+            title["font"] = font
+        config.update(title=title)
+    else:
+        config["title"] = text
+        if font:
+            config["titlefont"] = font

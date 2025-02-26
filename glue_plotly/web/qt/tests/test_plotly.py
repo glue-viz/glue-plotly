@@ -1,10 +1,11 @@
 from __future__ import absolute_import, division, print_function
-from glue_qt.app.application import get_icon
 
 import pytest
 import numpy as np
 
 from glue.core import Data, DataCollection
+
+from glue_plotly.utils import add_title
 
 pytest.importorskip('qtpy')
 
@@ -14,9 +15,7 @@ from glue_qt.viewers.histogram import HistogramViewer  # noqa: E402
 from glue_qt.viewers.profile import ProfileViewer  # noqa: E402
 
 from ...export_plotly import build_plotly_call  # noqa: E402
-from ....common.tests.utils import SimpleCoordinates  # noqa: E402
-
-get_icon
+from ....common.tests.utils import SimpleCoordinates, check_axes_agree  # noqa: E402
 
 
 class TestPlotly(object):
@@ -45,7 +44,7 @@ class TestPlotly(object):
         viewer.state.x_att = d.id['y']
         viewer.state.y_att = d.id['x']
 
-        args, kwargs = build_plotly_call(self.app)
+        args, _kwargs = build_plotly_call(self.app)
         data = args[0]['data'][0].to_plotly_json()
 
         expected = dict(type='scatter', mode='markers', name=d.label,
@@ -98,17 +97,17 @@ class TestPlotly(object):
         viewer.state.y_max = 4
         viewer.state.y_att = self.data.id['y']
 
-        args, kwargs = build_plotly_call(self.app)
+        args, _kwargs = build_plotly_call(self.app)
 
         xaxis = dict(type='log', rangemode='normal',
-                     range=[1, 2], title=viewer.state.x_axislabel, zeroline=False)
+                     range=[1, 2], zeroline=False)
+        add_title(xaxis, text=viewer.state.x_axislabel)
         yaxis = dict(type='linear', rangemode='normal',
-                     range=[2, 4], title=viewer.state.y_axislabel, zeroline=False)
+                     range=[2, 4], zeroline=False)
+        add_title(yaxis, text=viewer.state.y_axislabel)
         layout = args[0]['layout']
-        for k, v in layout['xaxis'].items():
-            assert xaxis.get(k, v) == v
-        for k, v in layout['yaxis'].items():
-            assert yaxis.get(k, v) == v
+        check_axes_agree(layout, "xaxis", xaxis)
+        check_axes_agree(layout, "yaxis", yaxis)
 
         viewer.close(warn=False)
 
@@ -123,7 +122,7 @@ class TestPlotly(object):
         viewer.state.hist_x_max = 10
         viewer.state.hist_n_bin = 20
 
-        args, kwargs = build_plotly_call(self.app)
+        args, _kwargs = build_plotly_call(self.app)
 
         expected = dict(
             name='data',
@@ -153,7 +152,7 @@ class TestPlotly(object):
         viewer = self.app.new_data_viewer(ProfileViewer, data=d)
         viewer.state.reference_data = d
 
-        args, kwargs = build_plotly_call(self.app)
+        args, _kwargs = build_plotly_call(self.app)
 
         expected = dict(
             name='profile',
@@ -184,17 +183,17 @@ class TestPlotly(object):
         viewer.state.x_att = self.data.id['x']
         viewer.state.y_att = self.data.id['z']
 
-        args, kwargs = build_plotly_call(self.app)
+        args, _kwargs = build_plotly_call(self.app)
 
         xaxis = dict(type='linear', rangemode='normal',
-                     range=[0.92, 3.08], title='x', zeroline=False)
+                     range=[0.92, 3.08], zeroline=False)
+        add_title(xaxis, text="x")
         yaxis = dict(type='linear', rangemode='normal',
-                     range=[-0.62, 2.62], title='z', zeroline=False)
+                     range=[-0.62, 2.62], zeroline=False)
+        add_title(yaxis, text="z")
         layout = args[0]['layout']
-        for k, v in layout['xaxis'].items():
-            assert xaxis.get(k, v) == v
-        for k, v in layout['yaxis'].items():
-            assert yaxis.get(k, v) == v
+        check_axes_agree(layout, "xaxis", xaxis)
+        check_axes_agree(layout, "yaxis", yaxis)
 
         viewer.close(warn=False)
 
@@ -204,16 +203,16 @@ class TestPlotly(object):
 
         viewer.state.x_att = self.data.id['z']
 
-        args, kwargs = build_plotly_call(self.app)
+        args, _kwargs = build_plotly_call(self.app)
 
         xaxis = dict(type='linear', rangemode='normal',
-                     range=[-0.5, 2.5], title=viewer.state.x_axislabel, zeroline=False)
+                     range=[-0.5, 2.5], zeroline=False)
+        add_title(xaxis, text=viewer.state.x_axislabel)
         yaxis = dict(type='linear', rangemode='normal',
-                     range=[0, 1.2], title=viewer.state.y_axislabel, zeroline=False)
+                     range=[0, 1.2], zeroline=False)
+        add_title(yaxis, text=viewer.state.y_axislabel)
         layout = args[0]['layout']
-        for k, v in layout['xaxis'].items():
-            assert xaxis.get(k, v) == v
-        for k, v in layout['yaxis'].items():
-            assert yaxis.get(k, v) == v
+        check_axes_agree(layout, "xaxis", xaxis)
+        check_axes_agree(layout, "yaxis", yaxis)
 
         viewer.close(warn=False)

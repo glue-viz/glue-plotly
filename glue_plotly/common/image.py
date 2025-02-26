@@ -20,7 +20,7 @@ from plotly.graph_objects import Heatmap, Image, Scatter
 
 from glue_plotly.common import DEFAULT_FONT, base_layout_config, color_info, fixed_color, layers_to_export, sanitize
 from glue_plotly.common.scatter2d import size_info as scatter_size_info
-from glue_plotly.utils import cleaned_labels
+from glue_plotly.utils import add_title, cleaned_labels, font
 
 
 def slice_to_bound(slc, size):
@@ -99,31 +99,31 @@ def axes_data_from_mpl(viewer):
                 tickmode='array',
                 tickvals=locations,
                 ticktext=labels,
-                tickfont=dict(
+                tickfont=font(
                     family=DEFAULT_FONT,
                     size=1.5 * axes.xaxis.get_ticklabels()[0].get_fontsize(),
                     color=settings.FOREGROUND_COLOR)
             )
 
             if axis == 'b':
-                axis_info.update(
-                    title=viewer.axes.get_xlabel(),
-                    titlefont=dict(
-                        family=DEFAULT_FONT,
-                        size=2 * axes.xaxis.get_label().get_size(),
-                        color=settings.FOREGROUND_COLOR
-                    )
+                title_font = font(
+                    family=DEFAULT_FONT,
+                    size=2 * axes.xaxis.get_label().get_size(),
+                    color=settings.FOREGROUND_COLOR
                 )
+                add_title(config=axis_info,
+                          text=viewer.axes.get_xlabel(),
+                          font=title_font)
                 axes_data['xaxis'] = axis_info
             elif axis == 'l':
-                axis_info.update(
-                    title=viewer.axes.get_ylabel(),
-                    titlefont=dict(
-                        family=DEFAULT_FONT,
-                        size=2 * axes.yaxis.get_label().get_size(),
-                        color=settings.FOREGROUND_COLOR
-                    )
+                title_font = font(
+                    family=DEFAULT_FONT,
+                    size=2 * axes.yaxis.get_label().get_size(),
+                    color=settings.FOREGROUND_COLOR
                 )
+                add_title(config=axis_info,
+                          text=viewer.axes.get_ylabel(),
+                          font=title_font)
                 axes_data['yaxis'] = axis_info
             elif axis == 't':
                 axis_info.update(overlaying='x', side='top')

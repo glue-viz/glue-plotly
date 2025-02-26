@@ -3,6 +3,15 @@ from numpy import zeros
 from glue.core import Coordinates
 
 
+def check_axes_agree(layout, axis_name, expected):
+    for k, v in expected.items():
+        layout_value = layout[axis_name][k]
+        if isinstance(v, dict):
+            assert v.items() <= layout_value.items()
+        else:
+            assert layout_value == v
+
+
 class SimpleCoordinates(Coordinates):
 
     def __init__(self):
