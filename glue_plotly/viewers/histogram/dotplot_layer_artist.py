@@ -9,7 +9,7 @@ from glue.viewers.common.layer_artist import LayerArtist
 from glue.viewers.histogram.state import HistogramLayerState
 from glue_plotly.common.common import fixed_color
 
-from glue_plotly.common.dotplot import dot_radius, traces_for_layer
+from glue_plotly.common.dotplot import dot_positions, dot_radius, dots_for_layer
 
 __all__ = ["PlotlyDotplotLayerArtist"]
 
@@ -37,16 +37,30 @@ class PlotlyDotplotLayerArtist(LayerArtist):
         self.view = view
         self.bins = None
         self._dots_id = uuid4().hex
+        dots = self._create_dots()
+        self.view.figure.add_trace(dots)
 
         self._viewer_state.add_global_callback(self._update_dotplot)
         self.state.add_global_callback(self._update_dotplot)
         self.state.add_callback("zorder", self._update_zorder)
 
     def _get_dots(self):
-        return self.view.figure.select_traces(dict(meta=self._dots_id))
+        try:
+            return next(self.view.figure.select_traces(dict(meta=self._dots_id)))
+        except StopIteration:
+            dots = self._create_dots()
+            self.view.figure.add_trace(dots)
+            return dots
 
     def traces(self):
-        return self._get_dots()
+        dots = self._get_dots()
+        return [dots] if dots else []
+
+    def _create_dots(self):
+        dots = dots_for_layer(self.view, self.state, add_data_label=True)
+        dots.update(hoverinfo='all', unselected=dict(marker=dict(opacity=self.state.alpha)))
+        self._dots_id = dots.meta if dots else None
+        return dots
 
     def _calculate_histogram(self):
         try:
@@ -115,18 +129,14 @@ class PlotlyDotplotLayerArtist(LayerArtist):
                      unselected=dict(marker=dict(opacity=self.state.alpha)))
 
     def _update_data(self):
-        old_dots = self._get_dots()
-        if old_dots:
-            with self.view.figure.batch_update():
-                for trace in old_dots:
-                    self.view._remove_trace_index(trace)
-
         try:
-            dots = traces_for_layer(self.view, self.state, add_data_label=True)
-            for trace in dots:
-                trace.update(hoverinfo='all', unselected=dict(marker=dict(opacity=self.state.alpha)))
-            self._dots_id = dots[0].meta if dots else None
-            self.view.figure.add_traces(dots)
+            dots = self._get_dots()
+            if dots:
+                x, y = dot_positions(self.state)
+                dots.update(x=x, y=y)
+            else:
+                dots = self._create_dots()
+                self.view.figure.add_traces(dots)
         except (IncompatibleAttribute, ValueError):
             pass
 

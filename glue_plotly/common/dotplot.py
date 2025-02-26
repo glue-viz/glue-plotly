@@ -23,10 +23,7 @@ def dot_radius(viewer, layer_state):
     return diam / 2
 
 
-def traces_for_layer(viewer, layer_state, add_data_label=True):
-    legend_group = uuid4().hex
-    dots_id = uuid4().hex
-
+def dot_positions(layer_state):
     x = []
     y = []
     edges, counts = layer_state.histogram
@@ -37,6 +34,15 @@ def traces_for_layer(viewer, layer_state, add_data_label=True):
         x.extend([x_i] * counts[i])
         y.extend(y_i)
 
+    return x, y
+
+
+def dots_for_layer(viewer, layer_state, add_data_label=True):
+    legend_group = uuid4().hex
+    dots_id = uuid4().hex
+
+    x, y = dot_positions(layer_state)
+
     radius = dot_radius(viewer, layer_state)
     marker = dict(color=color_info(layer_state, mask=None), size=radius)
 
@@ -44,7 +50,7 @@ def traces_for_layer(viewer, layer_state, add_data_label=True):
     if add_data_label and not isinstance(layer_state.layer, BaseData):
         name += " ({0})".format(layer_state.layer.data.label)
 
-    return [Scatter(
+    return Scatter(
         x=x,
         y=y,
         mode="markers",
@@ -52,4 +58,8 @@ def traces_for_layer(viewer, layer_state, add_data_label=True):
         name=name,
         legendgroup=legend_group,
         meta=dots_id,
-    )]
+    )
+
+
+def traces_for_layer(viewer, layer_state, add_data_label=True):
+    return [dots_for_layer(viewer, layer_state, add_data_label=add_data_label)]
