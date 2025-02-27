@@ -1,5 +1,21 @@
 # Full changelog
 
+## v0.12.1 - 2025-02-27
+
+<!-- Release notes generated using configuration in .github/release.yml at main -->
+### What's Changed
+
+#### Bug Fixes
+
+* Don't create new dot trace on a redraw by @Carifio24 in https://github.com/glue-viz/glue-plotly/pull/118
+
+#### Other Changes
+
+* Create viewer figure with selection layer by @Carifio24 in https://github.com/glue-viz/glue-plotly/pull/116
+* Updates for plotly.py v6 by @Carifio24 in https://github.com/glue-viz/glue-plotly/pull/117
+
+**Full Changelog**: https://github.com/glue-viz/glue-plotly/compare/v0.12.0...v0.12.1
+
 ## v0.12.0 - 2025-01-08
 
 <!-- Release notes generated using configuration in .github/release.yml at main -->
