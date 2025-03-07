@@ -48,7 +48,7 @@ class SaveHoverDialog(BaseSaveHoverDialog, QDialog):
                 item.setForeground(Qt.gray)
             else:
                 item = QListWidgetItem(component.label)
-                if self.checked_dictionary[self.state.data.label][component.label]:
+                if self.checked_dictionary[self.state.data.label].get(component.label, False):
                     item.setCheckState(Qt.Checked)
                 else:
                     item.setCheckState(Qt.Unchecked)
