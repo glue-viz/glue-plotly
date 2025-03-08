@@ -105,10 +105,13 @@ def rectilinear_lines(layer_state, marker, x, y, legend_group=None):
 
     line = dict(dash=LINESTYLES[layer_state.linestyle], width=layer_state.linewidth)
 
+    if layer_state.cmap_mode == "Fixed":
+        line["color"] = color_info(layer_state)
+
     if layer_state.cmap_mode == 'Linear':
         line_id = uuid4().hex
         # set mode to markers and plot the colored line over it
-        rgba_strs = marker['color']
+        rgba_strs = marker['color'] if layer_state.fill else marker['line']['color']
         lc = ColoredLineCollection(x, y)
         segments = lc.get_segments()
         # generate list of indices to parse colors over
