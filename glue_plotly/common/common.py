@@ -43,10 +43,19 @@ def base_layout_config(viewer, include_dimensions=True, **kwargs):
     # set the aspect ratio of the axes, the tick label size, the axis label
     # sizes, and the axes limits
 
+    if hasattr(viewer.state, "legend") and hasattr(viewer.state.legend, "text_color"):
+        legend_font_color = viewer.state.legend.text_color
+    else:
+        legend_font_color = settings.FOREGROUND_COLOR
     config = dict(
         margin=dict(r=50, l=50, b=50, t=50),  # noqa
         paper_bgcolor=settings.BACKGROUND_COLOR,
-        plot_bgcolor=settings.BACKGROUND_COLOR
+        plot_bgcolor=settings.BACKGROUND_COLOR,
+        legend=dict(
+            font=dict(
+                color=legend_font_color,
+            )
+        )
     )
 
     if include_dimensions:
