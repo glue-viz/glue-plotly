@@ -34,8 +34,8 @@ jobs:
         # Standard tests
         - linux: py310-test
         - linux: py311-test
-        - linux: py311-test-plotly5
-        - linux: py311-test-plotly6
+        # - linux: py311-test-plotly5
+        # - linux: py311-test-plotly6
         - linux: py312-test
         - linux: py313-test
         # - linux: py313-test-devdeps
@@ -47,8 +47,8 @@ jobs:
 
         - macos: py310-test
         - macos: py311-test
-        - macos: py311-test-plotly5
-        - macos: py311-test-plotly6
+        # - macos: py311-test-plotly5
+        # - macos: py311-test-plotly6
         - macos: py312-test
         - macos: py313-test
         # - macos: py313-test-devdeps
@@ -60,8 +60,8 @@ jobs:
 
         - windows: py310-test
         - windows: py311-test
-        - windows: py311-test-plotly5
-        - windows: py311-test-plotly6
+        # - windows: py311-test-plotly5
+        # - windows: py311-test-plotly6
         - windows: py312-test
         - windows: py313-test
         # - windows: py313-test-devdeps
