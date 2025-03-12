@@ -1,5 +1,19 @@
 # Full changelog
 
+## v0.12.2 - 2025-03-12
+
+<!-- Release notes generated using configuration in .github/release.yml at main -->
+### What's Changed
+
+#### Bug Fixes
+
+* Add some missing import error guards by @Carifio24 in https://github.com/glue-viz/glue-plotly/pull/120
+* Fix some bugs with scatter exports by @Carifio24 in https://github.com/glue-viz/glue-plotly/pull/121
+* Make legend text color respect glue settings by @Carifio24 in https://github.com/glue-viz/glue-plotly/pull/122
+* Re-pin to Plotly 5.x for now by @Carifio24 in https://github.com/glue-viz/glue-plotly/pull/123
+
+**Full Changelog**: https://github.com/glue-viz/glue-plotly/compare/v0.12.1...v0.12.2
+
 ## v0.12.1 - 2025-02-27
 
 <!-- Release notes generated using configuration in .github/release.yml at main -->
