@@ -80,7 +80,6 @@ class TestDotplot:
         width = 640
         height = 480
         diam = 0.95 * min(height / 15, width / 18)
-        from glue_plotly.common.dotplot import dot_size
         assert dots.marker.size == diam
 
     def test_dot_radius_defined(self):
