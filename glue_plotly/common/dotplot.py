@@ -16,8 +16,9 @@ def dot_size(viewer, layer_state):
     width, height = dimensions(viewer)
     if isinstance(viewer, PlotlyBaseView):
         margins = viewer.figure.layout.margin
-        height -= (margins.b + margins.t)
-        width -= (margins.l + margins.r)
+        if margins:
+            height -= (margins.b + margins.t)
+            width -= (margins.l + margins.r)
     diam = diam_world * width / abs(viewer_state.x_max - viewer_state.x_min)
     if viewer_state.y_min is not None and viewer_state.y_max is not None and viewer_state.y_min != viewer_state.y_max:
         diam_pixel_v = height / abs(viewer_state.y_max - viewer_state.y_min)
