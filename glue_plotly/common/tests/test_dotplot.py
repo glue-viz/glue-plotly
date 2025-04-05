@@ -6,7 +6,7 @@ from glue_qt.app import GlueApplication
 from glue_qt.viewers.histogram import HistogramViewer
 
 from glue_plotly.common import sanitize
-from glue_plotly.common.dotplot import dot_radius, traces_for_layer
+from glue_plotly.common.dotplot import dot_size, traces_for_layer
 
 from glue_plotly.viewers.histogram.viewer import PlotlyHistogramView
 from glue_plotly.viewers.histogram.dotplot_layer_artist import PlotlyDotplotLayerArtist
@@ -87,4 +87,4 @@ class TestDotplot:
         self.viewer.state.y_min = 1
         self.viewer.state.y_max = 1
 
-        assert dot_radius(self.viewer, self.layer.state) == 0.5
+        assert dot_size(self.viewer, self.layer.state) == 0.5
