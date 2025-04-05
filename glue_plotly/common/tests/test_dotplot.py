@@ -75,7 +75,13 @@ class TestDotplot:
                       6, 7, 8)
 
         assert dots.y == expected_y
-        assert dots.marker.size == 16  # Default figure is 640x480
+
+        # Default figure is 640x480
+        width = 640
+        height = 480
+        diam = 0.95 * min(height / 15, width / 18)
+        from glue_plotly.common.dotplot import dot_size
+        assert dots.marker.size == diam
 
     def test_dot_radius_defined(self):
         """
@@ -87,4 +93,4 @@ class TestDotplot:
         self.viewer.state.y_min = 1
         self.viewer.state.y_max = 1
 
-        assert dot_size(self.viewer, self.layer.state) == 0.5
+        assert dot_size(self.viewer, self.layer.state) == 0.95
