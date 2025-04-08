@@ -9,7 +9,7 @@ from glue.viewers.common.layer_artist import LayerArtist
 from glue.viewers.histogram.state import HistogramLayerState
 from glue_plotly.common.common import fixed_color
 
-from glue_plotly.common.dotplot import dot_positions, dot_radius, dots_for_layer
+from glue_plotly.common.dotplot import dot_positions, dot_size, dots_for_layer
 
 __all__ = ["PlotlyDotplotLayerArtist"]
 
@@ -123,7 +123,7 @@ class PlotlyDotplotLayerArtist(LayerArtist):
 
     def _update_visual_attrs_for_trace(self, trace):
         marker = trace.marker
-        marker.update(opacity=self.state.alpha, color=fixed_color(self.state), size=dot_radius(self.view, self.state))
+        marker.update(opacity=self.state.alpha, color=fixed_color(self.state), size=dot_size(self.view, self.state))
         trace.update(marker=marker,
                      visible=self.state.visible,
                      unselected=dict(marker=dict(opacity=self.state.alpha)))

@@ -5,22 +5,27 @@ from plotly.graph_objs import Scatter
 
 from glue.core import BaseData
 
-from .common import color_info, dimensions
+from glue_plotly.common import color_info, dimensions
+from glue_plotly.viewers.common import PlotlyBaseView
 
 
-def dot_radius(viewer, layer_state):
+def dot_size(viewer, layer_state):
     edges = layer_state.histogram[0]
     viewer_state = viewer.state
     diam_world = min([edges[i + 1] - edges[i] for i in range(len(edges) - 1)])
     width, height = dimensions(viewer)
+    if isinstance(viewer, PlotlyBaseView):
+        margins = viewer.figure.layout.margin
+        if margins:
+            height -= (margins.b + margins.t)
+            width -= (margins.l + margins.r)
     diam = diam_world * width / abs(viewer_state.x_max - viewer_state.x_min)
     if viewer_state.y_min is not None and viewer_state.y_max is not None and viewer_state.y_min != viewer_state.y_max:
-        max_diam_world_v = 1
-        diam_pixel_v = max_diam_world_v * height / abs(viewer_state.y_max - viewer_state.y_min)
+        diam_pixel_v = height / abs(viewer_state.y_max - viewer_state.y_min)
         diam = min(diam_pixel_v, diam)
     if not isfinite(diam):
         diam = 1
-    return diam / 2
+    return diam * 0.95
 
 
 def dot_positions(layer_state):
@@ -43,7 +48,7 @@ def dots_for_layer(viewer, layer_state, add_data_label=True):
 
     x, y = dot_positions(layer_state)
 
-    radius = dot_radius(viewer, layer_state)
+    radius = dot_size(viewer, layer_state)
     marker = dict(color=color_info(layer_state, mask=None), size=radius)
 
     name = layer_state.layer.label
