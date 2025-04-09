@@ -46,7 +46,7 @@
         <v-btn @click="cancel_dialog">Cancel</v-btn>
         <v-btn @click="export_viewer">Export</v-btn>
       </v-row>
-      
+
     </v-card>
   <v-dialog>
 </template>

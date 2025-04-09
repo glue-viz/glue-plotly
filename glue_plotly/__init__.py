@@ -1,6 +1,6 @@
 import os
 
-from pkg_resources import get_distribution, DistributionNotFound
+from pkg_resources import DistributionNotFound, get_distribution
 
 try:
     __version__ = get_distribution(__name__).version
@@ -8,7 +8,7 @@ except DistributionNotFound:
     pass
 
 
-PLOTLY_LOGO = os.path.abspath(os.path.join(os.path.dirname(__file__), 'logo'))
+PLOTLY_LOGO = os.path.abspath(os.path.join(os.path.dirname(__file__), "logo"))
 PLOTLY_ERROR_MESSAGE = "An error occurred during the export to Plotly:"
 
 
@@ -34,29 +34,29 @@ def setup_qt():
     from glue_qt.viewers.scatter import ScatterViewer
     ScatterViewer.subtools = {
         **ScatterViewer.subtools,
-        "save": ScatterViewer.subtools["save"] + ['save:plotly2d']
+        "save": ScatterViewer.subtools["save"] + ["save:plotly2d"]
     }
 
     from glue_qt.viewers.image import ImageViewer
     ImageViewer.subtools = {
         **ImageViewer.subtools,
-        "save": ImageViewer.subtools["save"] + ['save:plotlyimage2d']
+        "save": ImageViewer.subtools["save"] + ["save:plotlyimage2d"]
     }
 
     from glue_qt.viewers.histogram import HistogramViewer
     HistogramViewer.subtools = {
         **HistogramViewer.subtools,
-        "save": HistogramViewer.subtools["save"] + ['save:plotlyhist']
+        "save": HistogramViewer.subtools["save"] + ["save:plotlyhist"]
     }
 
     from glue_qt.viewers.profile import ProfileViewer
     ProfileViewer.subtools = {
         **ProfileViewer.subtools,
-        "save": ProfileViewer.subtools["save"] + ['save:plotlyprofile']
+        "save": ProfileViewer.subtools["save"] + ["save:plotlyprofile"]
     }
 
     from glue_qt.viewers.table import TableViewer
-    TableViewer.tools += ['save:plotlytable']
+    TableViewer.tools += ["save:plotlytable"]
 
     try:
         from glue_qt.plugins.dendro_viewer import DendrogramViewer
@@ -65,7 +65,7 @@ def setup_qt():
     else:
         DendrogramViewer.subtools = {
             **DendrogramViewer.subtools,
-            "save": DendrogramViewer.subtools["save"] + ['save:plotlydendro']
+            "save": DendrogramViewer.subtools["save"] + ["save:plotlydendro"]
         }
 
     try:
@@ -92,12 +92,12 @@ def setup_jupyter():
     from glue_jupyter.bqplot.scatter import BqplotScatterView
     from glue_jupyter.ipyvolume import IpyvolumeScatterView, IpyvolumeVolumeView
 
-    BqplotHistogramView.tools += ['save:bqplot_plotlyhist']
-    BqplotImageView.tools += ['save:bqplot_plotlyimage2d']
-    BqplotProfileView.tools += ['save:bqplot_plotlyprofile']
-    BqplotScatterView.tools += ['save:bqplot_plotly2d']
-    IpyvolumeScatterView.tools = [tool for tool in IpyvolumeScatterView.tools] + ['save:jupyter_plotly3dscatter']
-    IpyvolumeVolumeView.tools = [tool for tool in IpyvolumeVolumeView.tools] + ['save:jupyter_plotlyvolume']
+    BqplotHistogramView.tools += ["save:bqplot_plotlyhist"]
+    BqplotImageView.tools += ["save:bqplot_plotlyimage2d"]
+    BqplotProfileView.tools += ["save:bqplot_plotlyprofile"]
+    BqplotScatterView.tools += ["save:bqplot_plotly2d"]
+    IpyvolumeScatterView.tools = [tool for tool in IpyvolumeScatterView.tools] + ["save:jupyter_plotly3dscatter"]
+    IpyvolumeVolumeView.tools = [tool for tool in IpyvolumeVolumeView.tools] + ["save:jupyter_plotlyvolume"]
 
     try:
         from glue_vispy_viewers.scatter.jupyter import JupyterVispyScatterViewer
@@ -105,5 +105,5 @@ def setup_jupyter():
     except ImportError:
         pass
     else:
-        JupyterVispyScatterViewer.tools += ['save:jupyter_plotly3dscatter']
-        JupyterVispyVolumeViewer.tools += ['save:jupyter_plotlyvolume']
+        JupyterVispyScatterViewer.tools += ["save:jupyter_plotly3dscatter"]
+        JupyterVispyVolumeViewer.tools += ["save:jupyter_plotlyvolume"]

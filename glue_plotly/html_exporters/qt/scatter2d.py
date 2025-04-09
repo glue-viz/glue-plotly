@@ -1,36 +1,35 @@
-from __future__ import absolute_import, division, print_function
 
+import plotly.graph_objs as go
+from glue_qt.core.dialogs import warn
+from glue_qt.utils import messagebox_on_error
+from plotly.offline import plot
 from qtpy import compat
 from qtpy.QtWidgets import QDialog
 
-from glue.config import viewer_tool, settings
+from glue.config import settings, viewer_tool
 from glue.viewers.common.tool import Tool
-from glue_qt.core.dialogs import warn
-from glue_qt.utils import messagebox_on_error
-
-
 from glue_plotly import PLOTLY_ERROR_MESSAGE, PLOTLY_LOGO
 from glue_plotly.common import data_count, layers_to_export
-from glue_plotly.common.scatter2d import polar_layout_config_from_mpl, rectilinear_layout_config, \
-    traces_for_layer
+from glue_plotly.common.scatter2d import (
+    polar_layout_config_from_mpl,
+    rectilinear_layout_config,
+    traces_for_layer,
+)
 from glue_plotly.html_exporters.hover_utils import hover_data_collection_for_viewer
 from glue_plotly.html_exporters.qt.save_hover import SaveHoverDialog
 
-from plotly.offline import plot
-import plotly.graph_objs as go
+DEFAULT_FONT = "Arial, sans-serif"
 
-DEFAULT_FONT = 'Arial, sans-serif'
-
-SHOW_PLOTLY_VECTORS_2D_DIFFERENT = 'SHOW_PLOTLY_2D_VECTORS_DIFFERENT'
+SHOW_PLOTLY_VECTORS_2D_DIFFERENT = "SHOW_PLOTLY_2D_VECTORS_DIFFERENT"
 settings.add(SHOW_PLOTLY_VECTORS_2D_DIFFERENT, True)
 
 
 @viewer_tool
 class PlotlyScatter2DStaticExport(Tool):
     icon = PLOTLY_LOGO
-    tool_id = 'save:plotly2d'
-    action_text = 'Save Plotly HTML page'
-    tool_tip = 'Save Plotly HTML page'
+    tool_id = "save:plotly2d"
+    action_text = "Save Plotly HTML page"
+    tool_tip = "Save Plotly HTML page"
 
     @messagebox_on_error(PLOTLY_ERROR_MESSAGE)
     def activate(self):
@@ -54,8 +53,8 @@ class PlotlyScatter2DStaticExport(Tool):
         if not filename:
             return
 
-        rectilinear = getattr(self.viewer.state, 'using_rectilinear', True)
-        polar = getattr(self.viewer.state, 'using_polar', False)
+        rectilinear = getattr(self.viewer.state, "using_rectilinear", True)
+        polar = getattr(self.viewer.state, "using_polar", False)
 
         if polar:
             layout_config = polar_layout_config_from_mpl(self.viewer)
@@ -66,10 +65,10 @@ class PlotlyScatter2DStaticExport(Tool):
             need_vectors = any(layer.state.vector_visible and layer.state.vector_scaling > 0.1
                                for layer in self.viewer.layers)
             if need_vectors:
-                proceed = warn('Arrows may look different',
-                               'Plotly and Matlotlib vector graphics differ and your graph may look different '
-                               'when exported. Do you want to proceed?',
-                               default='Cancel', setting=SHOW_PLOTLY_VECTORS_2D_DIFFERENT)
+                proceed = warn("Arrows may look different",
+                               "Plotly and Matlotlib vector graphics differ and your graph may look different "
+                               "when exported. Do you want to proceed?",
+                               default="Cancel", setting=SHOW_PLOTLY_VECTORS_2D_DIFFERENT)
                 if not proceed:
                     return
 

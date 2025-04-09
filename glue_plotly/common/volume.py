@@ -1,14 +1,12 @@
-from glue_plotly.utils import frb_for_layer, rgba_components
+import plotly.graph_objects as go
 from numpy import linspace, meshgrid, nan_to_num, nanmin
 
 from glue.core import BaseData
 from glue.core.state_objects import State
 from glue.core.subset_group import GroupedSubset
-
 from glue_plotly.common import color_info
 from glue_plotly.common.base_3d import bbox_mask
-
-import plotly.graph_objects as go
+from glue_plotly.utils import frb_for_layer, rgba_components
 
 
 def positions(bounds):
@@ -85,7 +83,7 @@ def traces_for_layer(viewer_state, layer_state, bounds,
     clipped_values = values(viewer_state, layer_state, bounds)[mask]
     name = layer_state.layer.label
     if add_data_label and not isinstance(layer_state.layer, BaseData):
-        name += " ({0})".format(layer_state.layer.data.label)
+        name += f" ({layer_state.layer.data.label})"
 
     return [go.Volume(
        name=name,

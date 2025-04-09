@@ -1,28 +1,26 @@
-from qtpy import compat
-from qtpy.QtWidgets import QDialog
-
-from glue.config import viewer_tool
+import plotly.graph_objs as go
 from glue_qt.utils import messagebox_on_error
 from glue_qt.utils.threading import Worker
 from glue_qt.viewers.common.tool import Tool
 from glue_vispy_viewers.scatter.layer_artist import ScatterLayerArtist
+from plotly.offline import plot
+from qtpy import compat
+from qtpy.QtWidgets import QDialog
 
+from glue.config import viewer_tool
 from glue_plotly import PLOTLY_ERROR_MESSAGE, PLOTLY_LOGO, export_dialog, volume_options
 from glue_plotly.common import data_count, layers_to_export
 from glue_plotly.common.base_3d import layout_config
 from glue_plotly.common.scatter3d import traces_for_layer as scatter3d_traces_for_layer
 from glue_plotly.common.volume import traces_for_layer as volume_traces_for_layer
 
-from plotly.offline import plot
-import plotly.graph_objs as go
-
 
 @viewer_tool
 class PlotlyVolumeStaticExport(Tool):
     icon = PLOTLY_LOGO
-    tool_id = 'save:plotlyvolume'
-    action_text = 'Save Plotly HTML page'
-    tool_tip = 'Save Plotly HTML page'
+    tool_id = "save:plotlyvolume"
+    action_text = "Save Plotly HTML page"
+    tool_tip = "Save Plotly HTML page"
 
     @messagebox_on_error(PLOTLY_ERROR_MESSAGE)
     def _export_to_plotly(self, filename, state_dictionary):

@@ -36,7 +36,7 @@ def get_resolution(viewer_state):
     try:
         from glue_jupyter.common.state3d import VolumeViewerState
         if isinstance(viewer_state, VolumeViewerState):
-            resolutions = tuple(getattr(state, 'max_resolution', None) for state in viewer_state.layers)
+            resolutions = tuple(getattr(state, "max_resolution", None) for state in viewer_state.layers)
             return max((res for res in resolutions if res is not None), default=256)
     except ImportError:
         pass
@@ -57,7 +57,7 @@ def bounds(viewer_state, with_resolution=False):
 
 
 def axis(viewer_state, ax):
-    range = [getattr(viewer_state, f'{ax}_min'), getattr(viewer_state, f'{ax}_max')]
+    range = [getattr(viewer_state, f"{ax}_min"), getattr(viewer_state, f"{ax}_max")]
     axis_dict = dict(
         backgroundcolor=settings.BACKGROUND_COLOR,
         showspikes=False,
@@ -65,7 +65,7 @@ def axis(viewer_state, ax):
         tickcolor=settings.FOREGROUND_COLOR,
         zeroline=False,
         mirror=True,
-        ticks='outside',
+        ticks="outside",
         showline=True,
         showgrid=False,
         showticklabels=True,
@@ -74,12 +74,12 @@ def axis(viewer_state, ax):
             size=12,
             color=settings.FOREGROUND_COLOR),
         range=range,
-        type='linear',
-        rangemode='normal',
+        type="linear",
+        rangemode="normal",
         visible=viewer_state.visible_axes
     )
 
-    title = getattr(viewer_state, f'{ax}_att').label
+    title = getattr(viewer_state, f"{ax}_att").label
     font_dict = font(family=DEFAULT_FONT, size=20, color=settings.FOREGROUND_COLOR)
     add_title(config=axis_dict, text=title, font=font_dict)
 
@@ -118,9 +118,9 @@ def layout_config(viewer_state):
         width=1200,
         paper_bgcolor=settings.BACKGROUND_COLOR,
         scene=dict(
-            xaxis=axis(viewer_state, 'x'),
-            yaxis=axis(viewer_state, 'y'),
-            zaxis=axis(viewer_state, 'z'),
+            xaxis=axis(viewer_state, "x"),
+            yaxis=axis(viewer_state, "y"),
+            zaxis=axis(viewer_state, "z"),
             camera=dict(
                 projection=dict(
                     type=projection_type(viewer_state)
@@ -131,6 +131,6 @@ def layout_config(viewer_state):
             aspectratio=dict(x=1 * x_stretch,
                              y=height / width * y_stretch,
                              z=depth / width * z_stretch),
-            aspectmode='manual'
+            aspectmode="manual"
         )
     )

@@ -1,4 +1,3 @@
-from __future__ import absolute_import, division, print_function
 
 try:
     from chart_studio import plotly
@@ -6,12 +5,18 @@ except ImportError:
     plotly = None
 
 from glue.core.layout import Rectangle, snap_to_grid
+from glue_plotly.common import (
+    base_rectilinear_axis,
+    data_count,
+    dendrogram,
+    histogram,
+    layers_to_export,
+    profile,
+    scatter2d,
+)
 
-from glue_plotly.common import dendrogram, histogram, profile, scatter2d, \
-    data_count, layers_to_export, base_rectilinear_axis
-
-SYM = {'o': 'circle', 's': 'square', '+': 'cross', '^': 'triangle-up',
-       '*': 'cross'}
+SYM = {"o": "circle", "s": "square", "+": "cross", "^": "triangle-up",
+       "*": "cross"}
 
 
 def _position_plots(viewers, layout):
@@ -33,39 +38,39 @@ def _position_plots(viewers, layout):
         g = grid[plot]
         xdomain = [g.x, g.x + g.w]
         ydomain = [g.y, g.y + g.h]
-        suffix = '' if i == 1 else str(i)
+        suffix = "" if i == 1 else str(i)
 
-        xax, yax = 'xaxis' + suffix, 'yaxis' + suffix
-        layout[xax].update(domain=xdomain, anchor=yax.replace('axis', ''))
-        layout[yax].update(domain=ydomain, anchor=xax.replace('axis', ''))
+        xax, yax = "xaxis" + suffix, "yaxis" + suffix
+        layout[xax].update(domain=xdomain, anchor=yax.replace("axis", ""))
+        layout[yax].update(domain=ydomain, anchor=xax.replace("axis", ""))
 
 
 def _stack_horizontal(layout):
-    layout['xaxis']['domain'] = [0, 0.45]
-    layout['xaxis2']['domain'] = [0.55, 1]
-    layout['yaxis2']['anchor'] = 'x2'
+    layout["xaxis"]["domain"] = [0, 0.45]
+    layout["xaxis2"]["domain"] = [0.55, 1]
+    layout["yaxis2"]["anchor"] = "x2"
 
 
 def _grid_2x23(layout):
     opts = {
-        'xaxis': {'domain': [0, 0.45]},
-        'yaxis': {'domain': [0, 0.45]},
-        'xaxis2': {"domain": [0.55, 1]},
-        'yaxis2': {"domain": [0, 0.45],
+        "xaxis": {"domain": [0, 0.45]},
+        "yaxis": {"domain": [0, 0.45]},
+        "xaxis2": {"domain": [0.55, 1]},
+        "yaxis2": {"domain": [0, 0.45],
                    "anchor": "x2"
                    },
-        'xaxis3': {
+        "xaxis3": {
             "domain": [0, 0.45],
             "anchor": "y3"
         },
-        'yaxis3': {
+        "yaxis3": {
             "domain": [0.55, 1],
         },
-        'xaxis4': {
+        "xaxis4": {
             "domain": [0.55, 1],
             "anchor": "y4",
         },
-        'yaxis4': {
+        "yaxis4": {
             "domain": [0.55, 1],
             "anchor": "x4"
         }
@@ -80,9 +85,9 @@ def _fix_legend_duplicates(traces, layout):
     """Prevent repeat entries in the legend"""
     seen = set()
     for t in traces:
-        key = (t.name, t.marker.color, getattr(t.marker, 'symbol', None))
+        key = (t.name, t.marker.color, getattr(t.marker, "symbol", None))
         if key in seen:
-            t['showlegend'] = False
+            t["showlegend"] = False
         else:
             seen.add(key)
 
@@ -92,12 +97,13 @@ def _color(style):
     r = int(r * 255)
     g = int(g * 255)
     b = int(b * 255)
-    return 'rgba(%i, %i, %i, %0.1f)' % (r, g, b, a)
+    return "rgba(%i, %i, %i, %0.1f)" % (r, g, b, a)
 
 
 def export_scatter(viewer):
     """Export a scatter viewer to a list of
-    plotly-formatted data dictionaries"""
+    plotly-formatted data dictionaries
+    """
     traces = []
 
     layers = layers_to_export(viewer)
@@ -105,8 +111,8 @@ def export_scatter(viewer):
     for layer in layers:
         traces += scatter2d.traces_for_layer(viewer, layer.state, add_data_label=add_data_label)
 
-    xaxis = base_rectilinear_axis(viewer.state, 'x')
-    yaxis = base_rectilinear_axis(viewer.state, 'y')
+    xaxis = base_rectilinear_axis(viewer.state, "x")
+    yaxis = base_rectilinear_axis(viewer.state, "y")
 
     return traces, xaxis, yaxis
 
@@ -120,8 +126,8 @@ def export_histogram(viewer):
 
     # For now, set glue_ticks to False
     # TODO: Can we use MathJax (or some other LaTeX formatting) inside Chart Studio?
-    xaxis = histogram.axis_from_mpl(viewer, 'x', glue_ticks=False)
-    yaxis = histogram.axis_from_mpl(viewer, 'y', glue_ticks=False)
+    xaxis = histogram.axis_from_mpl(viewer, "x", glue_ticks=False)
+    yaxis = histogram.axis_from_mpl(viewer, "y", glue_ticks=False)
 
     return traces, xaxis, yaxis
 
@@ -135,8 +141,8 @@ def export_profile(viewer):
 
     # For now, set glue_ticks to False
     # TODO: Can we use MathJax (or some other LaTeX formatting) inside Chart Studio?
-    xaxis = profile.axis_from_mpl(viewer, 'x', glue_ticks=False)
-    yaxis = profile.axis_from_mpl(viewer, 'y', glue_ticks=False)
+    xaxis = profile.axis_from_mpl(viewer, "x", glue_ticks=False)
+    yaxis = profile.axis_from_mpl(viewer, "y", glue_ticks=False)
 
     return traces, xaxis, yaxis
 
@@ -157,28 +163,28 @@ def export_dendrogram(viewer):
 
 def build_plotly_call(app):
     args = []
-    layout = {'showlegend': True, 'barmode': 'overlay', 'bargap': 0,
-              'title': 'Autogenerated by Glue'}
+    layout = {"showlegend": True, "barmode": "overlay", "bargap": 0,
+              "title": "Autogenerated by Glue"}
 
     ct = 1
     for tab in app.viewers:
         for viewer in tab:
-            if hasattr(viewer, '__plotly__'):
+            if hasattr(viewer, "__plotly__"):
                 p, xaxis, yaxis = viewer.__plotly__()
             else:
                 assert type(viewer) in DISPATCH
                 p, xaxis, yaxis = DISPATCH[type(viewer)](viewer)
 
-            xaxis['zeroline'] = False
-            yaxis['zeroline'] = False
+            xaxis["zeroline"] = False
+            yaxis["zeroline"] = False
 
-            suffix = '' if ct == 1 else '%i' % ct
-            layout['xaxis' + suffix] = xaxis
-            layout['yaxis' + suffix] = yaxis
+            suffix = "" if ct == 1 else "%i" % ct
+            layout["xaxis" + suffix] = xaxis
+            layout["yaxis" + suffix] = yaxis
             if ct > 1:
-                yaxis['anchor'] = 'x' + suffix
+                yaxis["anchor"] = "x" + suffix
                 for item in p:
-                    item.update(xaxis='x' + suffix, yaxis='y' + suffix)
+                    item.update(xaxis="x" + suffix, yaxis="y" + suffix)
             ct += 1
             args.extend(p)
 
@@ -200,7 +206,7 @@ def can_save_plotly(application):
 
     for tab in application.viewers:
         for viewer in tab:
-            if hasattr(viewer, '__plotly__'):
+            if hasattr(viewer, "__plotly__"):
                 continue
 
             if not isinstance(viewer, tuple(DISPATCH)):

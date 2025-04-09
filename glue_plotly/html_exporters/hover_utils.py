@@ -1,5 +1,6 @@
-from glue.core import Data, DataCollection
 from numpy import ones
+
+from glue.core import Data, DataCollection
 
 
 def hover_dummy_data(data_or_subset):

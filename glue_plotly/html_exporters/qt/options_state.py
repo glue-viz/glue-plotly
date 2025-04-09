@@ -1,8 +1,8 @@
 from echo import CallbackProperty
-from glue.config import DictRegistry
-from glue.core.state_objects import State
 from glue_vispy_viewers.volume.layer_state import VolumeLayerState
 
+from glue.config import DictRegistry
+from glue.core.state_objects import State
 
 __all__ = ["qt_export_options", "VolumeExportOptionsState"]
 

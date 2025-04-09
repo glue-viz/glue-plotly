@@ -42,17 +42,17 @@ class BasePlotlyViewTests:
     def test_set_x_axis_bounds(self):
         self.viewer.state.x_min = 1
         self.viewer.state.x_max = 25
-        assert self.viewer.axis_x['range'] == (1, 25)
+        assert self.viewer.axis_x["range"] == (1, 25)
         self.viewer.state.x_log = True
         self.viewer.state.x_min = 10
         self.viewer.state.x_max = 1000
-        assert self.viewer.axis_x['range'] == (1.0, 3.0)
+        assert self.viewer.axis_x["range"] == (1.0, 3.0)
 
     def test_set_y_axis_bounds(self):
         self.viewer.state.y_min = 1
         self.viewer.state.y_max = 25
-        assert self.viewer.axis_y['range'] == (1, 25)
+        assert self.viewer.axis_y["range"] == (1, 25)
         self.viewer.state.y_log = True
         self.viewer.state.y_min = 10
         self.viewer.state.y_max = 1000
-        assert self.viewer.axis_y['range'] == (1.0, 3.0)
+        assert self.viewer.axis_y["range"] == (1.0, 3.0)

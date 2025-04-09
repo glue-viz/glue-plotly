@@ -2,17 +2,20 @@ from itertools import chain
 from uuid import uuid4
 
 from numpy import repeat
+from plotly.graph_objs import Scatter, Scatterpolar
 
-from glue_plotly.common import color_info
-from glue_plotly.common.scatter2d import LINESTYLES, rectilinear_lines, scatter_mode, size_info
-from glue_plotly.viewers.scatter.state import PlotlyScatterLayerState
 from glue.core import BaseData
 from glue.core.exceptions import IncompatibleAttribute
 from glue.utils import ensure_numerical
 from glue.viewers.common.layer_artist import LayerArtist
-
-from plotly.graph_objs import Scatter, Scatterpolar
-
+from glue_plotly.common import color_info
+from glue_plotly.common.scatter2d import (
+    LINESTYLES,
+    rectilinear_lines,
+    scatter_mode,
+    size_info,
+)
+from glue_plotly.viewers.scatter.state import PlotlyScatterLayerState
 
 __all__ = ["PlotlyScatterLayerArtist"]
 
@@ -162,13 +165,13 @@ class PlotlyScatterLayerArtist(LayerArtist):
 
         scatter_info = dict(mode=scatter_mode(self.state),
                             name=name,
-                            hoverinfo='all',
+                            hoverinfo="all",
                             unselected=dict(marker=dict(opacity=self.state.alpha)),
                             meta=self._scatter_id)
         if self._viewer_state.using_rectilinear:
             scatter = Scatter(**scatter_info)
         else:
-            theta_unit = 'degrees' if self.view.state.using_degrees else 'radians'
+            theta_unit = "degrees" if self.view.state.using_degrees else "radians"
             scatter_info.update(thetaunit=theta_unit)
             scatter = Scatterpolar(**scatter_info)
         return scatter
@@ -176,7 +179,7 @@ class PlotlyScatterLayerArtist(LayerArtist):
     def _update_display(self, force=False, **kwargs):
         changed = self.pop_changed_properties()
 
-        if 'layout_update' in kwargs:
+        if "layout_update" in kwargs:
             self.view._clear_traces()
             scatter = self._create_scatter()
             self.view.figure.add_trace(scatter)
@@ -201,7 +204,7 @@ class PlotlyScatterLayerArtist(LayerArtist):
 
     def _update_lines(self, changed, force=False):
         scatter = self._get_scatter()
-        fixed_color = self.state.cmap_mode == 'Fixed'
+        fixed_color = self.state.cmap_mode == "Fixed"
         lines = list(self._get_lines())
 
         with self.view.figure.batch_update():
@@ -218,7 +221,7 @@ class PlotlyScatterLayerArtist(LayerArtist):
                     # The newly-created line traces already have the correct properties, so we can return
                     return
 
-                elif fixed_color and lines:
+                if fixed_color and lines:
                     line_traces_visible = False
 
             if (force or "line_visible" in changed) or not line_traces_visible:
@@ -269,7 +272,7 @@ class PlotlyScatterLayerArtist(LayerArtist):
                 )
 
             if force or any(prop in changed for prop in MARKER_PROPERTIES):
-                scatter.marker['size'] = size_info(self.state)
+                scatter.marker["size"] = size_info(self.state)
 
         if force or "alpha" in changed:
             marker = scatter.marker
