@@ -1,17 +1,18 @@
+from glue_jupyter.registries import viewer_registry
 from plotly.graph_objs import Layout
 
 from glue.core.subset import roi_to_subset_state
 from glue.viewers.scatter.state import ScatterViewerState
-
-from glue_plotly.common.scatter2d import polar_layout_config, radial_axis, rectilinear_layout_config
-
-from glue_jupyter.registries import viewer_registry
+from glue_plotly.common.scatter2d import (
+    polar_layout_config,
+    radial_axis,
+    rectilinear_layout_config,
+)
+from glue_plotly.viewers import PlotlyBaseView
 
 from .layer_artist import PlotlyScatterLayerArtist
 from .layer_state_widget import PlotlyScatterLayerStateWidget
 from .viewer_state_widget import PlotlyScatterViewerStateWidget
-from glue_plotly.viewers import PlotlyBaseView
-
 
 __all__ = ["PlotlyScatterView"]
 
@@ -19,11 +20,11 @@ __all__ = ["PlotlyScatterView"]
 @viewer_registry("plotly_scatter")
 class PlotlyScatterView(PlotlyBaseView):
 
-    tools = ['plotly:save', 'plotly:home',
-             'plotly:zoom', 'plotly:pan',
-             'plotly:xrange', 'plotly:yrange',
-             'plotly:rectangle', 'plotly:lasso',
-             'plotly:hover']
+    tools = ["plotly:save", "plotly:home",
+             "plotly:zoom", "plotly:pan",
+             "plotly:xrange", "plotly:yrange",
+             "plotly:rectangle", "plotly:lasso",
+             "plotly:hover"]
 
     allow_duplicate_data = False
     allow_duplicate_subset = False
@@ -37,19 +38,19 @@ class PlotlyScatterView(PlotlyBaseView):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self.state.add_callback('x_att', self._update_axes)
-        self.state.add_callback('y_att', self._update_axes)
-        self.state.add_callback('plot_mode', self._update_projection)
+        self.state.add_callback("x_att", self._update_axes)
+        self.state.add_callback("y_att", self._update_axes)
+        self.state.add_callback("plot_mode", self._update_projection)
 
         self._update_axes()
 
     def _create_layout_config(self):
         if self.state.using_rectilinear:
             return rectilinear_layout_config(self, **self.LAYOUT_SETTINGS)
-        else:  # For now, that means polar
-            return polar_layout_config(self, radial_axis, **self.LAYOUT_SETTINGS)
+        # For now, that means polar
+        return polar_layout_config(self, radial_axis, **self.LAYOUT_SETTINGS)
 
-    def _update_projection(self, *args):
+    def _update_projection(self, *_args):
         config = self._create_layout_config()
         traces = self.figure.data
         layout = Layout(**config)
@@ -58,15 +59,18 @@ class PlotlyScatterView(PlotlyBaseView):
         # For some reason doing these updates in the layout config
         # doesn't seem to get rid of pre-existing axes
         if self.state.using_rectilinear:
-            self.figure.update_layout(polar=None, xaxis=dict(visible=True), yaxis=dict(visible=True))
+            self.figure.update_layout(polar=None,
+                                      xaxis=dict(visible=True),
+                                      yaxis=dict(visible=True))
         else:
-            self.figure.update_layout(xaxis=dict(visible=False), yaxis=dict(visible=False))
+            self.figure.update_layout(xaxis=dict(visible=False),
+                                      yaxis=dict(visible=False))
         self.figure.data = traces
         for layer in self.layers:
             layer.update(layout_update=True)
         self.figure.update()
 
-    def _update_axes(self, *args):
+    def _update_axes(self, *_args):
         if self.state.x_att is not None:
             self.state.x_axislabel = str(self.state.x_att)
 

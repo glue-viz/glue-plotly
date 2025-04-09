@@ -1,0 +1,119 @@
+extend = "pyproject.toml"
+lint.ignore = [
+    # NOTE: to find a good code to fix, run:
+    # ruff check --select="ALL" --statistics glue_plotly/<subpackage>
+
+    # flake8-unused-arguments (ARG)
+    "ARG001",  # unused-function-argument
+    "ARG002",  # unused-method-argument
+    "ARG003",  # unused-class-method-argument
+    "ARG004",  # unused-static-method-argument
+    "ARG005",  # unused-lambda-argument
+
+    # mccabe (C90) : code complexity
+    # TODO: configure maximum allowed complexity (default 10; 40 exceptions, 4 > 28).
+    "C901",  # McCabeComplexity
+
+    # pydocstyle (D)
+    # Missing Docstrings
+    "D100",  # undocumented-public-module
+    "D101",  # undocumented-public-class
+    "D103",  # undocumented-public-function
+    "D104",  # undocumented-public-package
+    "D202",  # blank-line-after-function
+    "D204",  # incorrect-blank-line-after-class
+    "D205",  # blank-line-after-summary
+    "D209",  # new-line-after-last-paragraph
+    "D210",  # surrounding-whitespace
+    "D211",  # blank-line-before-class
+    "D214",  # overindented-section
+    # Docstring Content Issues
+    "D401",  # non-imperative-mood.
+    "D404",  # docstring-starts-with-this
+    "D406",  # missing-new-line-after-section-name
+    "D407",  # missing-dashed-underline-after-section
+    "D409",  # mismatched-section-underline-length
+    "D411",  # no-blank-line-before-section
+    "D412",  # blank-lines-between-header-and-content
+    "D414",  # empty-docstring-section
+
+    # eradicate (ERA)
+    # NOTE: be careful that developer notes are kept.
+    "ERA001",  # commented-out-code
+
+    # flake8-boolean-trap (FBT)  : boolean flags should be kwargs, not args
+    # NOTE: a good thing to fix, but changes API.
+    "FBT002",  # boolean-default-value-in-function-definition
+    "FBT003",  # boolean-positional-value-in-function-call
+
+    # pygrep-hooks (PGH)
+    "PGH004",  # Use specific rule codes when using `noqa`
+
+    # Pylint (PLC, PLE, PLR, PLW)
+    "PLR0402",  # ConsiderUsingFromImport
+    "PLR0911",  # too-many-return-statements
+    "PLR0912",  # too-many-branches
+    "PLR0913",  # too-many-args
+    "PLR0915",  # too-many-statements
+    "PLR1704",  # Redefining argument with the local name `{name}`
+    "PLR1711",  # Useless `return` statement at end of function
+    "PLR1714",  # Consider merging multiple comparisons
+    "PLR2004",  # MagicValueComparison
+    "PLR5501",  # collapsible-else-if
+    "PLW0120",  # useless-else-on-loop
+    "PLW0602",  # global-variable-not-assigned
+    "PLW0603",  # global-statement
+    "PLW2901",  # redefined-loop-name
+
+    # flake8-use-pathlib (PTH)
+    "PTH100",  # os-path-abspath
+    "PTH102",  # os-mkdir
+    "PTH103",  # os-makedirs
+    "PTH107",  # os-remove
+    "PTH108",  # os-unlink
+    "PTH109",  # os-getcwd
+    "PTH110",  # os-path-exists
+    "PTH111",  # os-path-expanduser
+    "PTH116",  # os-stat
+    "PTH117",  # os-path-isabs
+    "PTH118",  # os-path-join
+    "PTH119",  # os-path-basename
+    "PTH120",  # os-path-dirname
+    "PTH122",  # os-path-splitext
+    "PTH123",  # builtin-open
+
+    # flake8-todos (TD)
+    "TD003",  # Missing issue link on the line following this TODO
+
+    # tryceratops (TRY)
+    "TRY003",  # raise-vanilla-args
+    "TRY004",  # prefer-type-error
+
+    # pyupgrade (UP)
+    "UP004",  # Class `{name}` inherits from `object`
+    "UP008",  # Use `super()` instead of `super(__class__, self)`
+    "UP009",  # UTF-8 encoding declaration is unnecessary
+    "UP015",  # Unnecessary mode argument
+    "UP024",  # Replace aliased errors with `OSError`
+    "UP028",  # Replace `yield` over for loop with `yield from`
+    "UP030",  # Use implicit references for positional format fields
+    "UP031",  # Use format specifiers instead of percent format
+    "UP032",  # Use f-string instead of `format` call
+    "UP034",  # Avoid extraneous parentheses
+    "UP036",  # Version block is outdated for minimum Python version
+    "UP039",  # Unnecessary parentheses after class definition
+]
+lint.unfixable = [
+    "E711"  # NoneComparison. Hard to fix b/c numpy has it's own None.
+]
+
+[lint.extend-per-file-ignores]
+"setup.py" = [
+    "S101",  # assert
+]
+"glue_plotly/viewers/common/tests/base_viewer_tests.py" = [
+    "S101",  # assert
+]
+"glue_plotly/common/image.py" = [
+    "N811",  # constant-imported-as-non-constant
+]

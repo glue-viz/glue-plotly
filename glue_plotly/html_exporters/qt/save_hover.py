@@ -1,26 +1,26 @@
 import os
 
-from qtpy.QtWidgets import QDialog, QListWidgetItem
-from qtpy.QtCore import Qt
-
 from echo import ChoiceSeparator
 from echo.qt import autoconnect_callbacks_to_qt
-
 from glue_qt.utils import load_ui
+from qtpy.QtCore import Qt
+from qtpy.QtWidgets import QDialog, QListWidgetItem
 
-from ..base_save_hover import BaseSaveHoverDialog
+from glue_plotly.html_exporters.base_save_hover import BaseSaveHoverDialog
 
-__all__ = ['SaveHoverDialog']
+__all__ = ["SaveHoverDialog"]
 
 
 class SaveHoverDialog(BaseSaveHoverDialog, QDialog):
 
     def __init__(self, data_collection=None, parent=None, checked_dictionary=None):
 
-        BaseSaveHoverDialog.__init__(self, data_collection=data_collection, checked_dictionary=checked_dictionary)
+        BaseSaveHoverDialog.__init__(self,
+                                     data_collection=data_collection,
+                                     checked_dictionary=checked_dictionary)
         QDialog.__init__(self, parent=parent)
 
-        self.ui = load_ui('save_hover.ui', self,
+        self.ui = load_ui("save_hover.ui", self,
                           directory=os.path.dirname(__file__))
 
         self._connections = autoconnect_callbacks_to_qt(self.state, self.ui)
@@ -37,7 +37,7 @@ class SaveHoverDialog(BaseSaveHoverDialog, QDialog):
     def _on_component_change(self, *event):
         super()._on_component_change(*event)
 
-        components = getattr(type(self.state), 'component').get_choices(self.state)
+        components = type(self.state).component.get_choices(self.state)
         self.ui.list_component.clear()
 
         for component in components:
@@ -48,7 +48,8 @@ class SaveHoverDialog(BaseSaveHoverDialog, QDialog):
                 item.setForeground(Qt.gray)
             else:
                 item = QListWidgetItem(component.label)
-                if self.checked_dictionary[self.state.data.label].get(component.label, False):
+                data_label = self.state.data.label
+                if self.checked_dictionary[data_label].get(component.label, False):
                     item.setCheckState(Qt.Checked)
                 else:
                     item.setCheckState(Qt.Unchecked)

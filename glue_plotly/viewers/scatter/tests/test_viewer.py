@@ -1,9 +1,8 @@
-from numpy import array_equal
-
-from glue.core import Data
 from glue_jupyter import JupyterApplication
+from numpy import array_equal
 from plotly.graph_objects import Scatter
 
+from glue.core import Data
 from glue_plotly.common import DEFAULT_FONT
 from glue_plotly.viewers.common.tests import BasePlotlyViewTests
 from glue_plotly.viewers.scatter import PlotlyScatterView
@@ -24,13 +23,15 @@ class TestScatterView(BasePlotlyViewTests):
         viewer_state.x_max = 10
         viewer_state.y_min = 0
         viewer_state.y_max = 12
-        viewer_state.x_axislabel = 'X Axis'
-        viewer_state.y_axislabel = 'Y Axis'
+        viewer_state.x_axislabel = "X Axis"
+        viewer_state.y_axislabel = "Y Axis"
         viewer_state.normalize = False
 
         self.layer = self.viewer.layers[0]
-        self.layer.state.color = "#abcdef"
-        self.layer.state.alpha = 0.75
+        self.default_color = "#abcdef"
+        self.layer.state.color = self.default_color
+        self.default_opacity = 0.75
+        self.layer.state.alpha = self.default_opacity
 
     def teardown_method(self, method):
         self.viewer = None
@@ -43,27 +44,29 @@ class TestScatterView(BasePlotlyViewTests):
         assert len(traces) == 1
         scatter = traces[0]
         assert isinstance(scatter, Scatter)
-        assert scatter.marker.color == "#abcdef"
-        assert scatter.marker.opacity == 0.75
-        assert array_equal(scatter.x, self.data['x'])
-        assert array_equal(scatter.y, self.data['y'])
+        assert scatter.marker.color == self.default_color
+        assert scatter.marker.opacity == self.default_opacity
+        assert array_equal(scatter.x, self.data["x"])
+        assert array_equal(scatter.y, self.data["y"])
 
     def test_axes(self):
         x_axis = self.viewer.figure.layout.xaxis
         y_axis = self.viewer.figure.layout.yaxis
 
-        assert x_axis.title.text == 'X Axis'
-        assert y_axis.title.text == 'Y Axis'
-        assert x_axis.type == 'linear'
-        assert y_axis.type == 'linear'
+        assert x_axis.title.text == "X Axis"
+        assert y_axis.title.text == "Y Axis"
+        assert x_axis.type == "linear"
+        assert y_axis.type == "linear"
 
         assert x_axis.range == (0, 10)
         assert y_axis.range == (0, 12)
 
         assert all(f.family == DEFAULT_FONT for f in
-                   (x_axis.title.font, x_axis.tickfont, y_axis.title.font, y_axis.tickfont))
+                   (x_axis.title.font, x_axis.tickfont,
+                    y_axis.title.font, y_axis.tickfont))
 
-        common_items = dict(showgrid=False, showline=True, mirror=True, rangemode='normal',
-                            zeroline=False, showspikes=False, showticklabels=True)
+        common_items = dict(showgrid=False, showline=True, mirror=True,
+                            rangemode="normal", zeroline=False,
+                            showspikes=False, showticklabels=True)
         for axis in x_axis, y_axis:
             assert all(axis[key] == value for key, value in common_items.items())

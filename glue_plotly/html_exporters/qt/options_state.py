@@ -1,8 +1,8 @@
 from echo import CallbackProperty
-from glue.config import DictRegistry
-from glue.core.state_objects import State
 from glue_vispy_viewers.volume.layer_state import VolumeLayerState
 
+from glue.config import DictRegistry
+from glue.core.state_objects import State
 
 __all__ = ["qt_export_options", "VolumeExportOptionsState"]
 
@@ -11,7 +11,8 @@ class QtExportLayerOptionsRegistry(DictRegistry):
 
     def add(self, layer_state_cls, layer_options_state):
         if not issubclass(layer_options_state, State):
-            raise ValueError("Layer options must be a glue State type")
+            msg = "Layer options must be a glue State type"
+            raise ValueError(msg)
         self._members[layer_state_cls] = layer_options_state
 
     def __call__(self, layer_state_cls):

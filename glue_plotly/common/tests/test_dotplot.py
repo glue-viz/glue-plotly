@@ -1,16 +1,14 @@
 from glue_jupyter import JupyterApplication
+from glue_qt.app import GlueApplication
+from glue_qt.viewers.histogram import HistogramViewer
 from numpy import unique
 from plotly.graph_objs import Scatter
 
 from glue.core import Data
-from glue_qt.app import GlueApplication
-from glue_qt.viewers.histogram import HistogramViewer
-
 from glue_plotly.common import sanitize
 from glue_plotly.common.dotplot import dot_size, traces_for_layer
-
-from glue_plotly.viewers.histogram.viewer import PlotlyHistogramView
 from glue_plotly.viewers.histogram.dotplot_layer_artist import PlotlyDotplotLayerArtist
+from glue_plotly.viewers.histogram.viewer import PlotlyHistogramView
 
 
 class SimpleDotplotViewer(PlotlyHistogramView):
@@ -37,7 +35,7 @@ class TestDotplot:
         self.app.session.data_collection.append(self.data)
         self.viewer = self.app.new_data_viewer(SimpleDotplotViewer)
         self.viewer.add_data(self.data)
-        self.mask, self.sanitized = sanitize(self.data['x'])
+        self.mask, self.sanitized = sanitize(self.data["x"])
 
         viewer_state = self.viewer.state
         viewer_state.hist_n_bin = 18
@@ -49,11 +47,11 @@ class TestDotplot:
         viewer_state.x_max = 100
         viewer_state.y_min = 0
         viewer_state.y_max = 15
-        viewer_state.x_axislabel = 'X Axis'
-        viewer_state.y_axislabel = 'Y Axis'
+        viewer_state.x_axislabel = "X Axis"
+        viewer_state.y_axislabel = "Y Axis"
 
         self.layer = self.viewer.layers[0]
-        self.layer.state.color = '#0e1dab'
+        self.layer.state.color = "#0e1dab"
         self.layer.state.alpha = 0.85
 
     def teardown_method(self, method):
@@ -114,7 +112,7 @@ class TestDotsHistogram:
         self.app.session.data_collection.append(self.data)
         self.viewer = self.app.new_data_viewer(HistogramViewer)
         self.viewer.add_data(self.data)
-        self.mask, self.sanitized = sanitize(self.data['x'])
+        self.mask, self.sanitized = sanitize(self.data["x"])
 
         viewer_state = self.viewer.state
         viewer_state.hist_n_bin = 18
@@ -126,11 +124,11 @@ class TestDotsHistogram:
         viewer_state.x_max = 100
         viewer_state.y_min = 0
         viewer_state.y_max = 15
-        viewer_state.x_axislabel = 'X Axis'
-        viewer_state.y_axislabel = 'Y Axis'
+        viewer_state.x_axislabel = "X Axis"
+        viewer_state.y_axislabel = "Y Axis"
 
         self.layer = self.viewer.layers[0]
-        self.layer.state.color = '#0e1dab'
+        self.layer.state.color = "#0e1dab"
         self.layer.state.alpha = 0.85
 
     def teardown_method(self, method):

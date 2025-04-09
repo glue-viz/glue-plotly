@@ -30,7 +30,7 @@ HTML Exporters
 The HTML exporters are exposed as viewer tools in both `glue-qt <https://github.com/glue-viz/glue-qt>`_
 and `glue-jupyter <https://github.com/glue-viz/glue-jupyter>`_
 
-For glue-qt, all of the built-in matplotlib viewers are supported, along with the dendrogram viewer 
+For glue-qt, all of the built-in matplotlib viewers are supported, along with the dendrogram viewer
 and the 3D scatter viewer from the `glue-vispy-viewers <https://github.com/glue-viz/glue-vispy-viewers>`_ plugin.
 For glue-jupyter, the bqplot scatter, image, profile, and histogram viewers are supported. In glue-qt,
 these tools are subtools of the "save" meta-tool and can be accessed from its dropdown menu.

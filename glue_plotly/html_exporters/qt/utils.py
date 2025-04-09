@@ -1,9 +1,8 @@
 from echo.qt import connect_checkable_button, connect_float_text
+from qtpy.QtGui import QDoubleValidator, QIntValidator
+from qtpy.QtWidgets import QCheckBox, QHBoxLayout, QLabel, QLineEdit
 
 from glue.core import Subset
-
-from qtpy.QtWidgets import QCheckBox, QHBoxLayout, QLabel, QLineEdit
-from qtpy.QtGui import QIntValidator, QDoubleValidator
 
 
 def display_name(prop_name):

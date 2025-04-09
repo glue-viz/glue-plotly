@@ -49,6 +49,7 @@ repos:
         # Detect mistake of inline code touching normal text in rst.
       - id: text-unicode-replacement-char
         # Forbid files which have a UTF-8 Unicode replacement character.
+        exclude: "docs/.*\\.html"
 
   - repo: https://github.com/astral-sh/ruff-pre-commit
     rev: "v0.11.4"

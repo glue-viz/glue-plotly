@@ -1,12 +1,16 @@
-from glue.config import viewer_tool
-from IPython.display import display
-
-from plotly.offline import plot
 import plotly.graph_objs as go
+from IPython.display import display
+from plotly.offline import plot
 from plotly.subplots import make_subplots
 
+from glue.config import viewer_tool
 from glue_plotly.common import data_count, layers_to_export
-from glue_plotly.common.image import axes_data_from_bqplot, layers_by_type, layout_config, traces
+from glue_plotly.common.image import (
+    axes_data_from_bqplot,
+    layers_by_type,
+    layout_config,
+    traces,
+)
 from glue_plotly.html_exporters.hover_utils import hover_data_collection_for_viewer
 from glue_plotly.html_exporters.jupyter.save_hover import JupyterSaveHoverDialog
 from glue_plotly.jupyter_base_export_tool import JupyterBaseExportTool
@@ -14,7 +18,7 @@ from glue_plotly.jupyter_base_export_tool import JupyterBaseExportTool
 
 @viewer_tool
 class PlotlyImageBqplotExport(JupyterBaseExportTool):
-    tool_id = 'save:bqplot_plotlyimage2d'
+    tool_id = "save:bqplot_plotlyimage2d"
 
     def activate(self):
         done = False
@@ -29,7 +33,9 @@ class PlotlyImageBqplotExport(JupyterBaseExportTool):
         if len(scatter_layers) > 0:
             dc_hover = hover_data_collection_for_viewer(
                 self.viewer,
-                layer_condition=lambda layer: layer.state.visible and layer.enabled and layer in scatter_layers
+                layer_condition=lambda layer: layer.state.visible and \
+                                              layer.enabled and \
+                                              layer in scatter_layers
             )
 
             self.save_hover_dialog = \
@@ -54,18 +60,22 @@ class PlotlyImageBqplotExport(JupyterBaseExportTool):
 
         ax = axes_data_from_bqplot(self.viewer)
         config.update(**ax)
-        secondary_x = 'xaxis2' in ax
-        secondary_y = 'yaxis2' in ax
+        secondary_x = "xaxis2" in ax
+        secondary_y = "yaxis2" in ax
         config["showlegend"] = len(layers) > 1
 
         if secondary_x or secondary_y:
-            fig = make_subplots(specs=[[{"secondary_y": True}]], horizontal_spacing=0, vertical_spacing=0)
+            fig = make_subplots(specs=[[{"secondary_y": True}]],
+                                horizontal_spacing=0,
+                                vertical_spacing=0)
             fig.update_layout(**config)
         else:
             layout = go.Layout(**config)
             fig = go.Figure(layout=layout)
 
-        checked_dictionary = self.save_hover_dialog.checked_dictionary if hasattr(self, 'save_hover_dialog') else None
+        checked_dictionary = self.save_hover_dialog.checked_dictionary \
+                             if hasattr(self, "save_hover_dialog") \
+                             else None
         traces_to_add = traces(self.viewer,
                                secondary_x=secondary_x,
                                secondary_y=secondary_y,
@@ -73,4 +83,4 @@ class PlotlyImageBqplotExport(JupyterBaseExportTool):
                                add_data_label=add_data_label)
         fig.add_traces(traces_to_add)
 
-        plot(fig, include_mathjax='cdn', filename=filepath, auto_open=False)
+        plot(fig, include_mathjax="cdn", filename=filepath, auto_open=False)

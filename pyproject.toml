@@ -72,7 +72,13 @@ lint.ignore = [  # NOTE: non-permanent exclusions should be added to `.ruff.toml
     "D",  # pydocstyle
     "S101",  # Use of assert detected
 ]
+"glue_plotly/common/tests/utils.py" = [
+    "S101",  # Use of assert detected
+]
 "glue_plotly/conftest.py" = ["INP001"]  # Part of configuration, not a package.
+"docs/PlotlyViewerExample.ipynb" = [
+    "S311",  # suspicious-non-cryptographic-random-usage
+]
 
 [tool.ruff.lint.flake8-annotations]
 ignore-fully-untyped = true

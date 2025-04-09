@@ -2,23 +2,31 @@ from itertools import chain
 from uuid import uuid4
 
 from numpy import repeat
+from plotly.graph_objs import Scatter, Scatterpolar
 
-from glue_plotly.common import color_info
-from glue_plotly.common.scatter2d import LINESTYLES, rectilinear_lines, scatter_mode, size_info
-from glue_plotly.viewers.scatter.state import PlotlyScatterLayerState
 from glue.core import BaseData
 from glue.core.exceptions import IncompatibleAttribute
 from glue.utils import ensure_numerical
 from glue.viewers.common.layer_artist import LayerArtist
-
-from plotly.graph_objs import Scatter, Scatterpolar
-
+from glue_plotly.common import color_info
+from glue_plotly.common.scatter2d import (
+    LINESTYLES,
+    rectilinear_lines,
+    scatter_mode,
+    size_info,
+)
+from glue_plotly.viewers.scatter.state import PlotlyScatterLayerState
 
 __all__ = ["PlotlyScatterLayerArtist"]
 
 
 CMAP_PROPERTIES = {"cmap_mode", "cmap_att", "cmap_vmin", "cmap_vmax", "cmap"}
-BORDER_PROPERTIES = {"border_visible", "border_size", "border_color", "border_color_match_layer"}
+BORDER_PROPERTIES = {
+    "border_visible",
+    "border_size",
+    "border_color",
+    "border_color_match_layer"
+}
 MARKER_PROPERTIES = {
     "size_mode",
     "size_att",
@@ -126,7 +134,10 @@ class PlotlyScatterLayerArtist(LayerArtist):
         return self._get_traces_with_id(self._vector_id)
 
     def traces(self):
-        return chain([self._get_scatter()], self._get_lines(), self._get_error_bars(), self._get_vectors())
+        return chain([self._get_scatter()],
+                     self._get_lines(),
+                     self._get_error_bars(),
+                     self._get_vectors())
 
     def _update_data(self):
 
@@ -162,13 +173,13 @@ class PlotlyScatterLayerArtist(LayerArtist):
 
         scatter_info = dict(mode=scatter_mode(self.state),
                             name=name,
-                            hoverinfo='all',
+                            hoverinfo="all",
                             unselected=dict(marker=dict(opacity=self.state.alpha)),
                             meta=self._scatter_id)
         if self._viewer_state.using_rectilinear:
             scatter = Scatter(**scatter_info)
         else:
-            theta_unit = 'degrees' if self.view.state.using_degrees else 'radians'
+            theta_unit = "degrees" if self.view.state.using_degrees else "radians"
             scatter_info.update(thetaunit=theta_unit)
             scatter = Scatterpolar(**scatter_info)
         return scatter
@@ -176,7 +187,7 @@ class PlotlyScatterLayerArtist(LayerArtist):
     def _update_display(self, force=False, **kwargs):
         changed = self.pop_changed_properties()
 
-        if 'layout_update' in kwargs:
+        if "layout_update" in kwargs:
             self.view._clear_traces()
             scatter = self._create_scatter()
             self.view.figure.add_trace(scatter)
@@ -201,7 +212,7 @@ class PlotlyScatterLayerArtist(LayerArtist):
 
     def _update_lines(self, changed, force=False):
         scatter = self._get_scatter()
-        fixed_color = self.state.cmap_mode == 'Fixed'
+        fixed_color = self.state.cmap_mode == "Fixed"
         lines = list(self._get_lines())
 
         with self.view.figure.batch_update():
@@ -210,25 +221,31 @@ class PlotlyScatterLayerArtist(LayerArtist):
             line_traces_visible = True
             if force or "cmap_mode" in changed:
                 if not (fixed_color or lines):
-                    line, lines = rectilinear_lines(self.state, scatter.marker, scatter.x, scatter.y)
+                    line, lines = rectilinear_lines(self.state,
+                                                    marker=scatter.marker,
+                                                    x=scatter.x,
+                                                    y=scatter.y)
                     if lines:
                         self._lines_id = lines[0].meta
                     self.view.figure.add_traces(lines)
 
-                    # The newly-created line traces already have the correct properties, so we can return
+                    # The newly-created line traces already have the
+                    # correct properties, so we can return
                     return
 
-                elif fixed_color and lines:
+                if fixed_color and lines:
                     line_traces_visible = False
 
             if (force or "line_visible" in changed) or not line_traces_visible:
                 visible = False if not line_traces_visible else self.state.line_visible
-                self.view.figure.for_each_trace(lambda t: t.update(visible=visible), dict(meta=self._lines_id))
+                self.view.figure.for_each_trace(lambda t: t.update(visible=visible),
+                                                dict(meta=self._lines_id))
 
             if force or len(changed & {"linestyle", "linewidth", "color"}) > 0:
                 linestyle = LINESTYLES[self.state.linestyle]
                 if fixed_color:
-                    line = scatter.line.update(dash=linestyle, width=self.state.linewidth)
+                    line = scatter.line.update(dash=linestyle,
+                                               width=self.state.linewidth)
                     scatter.update(line=line)
                 else:
                     rgba_strs = scatter.marker.color
@@ -237,7 +254,9 @@ class PlotlyScatterLayerArtist(LayerArtist):
                     indices = indices[1:count * 2 - 1]
                     for i, line in enumerate(lines):
                         line_data = line.line
-                        line_data.update(dash=linestyle, width=self.state.linewidth, color=rgba_strs[indices[i]])
+                        line_data.update(dash=linestyle,
+                                         width=self.state.linewidth,
+                                         color=rgba_strs[indices[i]])
                         line.update(line=line_data)
 
     def _update_visual_attributes(self, changed, force=False):
@@ -257,7 +276,9 @@ class PlotlyScatterLayerArtist(LayerArtist):
                 layer_color = color_info(self.state)
                 marker_color = layer_color if self.state.fill else "rgba(0, 0, 0, 0)"
                 if self.state.border_visible:
-                    border_color = layer_color if self.state.border_color_match_layer else self.state.border_color
+                    border_color = layer_color \
+                                    if self.state.border_color_match_layer \
+                                    else self.state.border_color
                     line = dict(width=self.state.border_size, color=border_color)
                 else:
                     line = dict(width=0)
@@ -269,7 +290,7 @@ class PlotlyScatterLayerArtist(LayerArtist):
                 )
 
             if force or any(prop in changed for prop in MARKER_PROPERTIES):
-                scatter.marker['size'] = size_info(self.state)
+                scatter.marker["size"] = size_info(self.state)
 
         if force or "alpha" in changed:
             marker = scatter.marker

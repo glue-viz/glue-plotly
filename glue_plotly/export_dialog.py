@@ -1,6 +1,6 @@
 
+from qtpy.QtCore import Qt, QTimer
 from qtpy.QtWidgets import QDialog, QLabel, QVBoxLayout
-from qtpy.QtCore import QTimer, Qt
 
 
 class ExportDialog(QDialog):
