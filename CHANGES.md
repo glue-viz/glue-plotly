@@ -1,5 +1,16 @@
 # Full changelog
 
+## v0.12.3 - 2025-04-09
+
+<!-- Release notes generated using configuration in .github/release.yml at main -->
+### What's Changed
+
+#### Other Changes
+
+* Update dotplot size calculation by @Carifio24 in https://github.com/glue-viz/glue-plotly/pull/124
+
+**Full Changelog**: https://github.com/glue-viz/glue-plotly/compare/v0.12.2...v0.12.3
+
 ## v0.12.2 - 2025-03-12
 
 <!-- Release notes generated using configuration in .github/release.yml at main -->
