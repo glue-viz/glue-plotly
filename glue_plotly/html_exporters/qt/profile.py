@@ -1,25 +1,23 @@
-from __future__ import absolute_import, division, print_function
 
-from qtpy import compat
-from glue.config import viewer_tool
+import plotly.graph_objs as go
 from glue_qt.viewers.common.tool import Tool
+from plotly.offline import plot
+from qtpy import compat
 
+from glue.config import viewer_tool
 from glue_plotly import PLOTLY_LOGO
 from glue_plotly.common import data_count, layers_to_export
 from glue_plotly.common.profile import layout_config_from_mpl, traces_for_layer
 
-from plotly.offline import plot
-import plotly.graph_objs as go
-
-DEFAULT_FONT = 'Arial, sans-serif'
+DEFAULT_FONT = "Arial, sans-serif"
 
 
 @viewer_tool
 class PlotlyProfile1DExport(Tool):
     icon = PLOTLY_LOGO
-    tool_id = 'save:plotlyprofile'
-    action_text = 'Save Plotly HTML page'
-    tool_tip = 'Save Plotly HTML page'
+    tool_id = "save:plotlyprofile"
+    action_text = "Save Plotly HTML page"
+    tool_tip = "Save Plotly HTML page"
 
     def activate(self):
 
@@ -38,4 +36,4 @@ class PlotlyProfile1DExport(Tool):
             for trace in traces:
                 fig.add_trace(trace)
 
-        plot(fig, include_mathjax='cdn', filename=filename, auto_open=False)
+        plot(fig, include_mathjax="cdn", filename=filename, auto_open=False)

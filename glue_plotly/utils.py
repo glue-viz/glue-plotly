@@ -4,32 +4,31 @@ from re import match, sub
 from glue.core import BaseData
 from glue.viewers.common.state import LayerState
 
-
 PLOTLY_MAJOR_VERSION = int(version("plotly").split(".")[0])
 
 
 __all__ = [
-    'cleaned_labels',
-    'mpl_ticks_values',
-    'opacity_value_string',
-    'rgba_string_to_values',
-    'is_rgba_hex',
-    'is_rgb_hex',
-    'rgba_hex_to_rgb_hex',
+    "cleaned_labels",
+    "mpl_ticks_values",
+    "opacity_value_string",
+    "rgba_string_to_values",
+    "is_rgba_hex",
+    "is_rgb_hex",
+    "rgba_hex_to_rgb_hex",
 ]
 
 
 def cleaned_labels(labels):
-    cleaned = [sub(r'\\math(default|regular)', r'\\mathrm', label) for label in labels]
+    cleaned = [sub(r"\\math(default|regular)", r"\\mathrm", label) for label in labels]
     for j in range(len(cleaned)):
         label = cleaned[j]
-        if '$' in label:
-            cleaned[j] = '${0}$'.format(label.replace('$', ''))
+        if "$" in label:
+            cleaned[j] = "${0}$".format(label.replace("$", ""))
     return cleaned
 
 
 def mpl_ticks_values(axes, axis):
-    index = 1 if axis == 'y' else 0
+    index = 1 if axis == "y" else 0
     minor_getters = [axes.get_xminorticklabels, axes.get_yminorticklabels]
     minor_ticks = minor_getters[index]()
     if not (minor_ticks and any(t.get_text() for t in minor_ticks)):
@@ -78,7 +77,7 @@ def rgba_hex_to_rgb_hex(color):
 
 
 def hex_string(number):
-    return format(number, '02x')
+    return format(number, "02x")
 
 
 def rgb_hex_to_rgba_hex(color, opacity=1):
@@ -94,8 +93,7 @@ def rgba_components(color):
         color = rgb_hex_to_rgba_hex(color)
     if is_rgba_hex(color):
         return hex_to_components(color)
-    else:
-        return rgba_string_to_values(color)
+    return rgba_string_to_values(color)
 
 
 def components_to_hex(r, g, b, a=None):
@@ -106,8 +104,7 @@ def components_to_hex(r, g, b, a=None):
 def data_for_layer(layer_or_state):
     if isinstance(layer_or_state.layer, BaseData):
         return layer_or_state.layer
-    else:
-        return layer_or_state.layer.data
+    return layer_or_state.layer.data
 
 
 def frb_for_layer(viewer_state,
@@ -117,7 +114,7 @@ def frb_for_layer(viewer_state,
     data = data_for_layer(layer_or_state)
     layer_state = layer_or_state if isinstance(layer_or_state, LayerState) else layer_or_state.state
     is_data_layer = data is layer_or_state.layer
-    target_data = getattr(viewer_state, 'reference_data', data)
+    target_data = getattr(viewer_state, "reference_data", data)
     data_frb = data.compute_fixed_resolution_buffer(
         target_data=target_data,
         bounds=bounds,
@@ -126,13 +123,12 @@ def frb_for_layer(viewer_state,
 
     if is_data_layer:
         return data_frb
-    else:
-        subcube = data.compute_fixed_resolution_buffer(
-            target_data=target_data,
-            bounds=bounds,
-            subset_state=layer_state.layer.subset_state
-        )
-        return subcube * data_frb
+    subcube = data.compute_fixed_resolution_buffer(
+        target_data=target_data,
+        bounds=bounds,
+        subset_state=layer_state.layer.subset_state
+    )
+    return subcube * data_frb
 
 
 def font(family, size, color) -> dict:

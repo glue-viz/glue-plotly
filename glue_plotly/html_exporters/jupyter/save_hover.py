@@ -1,7 +1,6 @@
+from glue_jupyter.vuetify_helpers import link_glue_choices
 from ipyvuetify.VuetifyTemplate import VuetifyTemplate
 from traitlets import Bool, Int, List, observe
-
-from glue_jupyter.vuetify_helpers import link_glue_choices
 
 from ..base_save_hover import BaseSaveHoverDialog
 
@@ -33,7 +32,7 @@ class JupyterSaveHoverDialog(BaseSaveHoverDialog, VuetifyTemplate):
         if display:
             self.dialog_open = True
 
-        link_glue_choices(self, self.state, 'data')
+        link_glue_choices(self, self.state, "data")
 
         self._on_data_change()
 
@@ -49,7 +48,7 @@ class JupyterSaveHoverDialog(BaseSaveHoverDialog, VuetifyTemplate):
         self.component_selected = [i for i, component in enumerate(data_components)
                                    if current_selections[component.label]]
 
-    @observe('component_selected')
+    @observe("component_selected")
     def _on_component_selected_changed(self, change):
         selections = change["new"]
         current_layer = self.state.data.label

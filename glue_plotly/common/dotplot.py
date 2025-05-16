@@ -4,7 +4,6 @@ from numpy import isfinite
 from plotly.graph_objs import Scatter
 
 from glue.core import BaseData
-
 from glue_plotly.common import color_info, dimensions
 from glue_plotly.viewers.common import PlotlyBaseView
 
@@ -53,7 +52,7 @@ def dots_for_layer(viewer, layer_state, add_data_label=True):
 
     name = layer_state.layer.label
     if add_data_label and not isinstance(layer_state.layer, BaseData):
-        name += " ({0})".format(layer_state.layer.data.label)
+        name += f" ({layer_state.layer.data.label})"
 
     return Scatter(
         x=x,
