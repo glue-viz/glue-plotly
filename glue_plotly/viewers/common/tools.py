@@ -43,7 +43,7 @@ class PlotlySelectionMode(PlotlyDragMode):
     def deactivate(self):
         self.viewer.set_selection_callback(None)
         self.viewer.set_selection_active(False)
-        self.viewer.figure.on_edits_completed(self._clear_selection)
+        self.viewer.figure.plotly_relayout({'selections': [], 'dragmode': False})
         super().deactivate()
 
     def _clear_selection(self):
