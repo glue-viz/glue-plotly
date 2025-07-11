@@ -137,7 +137,7 @@ class TestPlotly:
         )
         data = args[0]["data"]
         trace_data = data[0].to_plotly_json()
-        for key, data in expected:
+        for key, data in expected.items():
             assert data == trace_data[key]
 
         layout = args[0]["layout"]
@@ -169,7 +169,7 @@ class TestPlotly:
         )
         data = args[0]["data"]
         trace_data = data[0].to_plotly_json()
-        for key, data in expected:
+        for key, data in expected.items():
             assert data == trace_data[key]
 
         layout = args[0]["layout"]
