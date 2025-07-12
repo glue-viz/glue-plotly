@@ -1,9 +1,8 @@
+from glue_jupyter.vuetify_helpers import link_glue_choices
 from ipyvuetify.VuetifyTemplate import VuetifyTemplate
 from traitlets import Bool, Int, List, observe
 
-from glue_jupyter.vuetify_helpers import link_glue_choices
-
-from ..base_save_hover import BaseSaveHoverDialog
+from glue_plotly.html_exporters.base_save_hover import BaseSaveHoverDialog
 
 
 class JupyterSaveHoverDialog(BaseSaveHoverDialog, VuetifyTemplate):
@@ -24,7 +23,9 @@ class JupyterSaveHoverDialog(BaseSaveHoverDialog, VuetifyTemplate):
                  on_export=None,
                  display=False):
 
-        BaseSaveHoverDialog.__init__(self, data_collection=data_collection, checked_dictionary=checked_dictionary)
+        BaseSaveHoverDialog.__init__(self,
+                                     data_collection=data_collection,
+                                     checked_dictionary=checked_dictionary)
         VuetifyTemplate.__init__(self)
 
         self.on_cancel = on_cancel
@@ -33,7 +34,7 @@ class JupyterSaveHoverDialog(BaseSaveHoverDialog, VuetifyTemplate):
         if display:
             self.dialog_open = True
 
-        link_glue_choices(self, self.state, 'data')
+        link_glue_choices(self, self.state, "data")
 
         self._on_data_change()
 
@@ -44,18 +45,22 @@ class JupyterSaveHoverDialog(BaseSaveHoverDialog, VuetifyTemplate):
             {"text": component.label, "value": index}
             for index, component in enumerate(data_components)
         ]
+        default_checked = { component.label: False for component in data_components }
         current_selections = self.checked_dictionary.get(self.state.data.label,
-                                                         {component.label: False for component in data_components})
+                                                         default_checked)
         self.component_selected = [i for i, component in enumerate(data_components)
                                    if current_selections[component.label]]
 
-    @observe('component_selected')
+    @observe("component_selected")
     def _on_component_selected_changed(self, change):
         selections = change["new"]
         current_layer = self.state.data.label
-        self.checked_dictionary[current_layer] = {component.label: i in selections
-                                                  for i, component in enumerate(self.state.data.components)}
+        layer_checked_data = {
+            component.label: i in selections
+            for i, component in enumerate(self.state.data.components)
+        }
 
+        self.checked_dictionary[current_layer] = layer_checked_data
     def vue_select_none(self, *args):
         self.component_selected = []
 

@@ -1,16 +1,16 @@
 from contextlib import nullcontext
 
+import ipyvuetify as v  # noqa
+import plotly.graph_objects as go
 from echo import delay_callback
+from ipyfilechooser import FileChooser  # noqa
+from IPython.display import display  # noqa
+from ipywidgets import HBox, Layout  # noqa
+
 from glue.config import viewer_tool
 from glue.core.subset import PolygonalROI, RectangularROI, XRangeROI, YRangeROI
 from glue.viewers.common.tool import CheckableTool, Tool
 from glue_plotly.jupyter_base_export_tool import JupyterBaseExportTool
-
-import plotly.graph_objects as go
-import ipyvuetify as v  # noqa
-from ipywidgets import HBox, Layout  # noqa
-from IPython.display import display  # noqa
-from ipyfilechooser import FileChooser  # noqa
 
 
 class PlotlyDragMode(CheckableTool):
@@ -22,7 +22,7 @@ class PlotlyDragMode(CheckableTool):
     def activate(self):
 
         # Disable any active tool in other viewers
-        if self.viewer.session.application.get_setting('single_global_active_tool'):
+        if self.viewer.session.application.get_setting("single_global_active_tool"):
             for viewer in self.viewer.session.application.viewers:
                 if viewer is not self.viewer:
                     viewer.toolbar.active_tool = None
@@ -43,11 +43,11 @@ class PlotlySelectionMode(PlotlyDragMode):
     def deactivate(self):
         self.viewer.set_selection_callback(None)
         self.viewer.set_selection_active(False)
-        self.viewer.figure.plotly_relayout({'selections': [], 'dragmode': False})
+        self.viewer.figure.plotly_relayout({"selections": [], "dragmode": False})
         super().deactivate()
 
     def _clear_selection(self):
-        self.viewer.figure.plotly_relayout({'selections': [], 'dragmode': False})
+        self.viewer.figure.plotly_relayout({"selections": [], "dragmode": False})
 
     def on_selection(self, trace, points, selector):
         self._on_selection(trace, points, selector)
@@ -58,13 +58,13 @@ class PlotlySelectionMode(PlotlyDragMode):
 @viewer_tool
 class PlotlyZoomMode(PlotlySelectionMode):
 
-    icon = 'glue_zoom_to_rect'
-    tool_id = 'plotly:zoom'
-    action_text = 'Zoom'
-    tool_tip = 'Zoom to rectangle'
+    icon = "glue_zoom_to_rect"
+    tool_id = "plotly:zoom"
+    action_text = "Zoom"
+    tool_tip = "Zoom to rectangle"
 
     def __init__(self, viewer):
-        super().__init__(viewer, 'select')
+        super().__init__(viewer, "select")
 
     def activate(self):
         super().activate()
@@ -74,7 +74,8 @@ class PlotlyZoomMode(PlotlySelectionMode):
         xmin, xmax = selector.xrange
         ymin, ymax = selector.yrange
         viewer_state = self.viewer.state
-        with self.viewer.figure.batch_update(), delay_callback(viewer_state, 'x_min', 'x_max', 'y_min', 'y_max'):
+        with self.viewer.figure.batch_update(), \
+             delay_callback(viewer_state, "x_min", "x_max", "y_min", "y_max"):
             viewer_state.x_min = xmin
             viewer_state.x_max = xmax
             viewer_state.y_min = ymin
@@ -84,13 +85,13 @@ class PlotlyZoomMode(PlotlySelectionMode):
 @viewer_tool
 class PlotlyHZoomMode(PlotlySelectionMode):
 
-    icon = 'glue_zoom_to_rect'
-    tool_id = 'plotly:hzoom'
-    action_text = 'Horizontal zoom'
-    tool_tip = 'Horizontal zoom'
+    icon = "glue_zoom_to_rect"
+    tool_id = "plotly:hzoom"
+    action_text = "Horizontal zoom"
+    tool_tip = "Horizontal zoom"
 
     def __init__(self, viewer):
-        super().__init__(viewer, 'select')
+        super().__init__(viewer, "select")
 
     def activate(self):
         super().activate()
@@ -99,7 +100,8 @@ class PlotlyHZoomMode(PlotlySelectionMode):
     def _on_selection(self, _trace, _points, selector):
         xmin, xmax = selector.xrange
         viewer_state = self.viewer.state
-        with self.viewer.figure.batch_update(), delay_callback(viewer_state, 'x_min', 'x_max'):
+        with self.viewer.figure.batch_update(), \
+             delay_callback(viewer_state, "x_min", "x_max"):
             viewer_state.x_min = xmin
             viewer_state.x_max = xmax
 
@@ -107,13 +109,13 @@ class PlotlyHZoomMode(PlotlySelectionMode):
 @viewer_tool
 class PlotlyVZoomMode(PlotlySelectionMode):
 
-    icon = 'glue_zoom_to_rect'
-    tool_id = 'plotly:vzoom'
-    action_text = 'Vertical zoom'
-    tool_tip = 'Vertical zoom'
+    icon = "glue_zoom_to_rect"
+    tool_id = "plotly:vzoom"
+    action_text = "Vertical zoom"
+    tool_tip = "Vertical zoom"
 
     def __init__(self, viewer):
-        super().__init__(viewer, 'select')
+        super().__init__(viewer, "select")
 
     def activate(self):
         super().activate()
@@ -122,7 +124,8 @@ class PlotlyVZoomMode(PlotlySelectionMode):
     def _on_selection(self, _trace, _points, selector):
         ymin, ymax = selector.yrange
         viewer_state = self.viewer.state
-        with self.viewer.figure.batch_update(), delay_callback(viewer_state, 'y_min', 'y_max'):
+        with self.viewer.figure.batch_update(), \
+             delay_callback(viewer_state, "y_min", "y_max"):
             viewer_state.y_min = ymin
             viewer_state.y_max = ymax
 
@@ -130,35 +133,35 @@ class PlotlyVZoomMode(PlotlySelectionMode):
 @viewer_tool
 class PlotlyPanMode(PlotlyDragMode):
 
-    icon = 'glue_move'
-    tool_id = 'plotly:pan'
-    action_text = 'Pan'
-    tool_tip = 'Interactively pan'
+    icon = "glue_move"
+    tool_id = "plotly:pan"
+    action_text = "Pan"
+    tool_tip = "Interactively pan"
 
     def __init__(self, viewer):
-        super().__init__(viewer, 'pan')
+        super().__init__(viewer, "pan")
 
     def activate(self):
         super().activate()
-        self.viewer.figure.layout['xaxis']['fixedrange'] = False
-        self.viewer.figure.layout['yaxis']['fixedrange'] = False
+        self.viewer.figure.layout["xaxis"]["fixedrange"] = False
+        self.viewer.figure.layout["yaxis"]["fixedrange"] = False
 
     def deactivate(self):
-        self.viewer.figure.layout['xaxis']['fixedrange'] = True
-        self.viewer.figure.layout['yaxis']['fixedrange'] = True
+        self.viewer.figure.layout["xaxis"]["fixedrange"] = True
+        self.viewer.figure.layout["yaxis"]["fixedrange"] = True
         super().deactivate()
 
 
 @viewer_tool
 class PlotlyHRangeSelectionMode(PlotlySelectionMode):
 
-    icon = 'glue_xrange_select'
-    tool_id = 'plotly:xrange'
-    action_text = 'X range'
-    tool_tip = 'Select a range of x values'
+    icon = "glue_xrange_select"
+    tool_id = "plotly:xrange"
+    action_text = "X range"
+    tool_tip = "Select a range of x values"
 
     def __init__(self, viewer):
-        super().__init__(viewer, 'select')
+        super().__init__(viewer, "select")
 
     def activate(self):
         super().activate()
@@ -174,13 +177,13 @@ class PlotlyHRangeSelectionMode(PlotlySelectionMode):
 @viewer_tool
 class PlotlyVRangeSelectionMode(PlotlySelectionMode):
 
-    icon = 'glue_yrange_select'
-    tool_id = 'plotly:yrange'
-    action_text = 'Y range'
-    tool_tip = 'Select a range of y values'
+    icon = "glue_yrange_select"
+    tool_id = "plotly:yrange"
+    action_text = "Y range"
+    tool_tip = "Select a range of y values"
 
     def __init__(self, viewer):
-        super().__init__(viewer, 'select')
+        super().__init__(viewer, "select")
 
     def activate(self):
         super().activate()
@@ -196,13 +199,13 @@ class PlotlyVRangeSelectionMode(PlotlySelectionMode):
 @viewer_tool
 class PlotlyRectangleSelectionMode(PlotlySelectionMode):
 
-    icon = 'glue_square'
-    tool_id = 'plotly:rectangle'
-    action_text = 'Rectangular ROI'
-    tool_tip = 'Define a rectangular region of interest'
+    icon = "glue_square"
+    tool_id = "plotly:rectangle"
+    action_text = "Rectangular ROI"
+    tool_tip = "Define a rectangular region of interest"
 
     def __init__(self, viewer):
-        super().__init__(viewer, 'select')
+        super().__init__(viewer, "select")
 
     def activate(self):
         super().activate()
@@ -219,10 +222,10 @@ class PlotlyRectangleSelectionMode(PlotlySelectionMode):
 @viewer_tool
 class PlotlyLassoSelectionMode(PlotlySelectionMode):
 
-    icon = 'glue_lasso'
-    tool_id = 'plotly:lasso'
-    action_text = 'Polygonal ROI'
-    tool_tip = 'Lasso a region of interest'
+    icon = "glue_lasso"
+    tool_id = "plotly:lasso"
+    action_text = "Polygonal ROI"
+    tool_tip = "Lasso a region of interest"
 
     def __init__(self, viewer):
         super().__init__(viewer, "lasso")
@@ -236,10 +239,10 @@ class PlotlyLassoSelectionMode(PlotlySelectionMode):
 @viewer_tool
 class PlotlyHomeTool(Tool):
 
-    icon = 'glue_home'
-    tool_id = 'plotly:home'
-    action_text = 'Home'
-    tool_tip = 'Reset original zoom'
+    icon = "glue_home"
+    tool_id = "plotly:home"
+    action_text = "Home"
+    tool_tip = "Reset original zoom"
 
     def activate(self):
         with self.viewer.figure.batch_update():
@@ -249,10 +252,10 @@ class PlotlyHomeTool(Tool):
 @viewer_tool
 class PlotlyHoverTool(CheckableTool):
 
-    icon = 'glue_point'
-    tool_id = 'plotly:hover'
-    action_text = 'Hover'
-    tool_tip = 'Show hover info'
+    icon = "glue_point"
+    tool_id = "plotly:hover"
+    action_text = "Hover"
+    tool_tip = "Show hover info"
 
     def activate(self):
         self.viewer.figure.update_layout(hovermode="closest")
@@ -264,10 +267,10 @@ class PlotlyHoverTool(CheckableTool):
 @viewer_tool
 class PlotlySaveTool(JupyterBaseExportTool):
 
-    icon = 'glue_filesave'
-    tool_id = 'plotly:save'
-    action_text = 'Save as interactive HTML'
-    tool_tip = 'Save as interactive HTML'
+    icon = "glue_filesave"
+    tool_id = "plotly:save"
+    action_text = "Save as interactive HTML"
+    tool_tip = "Save as interactive HTML"
 
     def save_figure(self, filepath):
         if not filepath:
@@ -278,9 +281,9 @@ class PlotlySaveTool(JupyterBaseExportTool):
         # For the HTML export, we want to re-enable these.
         # We clone the viewer figure so that we don't modify the viewer itself.
         figure = go.Figure(self.viewer.figure)
-        for setting in ('modebar', 'dragmode', 'newselection'):
+        for setting in ("modebar", "dragmode", "newselection"):
             figure.update_layout({setting: None})
-        for ax in ('x', 'y', 'z'):
+        for ax in ("x", "y", "z"):
             attr = f"{ax}axis"
             if hasattr(figure.layout, attr):
                 getattr(figure.layout, attr).update(fixedrange=False)

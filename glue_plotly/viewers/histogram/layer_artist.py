@@ -1,20 +1,20 @@
-import numpy as np
 from uuid import uuid4
+
+import numpy as np
 
 from glue.core.exceptions import IncompatibleAttribute
 from glue.viewers.common.layer_artist import LayerArtist
 from glue.viewers.histogram.state import HistogramLayerState
 from glue_plotly.common.common import fixed_color
-
 from glue_plotly.common.histogram import traces_for_layer
 
 __all__ = ["PlotlyHistogramLayerArtist"]
 
-SCALE_PROPERTIES = {'y_log', 'normalize', 'cumulative'}
-HISTOGRAM_PROPERTIES = SCALE_PROPERTIES | {'layer', 'x_att', 'hist_x_min',
-                                           'hist_x_max', 'hist_n_bin', 'x_log'}
-VISUAL_PROPERTIES = {'alpha', 'color', 'zorder', 'visible'}
-DATA_PROPERTIES = {'layer', 'x_att', 'y_att'}
+SCALE_PROPERTIES = {"y_log", "normalize", "cumulative"}
+HISTOGRAM_PROPERTIES = SCALE_PROPERTIES | {"layer", "x_att", "hist_x_min",
+                                           "hist_x_max", "hist_n_bin", "x_log"}
+VISUAL_PROPERTIES = {"alpha", "color", "zorder", "visible"}
+DATA_PROPERTIES = {"layer", "x_att", "y_att"}
 
 
 class PlotlyHistogramLayerArtist(LayerArtist):
@@ -48,7 +48,7 @@ class PlotlyHistogramLayerArtist(LayerArtist):
             self.state.reset_cache()
             self.bins, self.hist_unscaled = self.state.histogram
         except IncompatibleAttribute:
-            self.disable('Could not compute histogram')
+            self.disable("Could not compute histogram")
             self.bins = self.hist_unscaled = None
 
     def _scale_histogram(self):
@@ -65,7 +65,8 @@ class PlotlyHistogramLayerArtist(LayerArtist):
             # needed. We can't simply reset based on the maximum for this layer
             # because other layers might have other values, and we also can't do:
             #
-            #   self._viewer_state.y_max = max(self._viewer_state.y_max, result[0].max())
+            #   self._viewer_state.y_max = max(self._viewer_state.y_max,
+            #                                  result[0].max())
             #
             # because this would never allow y_max to get smaller.
 
@@ -85,14 +86,16 @@ class PlotlyHistogramLayerArtist(LayerArtist):
             else:
                 self.state._y_min = 0
 
-            largest_y_max = max(getattr(layer, '_y_max', 0)
+            largest_y_max = max(getattr(layer, "_y_max", 0)
                                 for layer in self._viewer_state.layers)
-            if np.isfinite(largest_y_max) and largest_y_max != self._viewer_state.y_max:
+            if np.isfinite(largest_y_max) and \
+               largest_y_max != self._viewer_state.y_max:
                 self._viewer_state.y_max = largest_y_max
 
-            smallest_y_min = min(getattr(layer, '_y_min', np.inf)
+            smallest_y_min = min(getattr(layer, "_y_min", np.inf)
                                  for layer in self._viewer_state.layers)
-            if np.isfinite(smallest_y_min) and smallest_y_min != self._viewer_state.y_min:
+            if np.isfinite(smallest_y_min) and \
+               smallest_y_min != self._viewer_state.y_min:
                 self._viewer_state.y_min = smallest_y_min
 
     def _update_visual_attributes(self, changed, force=False):
@@ -100,7 +103,8 @@ class PlotlyHistogramLayerArtist(LayerArtist):
             return
 
         with self.view.figure.batch_update():
-            self.view.figure.for_each_trace(self._update_visual_attrs_for_trace, dict(meta=self._bars_id))
+            self.view.figure.for_each_trace(self._update_visual_attrs_for_trace,
+                                            dict(meta=self._bars_id))
 
     def _update_visual_attrs_for_trace(self, trace):
         marker = trace.marker
@@ -115,11 +119,11 @@ class PlotlyHistogramLayerArtist(LayerArtist):
             with self.view.figure.batch_update():
                 for bar in old_bars:
                     self.view._remove_trace_index(bar)
-            # self.view._remove_traces(old_bars)
 
         bars = traces_for_layer(self.view.state, self.state, add_data_label=True)
         for bar in bars:
-            bar.update(hoverinfo='all', unselected=dict(marker=dict(opacity=self.state.alpha)))
+            bar.update(hoverinfo="all",
+                       unselected=dict(marker=dict(opacity=self.state.alpha)))
         self._bars_id = bars[0].meta if bars else None
         self.view.figure.add_traces(bars)
 

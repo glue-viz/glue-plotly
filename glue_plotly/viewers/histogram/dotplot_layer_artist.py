@@ -1,26 +1,28 @@
 # NB: This dot plot layer artist shouldn't be used together with the
 # normalized mode, as a dotplot only makes sense when the heights are integral.
 
-import numpy as np
 from uuid import uuid4
+
+import numpy as np
 
 from glue.core.exceptions import IncompatibleAttribute
 from glue.viewers.common.layer_artist import LayerArtist
 from glue.viewers.histogram.state import HistogramLayerState
 from glue_plotly.common.common import fixed_color
-
 from glue_plotly.common.dotplot import dot_positions, dot_size, dots_for_layer
 
 __all__ = ["PlotlyDotplotLayerArtist"]
 
-SCALE_PROPERTIES = {'y_log', 'normalize', 'cumulative'}
-HISTOGRAM_PROPERTIES = SCALE_PROPERTIES | {'layer', 'x_att', 'hist_x_min',
-                                           'hist_x_max', 'hist_n_bin', 'x_log'}
+SCALE_PROPERTIES = {"y_log", "normalize", "cumulative"}
+HISTOGRAM_PROPERTIES = SCALE_PROPERTIES | {"layer", "x_att", "hist_x_min",
+                                           "hist_x_max", "hist_n_bin", "x_log"}
 
-# Note that, because we need to scale the dots based on pixel space due to how Plotly sizes scatters,
-# we need to update the dot sizing when the bounds change
-VISUAL_PROPERTIES = {'alpha', 'color', 'zorder', 'visible', 'x_min', 'x_max', 'y_min', 'y_max'}
-DATA_PROPERTIES = {'layer', 'x_att', 'y_att'}
+# Note that, because we need to scale the dots based on pixel space
+# due to how Plotly sizes scatters, we need to update the dot sizing
+# when the bounds change
+VISUAL_PROPERTIES = {"alpha", "color", "zorder", "visible",
+                     "x_min", "x_max", "y_min", "y_max"}
+DATA_PROPERTIES = {"layer", "x_att", "y_att"}
 
 
 class PlotlyDotplotLayerArtist(LayerArtist):
@@ -58,7 +60,8 @@ class PlotlyDotplotLayerArtist(LayerArtist):
 
     def _create_dots(self):
         dots = dots_for_layer(self.view, self.state, add_data_label=True)
-        dots.update(hoverinfo='all', unselected=dict(marker=dict(opacity=self.state.alpha)))
+        dots.update(hoverinfo="all",
+                    unselected=dict(marker=dict(opacity=self.state.alpha)))
         self._dots_id = dots.meta if dots else None
         return dots
 
@@ -67,7 +70,7 @@ class PlotlyDotplotLayerArtist(LayerArtist):
             self.state.reset_cache()
             self.bins, self.hist_unscaled = self.state.histogram
         except (IncompatibleAttribute, ValueError):
-            self.disable('Could not compute histogram')
+            self.disable("Could not compute histogram")
             self.bins = self.hist_unscaled = None
 
     def _scale_histogram(self):
@@ -84,7 +87,8 @@ class PlotlyDotplotLayerArtist(LayerArtist):
             # needed. We can't simply reset based on the maximum for this layer
             # because other layers might have other values, and we also can't do:
             #
-            #   self._viewer_state.y_max = max(self._viewer_state.y_max, result[0].max())
+            #   self._viewer_state.y_max = max(self._viewer_state.y_max,
+            #                                  result[0].max())
             #
             # because this would never allow y_max to get smaller.
 
@@ -104,14 +108,16 @@ class PlotlyDotplotLayerArtist(LayerArtist):
             else:
                 self.state._y_min = 0
 
-            largest_y_max = max(getattr(layer, '_y_max', 0)
+            largest_y_max = max(getattr(layer, "_y_max", 0)
                                 for layer in self._viewer_state.layers)
-            if np.isfinite(largest_y_max) and largest_y_max != self._viewer_state.y_max:
+            if np.isfinite(largest_y_max) and \
+               largest_y_max != self._viewer_state.y_max:
                 self._viewer_state.y_max = largest_y_max
 
-            smallest_y_min = min(getattr(layer, '_y_min', np.inf)
+            smallest_y_min = min(getattr(layer, "_y_min", np.inf)
                                  for layer in self._viewer_state.layers)
-            if np.isfinite(smallest_y_min) and smallest_y_min != self._viewer_state.y_min:
+            if np.isfinite(smallest_y_min) and \
+               smallest_y_min != self._viewer_state.y_min:
                 self._viewer_state.y_min = smallest_y_min
 
     def _update_visual_attributes(self, changed, force=False):
@@ -119,11 +125,14 @@ class PlotlyDotplotLayerArtist(LayerArtist):
             return
 
         with self.view.figure.batch_update():
-            self.view.figure.for_each_trace(self._update_visual_attrs_for_trace, dict(meta=self._dots_id))
+            self.view.figure.for_each_trace(self._update_visual_attrs_for_trace,
+                                            dict(meta=self._dots_id))
 
     def _update_visual_attrs_for_trace(self, trace):
         marker = trace.marker
-        marker.update(opacity=self.state.alpha, color=fixed_color(self.state), size=dot_size(self.view, self.state))
+        marker.update(opacity=self.state.alpha,
+                      color=fixed_color(self.state),
+                      size=dot_size(self.view, self.state))
         trace.update(marker=marker,
                      visible=self.state.visible,
                      unselected=dict(marker=dict(opacity=self.state.alpha)))

@@ -1,9 +1,9 @@
 from uuid import uuid4
 
-from glue.core import BaseData
 from plotly.graph_objs import Bar
 
-from glue_plotly.common import base_layout_config, fixed_color, base_rectilinear_axis
+from glue.core import BaseData
+from glue_plotly.common import base_layout_config, base_rectilinear_axis, fixed_color
 from glue_plotly.utils import mpl_ticks_values
 
 
@@ -12,7 +12,7 @@ def axis_from_mpl(viewer, ax, glue_ticks=True):
     if glue_ticks:
         vals, text = mpl_ticks_values(viewer.axes, ax)
         if vals and text:
-            a.update(tickmode='array', tickvals=vals, ticktext=text)
+            a.update(tickmode="array", tickvals=vals, ticktext=text)
     return a
 
 
@@ -20,8 +20,8 @@ def layout_config(viewer, **kwargs):
     kwargs.setdefault("barmode", "overlay")
     kwargs.setdefault("bargap", 0)
     config = base_layout_config(viewer, **kwargs)
-    x_axis = base_rectilinear_axis(viewer.state, 'x')
-    y_axis = base_rectilinear_axis(viewer.state, 'y')
+    x_axis = base_rectilinear_axis(viewer.state, "x")
+    y_axis = base_rectilinear_axis(viewer.state, "y")
     config.update(xaxis=x_axis, yaxis=y_axis)
     return config
 
@@ -30,8 +30,8 @@ def layout_config_from_mpl(viewer, **kwargs):
     kwargs.setdefault("barmode", "overlay")
     kwargs.setdefault("bargap", 0)
     config = base_layout_config(viewer, **kwargs)
-    x_axis = axis_from_mpl(viewer, 'x')
-    y_axis = axis_from_mpl(viewer, 'y')
+    x_axis = axis_from_mpl(viewer, "x")
+    y_axis = axis_from_mpl(viewer, "y")
     config.update(xaxis=x_axis, yaxis=y_axis)
     return config
 
@@ -53,7 +53,7 @@ def traces_for_layer(viewer_state, layer_state, add_data_label=True):
 
     name = layer_state.layer.label
     if add_data_label and not isinstance(layer_state.layer, BaseData):
-        name += " ({0})".format(layer_state.layer.data.label)
+        name += f" ({layer_state.layer.data.label})"
 
     hist_info = dict(hoverinfo="skip", marker=marker, name=name)
     if viewer_state.x_log:

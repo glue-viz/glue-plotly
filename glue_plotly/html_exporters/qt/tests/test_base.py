@@ -1,10 +1,10 @@
-from mock import patch
+from unittest.mock import patch
 
 from glue_qt.app import GlueApplication
-from glue_plotly.html_exporters.qt.save_hover import SaveHoverDialog
-from glue_plotly.sort_components import SortComponentsDialog
 from qtpy.QtWidgets import QMessageBox
 
+from glue_plotly.html_exporters.qt.save_hover import SaveHoverDialog
+from glue_plotly.sort_components import SortComponentsDialog
 from glue_plotly.volume_options import VolumeOptionsDialog
 
 
@@ -19,12 +19,13 @@ class TestQtExporter:
         self.app.session.data_collection.append(self.data)
         self.viewer = self.app.new_data_viewer(self.viewer_type)
         self.viewer.add_data(self.data)
-        for subtool in self.viewer.toolbar.tools['save'].subtools:
+        for subtool in self.viewer.toolbar.tools["save"].subtools:
             if subtool.tool_id == self.tool_id:
                 self.tool = subtool
                 break
         else:
-            raise Exception(f"Could not find {self.tool_id} tool in viewer")
+            msg = f"Could not find {self.tool_id} tool in viewer"
+            raise ValueError(msg)
 
     def teardown_method(self, method):
         self.viewer.close(warn=False)
@@ -45,11 +46,15 @@ class TestQtExporter:
 
     def export_figure(self, tmpdir, output_filename):
         output_path = tmpdir.join(output_filename).strpath
-        with patch('qtpy.compat.getsavefilename') as fd:
-            fd.return_value = output_path, 'html'
-            with patch.object(SaveHoverDialog, 'exec_', self.auto_accept_selectdialog()), \
-                 patch.object(SortComponentsDialog, 'exec_', self.auto_accept_selectdialog()), \
-                 patch.object(VolumeOptionsDialog, 'exec_', self.auto_accept_messagebox()), \
-                 patch.object(QMessageBox, 'exec_', self.auto_accept_messagebox()):
+        with patch("qtpy.compat.getsavefilename") as fd:
+            fd.return_value = output_path, "html"
+            with patch.object(SaveHoverDialog, "exec_",
+                              self.auto_accept_selectdialog()), \
+                 patch.object(SortComponentsDialog, "exec_",
+                              self.auto_accept_selectdialog()), \
+                 patch.object(VolumeOptionsDialog, "exec_",
+                              self.auto_accept_messagebox()), \
+                 patch.object(QMessageBox, "exec_",
+                              self.auto_accept_messagebox()):
                 self.tool.activate()
         return output_path

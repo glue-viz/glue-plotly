@@ -1,7 +1,7 @@
 from echo import CallbackProperty
-from glue.viewers.common.state import ViewerState
 from ipywidgets import VBox
 
+from glue.viewers.common.state import ViewerState
 from glue_plotly.viewers.common import PlotlyBaseView
 
 
@@ -36,10 +36,10 @@ class ExampleViewer(PlotlyBaseView):
     _state_cls = ExampleState
     _options_cls = ExampleOptions
 
-    tools = ['plotly:zoom', 'plotly:hzoom', 'plotly:vzoom',
-             'plotly:pan', 'plotly:xrange', 'plotly:yrange',
-             'plotly:rectangle', 'plotly:lasso', 'plotly:home',
-             'plotly:hover']
+    tools = ["plotly:zoom", "plotly:hzoom", "plotly:vzoom",
+             "plotly:pan", "plotly:xrange", "plotly:yrange",
+             "plotly:rectangle", "plotly:lasso", "plotly:home",
+             "plotly:hover"]
 
     def __init__(self, session, state=None):
         super().__init__(session, state)

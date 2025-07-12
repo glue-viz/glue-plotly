@@ -1,19 +1,18 @@
-from glue.config import viewer_tool
+import plotly.graph_objs as go
 from glue_vispy_viewers.scatter.layer_artist import ScatterLayerArtist
+from plotly.offline import plot
 
+from glue.config import viewer_tool
 from glue_plotly.common.base_3d import bounds, layout_config
 from glue_plotly.common.common import data_count, layers_to_export
 from glue_plotly.common.scatter3d import traces_for_layer as scatter3d_traces_for_layer
 from glue_plotly.common.volume import traces_for_layer as volume_traces_for_layer
 from glue_plotly.jupyter_base_export_tool import JupyterBaseExportTool
 
-import plotly.graph_objs as go
-from plotly.offline import plot
-
 
 @viewer_tool
 class PlotlyScatter3DStaticExport(JupyterBaseExportTool):
-    tool_id = 'save:jupyter_plotlyvolume'
+    tool_id = "save:jupyter_plotlyvolume"
 
     def save_figure(self, filepath):
 

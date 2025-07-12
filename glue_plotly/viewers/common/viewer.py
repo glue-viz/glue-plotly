@@ -1,19 +1,16 @@
 from contextlib import nullcontext
 from uuid import uuid4
 
+import plotly.graph_objects as go
 from echo import delay_callback
-from glue.core.command import ApplySubsetState
-from glue.utils import avoid_circular
+from glue_jupyter.view import IPyWidgetView
 from numpy import log10
 
-import plotly.graph_objects as go
-
+from glue.core.command import ApplySubsetState
+from glue.utils import avoid_circular
 from glue_plotly.common.common import base_layout_config
 
-from glue_jupyter.view import IPyWidgetView
-
-
-__all__ = ['PlotlyBaseView']
+__all__ = ["PlotlyBaseView"]
 
 
 class PlotlyBaseView(IPyWidgetView):
@@ -22,7 +19,7 @@ class PlotlyBaseView(IPyWidgetView):
         include_dimensions=False,
         hovermode=False, hoverdistance=1,
         dragmode=False, showlegend=False, grid=None,
-        newselection=dict(line=dict(dash="dash"), mode='immediate'),
+        newselection=dict(line=dict(dash="dash"), mode="immediate"),
     )
 
     allow_duplicate_data = False
@@ -31,7 +28,7 @@ class PlotlyBaseView(IPyWidgetView):
 
     def __init__(self, session, state=None):
 
-        super(PlotlyBaseView, self).__init__(session, state=state)
+        super().__init__(session, state=state)
 
         self.selection_layer_id = uuid4().hex
         selection_layer = go.Heatmap(x0=0.5,
@@ -51,18 +48,20 @@ class PlotlyBaseView(IPyWidgetView):
 
         # Note that we need the log updates to be high priority for the histogram viewer
         # so that the axes are updated before the limits are reset
-        self.state.add_callback('x_axislabel', self.update_x_axislabel)
-        self.state.add_callback('y_axislabel', self.update_y_axislabel)
-        self.state.add_callback('x_min', self._update_plotly_x_limits)
-        self.state.add_callback('x_max', self._update_plotly_x_limits)
-        self.state.add_callback('x_log', self._update_x_log, priority=10000)
-        self.state.add_callback('y_min', self._update_plotly_y_limits)
-        self.state.add_callback('y_max', self._update_plotly_y_limits)
-        self.state.add_callback('y_log', self._update_y_log, priority=10000)
-        self.state.add_callback('show_axes', self._update_axes_visible)
+        self.state.add_callback("x_axislabel", self.update_x_axislabel)
+        self.state.add_callback("y_axislabel", self.update_y_axislabel)
+        self.state.add_callback("x_min", self._update_plotly_x_limits)
+        self.state.add_callback("x_max", self._update_plotly_x_limits)
+        self.state.add_callback("x_log", self._update_x_log, priority=10000)
+        self.state.add_callback("y_min", self._update_plotly_y_limits)
+        self.state.add_callback("y_max", self._update_plotly_y_limits)
+        self.state.add_callback("y_log", self._update_y_log, priority=10000)
+        self.state.add_callback("show_axes", self._update_axes_visible)
 
-        self.axis_x.on_change(lambda _obj, x_range: self._set_x_state_bounds(x_range), 'range')
-        self.axis_y.on_change(lambda _obj, y_range: self._set_y_state_bounds(y_range), 'range')
+        self.axis_x.on_change(lambda _obj, x_range: self._set_x_state_bounds(x_range),
+                              "range")
+        self.axis_y.on_change(lambda _obj, y_range: self._set_y_state_bounds(y_range),
+                              "range")
 
         self._update_plotly_x_limits()
         self._update_plotly_y_limits()
@@ -100,17 +99,17 @@ class PlotlyBaseView(IPyWidgetView):
         return self.figure.layout.yaxis
 
     def update_x_axislabel(self, label):
-        self.axis_x['title'].update(text=label)
+        self.axis_x["title"].update(text=label)
 
     def update_y_axislabel(self, label):
-        self.axis_y['title'].update(text=label)
+        self.axis_y["title"].update(text=label)
 
     def _update_x_log(self, log):
-        axis_type = 'log' if log else 'linear'
+        axis_type = "log" if log else "linear"
         self.figure.update_xaxes(type=axis_type, range=self._x_axis_range_from_state())
 
     def _update_y_log(self, log):
-        axis_type = 'log' if log else 'linear'
+        axis_type = "log" if log else "linear"
         self.figure.update_yaxes(type=axis_type, range=self._y_axis_range_from_state())
 
     def _update_selection_layer_bounds(self):
@@ -143,13 +142,13 @@ class PlotlyBaseView(IPyWidgetView):
     def _update_plotly_x_limits(self, *args):
         with self.figure.batch_update():
             if self.state.x_min is not None and self.state.x_max is not None:
-                self.axis_x['range'] = self._x_axis_range_from_state()
+                self.axis_x["range"] = self._x_axis_range_from_state()
 
     @avoid_circular
     def _update_plotly_y_limits(self, *args):
         with self.figure.batch_update():
             if self.state.y_min is not None and self.state.y_max is not None:
-                self.axis_y['range'] = self._y_axis_range_from_state()
+                self.axis_y["range"] = self._y_axis_range_from_state()
 
     def _update_axes_visible(self, *args):
         with self.figure.batch_update():
@@ -158,7 +157,7 @@ class PlotlyBaseView(IPyWidgetView):
 
     @avoid_circular
     def _set_x_state_bounds(self, x_range):
-        with delay_callback(self.state, 'x_min', 'x_max'):
+        with delay_callback(self.state, "x_min", "x_max"):
             if self.state.x_log:
                 x_range = tuple(pow(10, x) for x in x_range)
             self.state.x_min = x_range[0]
@@ -166,7 +165,7 @@ class PlotlyBaseView(IPyWidgetView):
 
     @avoid_circular
     def _set_y_state_bounds(self, y_range):
-        with delay_callback(self.state, 'y_min', 'y_max'):
+        with delay_callback(self.state, "y_min", "y_max"):
             if self.state.y_log:
                 y_range = tuple(pow(10, y) for y in y_range)
             self.state.y_min = y_range[0]
@@ -185,12 +184,14 @@ class PlotlyBaseView(IPyWidgetView):
                                        override_mode=use_current)
                 self._session.command_stack.do(cmd)
 
-    # Interface stub for now
-    # TODO: Should we have anything here?
+    # Interface stub
     def redraw(self):
         pass
 
     @property
     def unique_class(self):
-        """This is a unique identifier, based on a v4 UUID, that is assigned to the root widget as a class."""
+        """A unique class assigned to the root widget.
+
+        This unique class has the form 'glue-plotly-<v4 UUID>'
+        """
         return self._unique_class

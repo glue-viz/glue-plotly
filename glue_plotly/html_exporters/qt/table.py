@@ -1,19 +1,17 @@
 from math import floor
 
-from glue.config import viewer_tool
-from glue.core import BaseData
+import plotly.graph_objs as go
 from glue_qt.viewers.common.tool import Tool
-
-from glue_plotly import PLOTLY_LOGO
-
+from pandas import DataFrame
+from plotly.offline import plot
 from qtpy import compat
 from qtpy.QtCore import Qt
 from qtpy.QtWidgets import QDialog
-from plotly.offline import plot
-import plotly.graph_objs as go
-from pandas import DataFrame
 
-from ...sort_components import SortComponentsDialog
+from glue.config import viewer_tool
+from glue.core import BaseData
+from glue_plotly import PLOTLY_LOGO
+from glue_plotly.sort_components import SortComponentsDialog
 
 try:
     import dask.array as da
@@ -25,9 +23,9 @@ except ImportError:
 @viewer_tool
 class PlotlyTableExport(Tool):
     icon = PLOTLY_LOGO
-    tool_id = 'save:plotlytable'
-    action_text = 'Save Plotly HTML page'
-    tool_tip = 'Save Plotly HTML page'
+    tool_id = "save:plotlytable"
+    action_text = "Save Plotly HTML page"
+    tool_tip = "Save Plotly HTML page"
 
     # We use this instead of self.viewer.model.data_for_row_and_column
     # because we need the value (for sorting), and that method returns a string
@@ -38,12 +36,10 @@ class PlotlyTableExport(Tool):
         comp = model._data[c]
         value = comp[idx]
         if isinstance(value, bytes):
-            return value.decode('ascii')
-        else:
-            if DASK_INSTALLED and isinstance(value, da.Array):
-                return value.compute()
-            else:
-                return comp[idx]
+            return value.decode("ascii")
+        if DASK_INSTALLED and isinstance(value, da.Array):
+            return value.compute()
+        return comp[idx]
 
     def activate(self):
 
@@ -65,7 +61,8 @@ class PlotlyTableExport(Tool):
         n_rows = model.rowCount()
         n_cols = model.columnCount()
 
-        data = [[self._data_for_cell(row, col) for row in range(n_rows)] for col in range(n_cols)]
+        data = [[self._data_for_cell(row, col) for row in range(n_rows)]
+                for col in range(n_cols)]
 
         # Keep as strings for formatting consistency with table viewer
         cells = [[str(x) for x in col] for col in data]
@@ -77,7 +74,7 @@ class PlotlyTableExport(Tool):
             brush = model.data_by_row_and_column(row, 0, Qt.BackgroundRole)
             color = white if brush is None else brush.color().getRgb()
             color = tuple(color[:3] + (color[3]/256,))
-            colors.append('rgba{0}'.format(color))
+            colors.append(f"rgba{color}")
 
         table = go.Table(header=header, cells=dict(values=cells, fill_color=[colors]))
         fig = go.Figure(data=table)
@@ -89,8 +86,8 @@ class PlotlyTableExport(Tool):
                   not isinstance(layer.layer, BaseData)]
         for i, layer in enumerate(layers):
             layer_color = layer.layer.style.color
-            color = 'gray' if layer_color == '0.35' else layer_color
-            label = layer.layer.label + " ({0})".format(layer.layer.data.label)
+            color = "gray" if layer_color == "0.35" else layer_color
+            label = layer.layer.label + f" ({layer.layer.data.label})"
 
             x = x0 + dx * floor(i / 3)
             y = y0 - dy * (i % 3)
@@ -117,7 +114,8 @@ class PlotlyTableExport(Tool):
                     args=[
                         dict(
                             cells=dict(
-                                values=[[str(x) for x in scores[c].values] for c in column_names],
+                                values=[[str(x) for x in scores[c].values]
+                                        for c in column_names],
                                 fill=dict(color=[sort_colors])
                             )
                         )
@@ -129,7 +127,7 @@ class PlotlyTableExport(Tool):
                 updatemenus=[
                     dict(
                         buttons=buttons,
-                        direction='down',
+                        direction="down",
                         showactive=True,
                         x=0,
                         xanchor="left",

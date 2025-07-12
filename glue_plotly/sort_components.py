@@ -1,19 +1,15 @@
 import os
 
-from qtpy.QtWidgets import QDialog, QListWidgetItem
-from qtpy.QtCore import Qt
-
 from echo import ChoiceSeparator, SelectionCallbackProperty
 from echo.qt import autoconnect_callbacks_to_qt
-
-from glue.core.state_objects import State
-from glue.core.data_combo_helper import ComboHelper
 from glue_qt.utils import load_ui
+from qtpy.QtCore import Qt
+from qtpy.QtWidgets import QDialog, QListWidgetItem
 
-import numpy as np
+from glue.core.data_combo_helper import ComboHelper
+from glue.core.state_objects import State
 
-
-__all__ = ['SortComponentsDialog']
+__all__ = ["SortComponentsDialog"]
 
 
 class SortComponentsState(State):
@@ -22,9 +18,9 @@ class SortComponentsState(State):
 
     def __init__(self, components=component):
 
-        super(SortComponentsState, self).__init__()
+        super().__init__()
 
-        self.component_helper = ComboHelper(self, 'component')
+        self.component_helper = ComboHelper(self, "component")
         self.component_helper.choices = components
 
 
@@ -32,9 +28,9 @@ class SortComponentsDialog(QDialog):
 
     def __init__(self, components=None, parent=None):
 
-        super(SortComponentsDialog, self).__init__(parent=parent)
+        super().__init__(parent=parent)
 
-        self.ui = load_ui('sort_components.ui', self,
+        self.ui = load_ui("sort_components.ui", self,
                           directory=os.path.dirname(__file__))
 
         self.state = SortComponentsState(components=components)
@@ -53,10 +49,10 @@ class SortComponentsDialog(QDialog):
 
     def _populate_list(self):
 
-        components = getattr(type(self.state), 'component').get_choices(self.state)
+        components = type(self.state).component.get_choices(self.state)
         self.ui.list_component.clear()
 
-        for (component, k) in zip(components, np.arange(0, len(components))):
+        for component in components:
 
             if isinstance(component, ChoiceSeparator):
                 item = QListWidgetItem(str(component))
@@ -93,4 +89,4 @@ class SortComponentsDialog(QDialog):
             item = self.ui.list_component.item(idx)
             if item.checkState() == Qt.Checked:
                 self.sort_components.append(item.text())
-        super(SortComponentsDialog, self).accept()
+        super().accept()
