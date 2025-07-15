@@ -10,7 +10,7 @@ repos:
         args: ["--enforce-all", "--maxkb=800"]
         exclude: "^(\
           CHANGES.md|\
-          docs/.*|\
+          docs/.*
         )$"
         # Prevent giant files from being committed.
       - id: check-case-conflict
@@ -33,7 +33,6 @@ repos:
         # Checks for the existence of private keys.
       - id: end-of-file-fixer
         # Makes sure files end in a newline and only a newline.
-        exclude: ".*(glue_qt/dialogs/README.md|glue_qt/viewers/scatter/layer_style_editor.ui|data.*|extern.*|icons.*|licenses.*|_static.*|_parsetab.py)$"
       # - id: fix-encoding-pragma  # covered by pyupgrade
       - id: trailing-whitespace
         # Trims trailing whitespace.
