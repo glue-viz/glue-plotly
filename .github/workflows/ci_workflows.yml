@@ -39,11 +39,11 @@ jobs:
         - linux: py312-test
         - linux: py313-test
         - linux: py313-test-devdeps
-        - linux: py312-glue116-test
-        - linux: py312-glue117-test
         - linux: py312-glue118-test
         - linux: py312-glue119-test
         - linux: py312-glue120-test
+        - linux: py312-glue121-test
+        - linux: py312-glue122-test
 
         - macos: py310-test
         - macos: py311-test
@@ -52,11 +52,11 @@ jobs:
         - macos: py312-test
         - macos: py313-test
         - macos: py313-test-devdeps
-        - macos: py312-glue116-test
-        - macos: py312-glue117-test
         - macos: py312-glue118-test
         - macos: py312-glue119-test
         - macos: py312-glue120-test
+        - macos: py312-glue121-test
+        - macos: py312-glue122-test
 
         - windows: py310-test
         - windows: py311-test
@@ -65,11 +65,11 @@ jobs:
         - windows: py312-test
         - windows: py313-test
         - windows: py313-test-devdeps
-        - windows: py312-glue116-test
-        - windows: py312-glue117-test
         - windows: py312-glue118-test
         - windows: py312-glue119-test
         - windows: py312-glue120-test
+        - windows: py312-glue121-test
+        - windows: py312-glue122-test
 
   pages:
     needs: initial_checks
