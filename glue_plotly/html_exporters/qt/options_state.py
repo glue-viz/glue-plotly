@@ -1,10 +1,11 @@
+from contextlib import suppress
+
 from echo import CallbackProperty
-from glue_vispy_viewers.volume.layer_state import VolumeLayerState
 
 from glue.config import DictRegistry
 from glue.core.state_objects import State
 
-__all__ = ["qt_export_options", "VolumeExportOptionsState"]
+__all__ = ["qt_export_options"]
 
 
 class QtExportLayerOptionsRegistry(DictRegistry):
@@ -24,6 +25,10 @@ class QtExportLayerOptionsRegistry(DictRegistry):
 qt_export_options = QtExportLayerOptionsRegistry()
 
 
-@qt_export_options(VolumeLayerState)
-class VolumeExportOptionsState(State):
-    isosurface_count = CallbackProperty(5)
+with suppress(ImportError):
+    from glue_vispy_viewers.volume.layer_state import VolumeLayerState
+
+
+    @qt_export_options(VolumeLayerState)
+    class VolumeExportOptionsState(State):
+        isosurface_count = CallbackProperty(5)
