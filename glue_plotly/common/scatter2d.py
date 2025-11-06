@@ -104,6 +104,13 @@ def polar_layout_config_from_mpl(viewer, **kwargs):
     return polar_layout_config(viewer, mpl_radial_axis, **kwargs)
 
 
+def geo_layout_config(viewer, **kwargs):
+    layout_config = base_layout_config(viewer, **kwargs)
+    geo = dict(projection_type=projection_type(viewer))
+    layout_config.update(geo=geo)
+    return layout_config
+
+
 def scatter_mode(layer_state):
     if layer_state.line_visible and layer_state.cmap_mode == "Fixed":
         return "lines+markers"
@@ -357,7 +364,6 @@ def trace_data_for_layer(viewer, layer_state, hover_data=None, add_data_label=Tr
 
     polar = getattr(viewer.state, "using_polar", False)
     degrees = viewer.state.using_degrees
-    proj = projection_type(viewer.state)
     if polar:
         scatter_info.update(theta=x,
                             r=y,
@@ -376,13 +382,9 @@ def trace_data_for_layer(viewer, layer_state, hover_data=None, add_data_label=Tr
         if not degrees:
             x = np.rad2deg(x)
             y = np.rad2deg(y)
-        traces["scatter"] = [go.Scattergeo(lon=x, lat=y, projection_type=proj,
-                                           showland=False, showcoastlines=False,
-                                           showlakes=False,
-                                           lataxis_showgrid=False,
-                                           lonaxis_showgrid=False,
-                                           bgcolor=settings.BACKGROUND_COLOR,
-                                           framecolor=settings.FOREGROUND_COLOR)]
+
+        scatter_info.update(lon=x, lat=y)
+        traces["scatter"] = [go.Scattergeo(**scatter_info)]
 
     return traces
 
