@@ -114,21 +114,23 @@ def geo_layout_config(viewer, **kwargs):
         showland=False,
         showocean=False,
         showrivers=False,
-        lonaxis=dict(
-            showgrid=True,
-            gridcolor="gray",
-            gridwidth=1,
-            dtick=30,
-        ),
-        lataxis=dict(
-            showgrid=True,
-            gridcolor="lightgray",
-            gridwidth=1,
-            dtick=15,
-        )
     )
     layout_config.update(geo=geo)
     return layout_config
+
+
+def geo_ticks(angle_range=None, dtick=30):
+    if angle_range is None:
+        angle_range = [-150, 150]
+    angle_range[1] = angle_range[1] + dtick
+    positions = list(range(*angle_range, dtick))
+    return go.Scattergeo(
+        lon=positions,
+        lat=[0 for _ in positions],
+        showlegend=False,
+        text=positions,
+        mode="text"
+    )
 
 
 def scatter_mode(layer_state):

@@ -12,6 +12,7 @@ from glue_plotly import PLOTLY_ERROR_MESSAGE, PLOTLY_LOGO
 from glue_plotly.common import data_count, layers_to_export
 from glue_plotly.common.scatter2d import (
     geo_layout_config,
+    geo_ticks,
     polar_layout_config_from_mpl,
     rectilinear_layout_config,
     traces_for_layer,
@@ -86,6 +87,9 @@ class PlotlyScatter2DStaticExport(Tool):
 
         layout = go.Layout(**layout_config)
         fig = go.Figure(layout=layout)
+
+        if not (rectilinear or polar):
+            fig.add_trace(geo_ticks())
 
         layers = layers_to_export(self.viewer)
         add_data_label = data_count(layers) > 1
