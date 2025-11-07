@@ -106,7 +106,27 @@ def polar_layout_config_from_mpl(viewer, **kwargs):
 
 def geo_layout_config(viewer, **kwargs):
     layout_config = base_layout_config(viewer, **kwargs)
-    geo = dict(projection_type=projection_type(viewer))
+    geo = dict(
+        projection_type=projection_type(viewer.state),
+        showcoastlines=False,
+        showcountries=False,
+        showlakes=False,
+        showland=False,
+        showocean=False,
+        showrivers=False,
+        lonaxis=dict(
+            showgrid=True,
+            gridcolor="gray",
+            gridwidth=1,
+            dtick=30,
+        ),
+        lataxis=dict(
+            showgrid=True,
+            gridcolor="lightgray",
+            gridwidth=1,
+            dtick=15,
+        )
+    )
     layout_config.update(geo=geo)
     return layout_config
 
