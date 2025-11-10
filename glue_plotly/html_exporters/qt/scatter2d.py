@@ -87,14 +87,11 @@ class PlotlyScatter2DStaticExport(Tool):
 
         layout = go.Layout(**layout_config)
         fig = go.Figure(layout=layout)
-        config = None
 
         if not (rectilinear or polar):
-            for tick in geo_ticks():
+            for tick in geo_ticks(self.viewer.state):
                 fig.add_trace(tick)
             
-            config = {"dragMode": False}
-
         layers = layers_to_export(self.viewer)
         add_data_label = data_count(layers) > 1
         for layer in layers:
@@ -105,4 +102,4 @@ class PlotlyScatter2DStaticExport(Tool):
                                       add_data_label=add_data_label)
             fig.add_traces(traces)
 
-        plot(fig, filename=filename, auto_open=False, config=config)
+        plot(fig, filename=filename, auto_open=False)

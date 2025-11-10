@@ -1,4 +1,5 @@
 from uuid import uuid4
+from glue.core.util import ThetaRadianFormatter
 
 import numpy as np
 import plotly.figure_factory as ff
@@ -116,27 +117,41 @@ def geo_layout_config(viewer, **kwargs):
         showrivers=False,
         scope="world",
     )
-    layout_config.update(geo=geo)
+    layout_config.update(geo=geo, dragmode=False)
     return layout_config
 
 
-def geo_ticks():
+def angles_ticks_text(angles, degrees=True):
+    if degrees:
+        return [f"{ang}°" for ang in angles]
+    else:
+        return [ThetaRadianFormatter.rad_fn(ang * np.pi / 180).replace("\pi", "π").replace("$", "") for ang in angles]
+
+
+def geo_ticks(viewer_state):
+    degrees = viewer_state.angle_unit == "degrees"
     equator_longitudes = list(range(-150, 180, 30))
+    equator_text = angles_ticks_text(equator_longitudes, degrees=degrees)
+
     equator_ticks = go.Scattergeo(
         lon=equator_longitudes,
         lat=[0 for _ in equator_longitudes],
         showlegend=False,
-        text=equator_longitudes,
-        mode="text"
+        text=equator_text,
+        mode="text",
     )
 
     edge_latitudes = list(range(-75, 90, 15))
+    edge_text = angles_ticks_text(edge_latitudes, degrees=degrees)
+
+    edge_text_positions = ["middle left"] * 4 + ["middle right"] * 3 + ["middle left"] * 4
     edge_ticks = go.Scattergeo(
         lon=[-180 for _ in edge_latitudes],
         lat=edge_latitudes,
         showlegend=False,
-        text=edge_latitudes,
-        mode="text"
+        text=edge_text,
+        mode="text",
+        textposition=edge_text_positions,
     )
 
     return [equator_ticks, edge_ticks]
