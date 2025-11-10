@@ -114,23 +114,32 @@ def geo_layout_config(viewer, **kwargs):
         showland=False,
         showocean=False,
         showrivers=False,
+        scope="world",
     )
     layout_config.update(geo=geo)
     return layout_config
 
 
-def geo_ticks(angle_range=None, dtick=30):
-    if angle_range is None:
-        angle_range = [-150, 150]
-    angle_range[1] = angle_range[1] + dtick
-    positions = list(range(*angle_range, dtick))
-    return go.Scattergeo(
-        lon=positions,
-        lat=[0 for _ in positions],
+def geo_ticks():
+    equator_longitudes = list(range(-150, 180, 30))
+    equator_ticks = go.Scattergeo(
+        lon=equator_longitudes,
+        lat=[0 for _ in equator_longitudes],
         showlegend=False,
-        text=positions,
+        text=equator_longitudes,
         mode="text"
     )
+
+    edge_latitudes = list(range(-75, 90, 15))
+    edge_ticks = go.Scattergeo(
+        lon=[-180 for _ in edge_latitudes],
+        lat=edge_latitudes,
+        showlegend=False,
+        text=edge_latitudes,
+        mode="text"
+    )
+
+    return [equator_ticks, edge_ticks]
 
 
 def scatter_mode(layer_state):
