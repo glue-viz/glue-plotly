@@ -143,6 +143,7 @@ def geo_ticks(viewer_state):
         showlegend=False,
         text=equator_text,
         mode="text",
+        hoverinfo="skip",
     )
 
     edge_latitudes = list(range(-75, 90, 15))
@@ -155,6 +156,7 @@ def geo_ticks(viewer_state):
         text=edge_text,
         mode="text",
         textposition=edge_text_positions,
+        hoverinfo="skip",
     )
 
     return [equator_ticks, edge_ticks]
@@ -168,8 +170,11 @@ def geo_annotations(viewer_state):
         font=dict(family=DEFAULT_FONT, size=1.5 * viewer_state.x_axislabel_size),
         showarrow=False,
     )
+
+    proj = projection_type(viewer_state)
+    yaxis_x = 0.2 if proj == "azimuthal equal area" else 0
     y_axislabel = go.layout.Annotation(
-        x=0,
+        x=yaxis_x,
         y=0.5,
         text=viewer_state.y_att.label,
         font=dict(family=DEFAULT_FONT, size=1.5 * viewer_state.y_axislabel_size),
