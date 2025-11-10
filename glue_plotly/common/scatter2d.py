@@ -125,17 +125,17 @@ def geo_layout_config(viewer, **kwargs):
     return layout_config
 
 
-def angles_ticks_text(angles, degrees=True):
+def angle_ticks_text(angles, degrees=True, digits=2):
     if degrees:
         return [f"{ang}°" for ang in angles]
     else:
-        return [ThetaRadianFormatter.rad_fn(ang * np.pi / 180).replace("\pi", "π").replace("$", "") for ang in angles]
+        return [ThetaRadianFormatter.rad_fn(ang * np.pi / 180, digits=digits).replace("\pi", "π").replace("$", "") for ang in angles]
 
 
 def geo_ticks(viewer_state):
     degrees = viewer_state.angle_unit == "degrees"
     equator_longitudes = list(range(-150, 180, 30))
-    equator_text = angles_ticks_text(equator_longitudes, degrees=degrees)
+    equator_text = angle_ticks_text(equator_longitudes, degrees=degrees)
 
     equator_ticks = go.Scattergeo(
         lon=equator_longitudes,
@@ -147,7 +147,7 @@ def geo_ticks(viewer_state):
     )
 
     edge_latitudes = list(range(-75, 90, 15))
-    edge_text = angles_ticks_text(edge_latitudes, degrees=degrees)
+    edge_text = angle_ticks_text(edge_latitudes, degrees=degrees)
     edge_text_positions = ["middle left"] * 4 + ["middle right"] * 3 + ["middle left"] * 4
     edge_ticks = go.Scattergeo(
         lon=[-180 for _ in edge_latitudes],
@@ -166,7 +166,7 @@ def geo_annotations(viewer_state):
     x_axislabel = go.layout.Annotation(
         x=0.5,
         y=0,
-        text=viewer_state.x_att.label,
+        text=viewer_state.x_axislabel,
         font=dict(family=DEFAULT_FONT, size=1.5 * viewer_state.x_axislabel_size),
         showarrow=False,
     )
@@ -176,7 +176,7 @@ def geo_annotations(viewer_state):
     y_axislabel = go.layout.Annotation(
         x=yaxis_x,
         y=0.5,
-        text=viewer_state.y_att.label,
+        text=viewer_state.y_axislabel,
         font=dict(family=DEFAULT_FONT, size=1.5 * viewer_state.y_axislabel_size),
         showarrow=False,
         textangle=-90,
