@@ -116,6 +116,10 @@ def geo_layout_config(viewer, **kwargs):
         showocean=False,
         showrivers=False,
         scope="world",
+        domain=dict(
+            x=[0.05, 0.95],
+            y=[0.05, 0.95],
+        ),
     )
     layout_config.update(geo=geo, dragmode=False)
     return layout_config
@@ -143,7 +147,6 @@ def geo_ticks(viewer_state):
 
     edge_latitudes = list(range(-75, 90, 15))
     edge_text = angles_ticks_text(edge_latitudes, degrees=degrees)
-
     edge_text_positions = ["middle left"] * 4 + ["middle right"] * 3 + ["middle left"] * 4
     edge_ticks = go.Scattergeo(
         lon=[-180 for _ in edge_latitudes],
@@ -158,8 +161,21 @@ def geo_ticks(viewer_state):
 
 
 def geo_annotations(viewer_state):
-    x_axislabel = go.layout.Annotation(x=0.5, y=0, text=viewer_state.x_att.label, showarrow=False)
-    y_axislabel = go.layout.Annotation(x=0, y=0.5, text=viewer_state.y_att.label, showarrow=False)
+    x_axislabel = go.layout.Annotation(
+        x=0.5,
+        y=0,
+        text=viewer_state.x_att.label,
+        font=dict(family=DEFAULT_FONT, size=1.5 * viewer_state.x_axislabel_size),
+        showarrow=False,
+    )
+    y_axislabel = go.layout.Annotation(
+        x=0,
+        y=0.5,
+        text=viewer_state.y_att.label,
+        font=dict(family=DEFAULT_FONT, size=1.5 * viewer_state.y_axislabel_size),
+        showarrow=False,
+        textangle=-90,
+    )
     return [x_axislabel, y_axislabel]
 
 

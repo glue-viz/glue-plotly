@@ -64,7 +64,13 @@ def base_layout_config(viewer, include_dimensions=True, **kwargs):
     margin_h = 50
     margin_v = 50
     config = dict(
-        margin=dict(r=margin_h, l=margin_h, b=margin_v, t=margin_v),  # noqa
+        margin=dict(
+            r=margin_h,
+            l=margin_h,
+            b=margin_v,
+            t=margin_v,
+            pad=10,
+        ),
         paper_bgcolor=settings.BACKGROUND_COLOR,
         plot_bgcolor=settings.BACKGROUND_COLOR,
         legend=dict(

@@ -5,6 +5,7 @@ from plotly.offline import plot
 from glue.config import viewer_tool
 from glue_plotly.common.common import data_count, layers_to_export
 from glue_plotly.common.scatter2d import (
+    geo_annotations,
     geo_layout_config,
     geo_ticks,
     polar_layout_config_from_mpl,
@@ -58,6 +59,8 @@ class PlotlyScatter2DBqplotExport(JupyterBaseExportTool):
         if not (rectilinear or polar):
             for tick in geo_ticks(self.viewer.state):
                 fig.add_trace(tick)
+            for ann in geo_annotations(self.viewer.state):
+                fig.add_annotation(ann)
 
         layers = layers_to_export(self.viewer)
         add_data_label = data_count(layers) > 1
