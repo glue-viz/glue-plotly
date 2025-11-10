@@ -50,14 +50,19 @@ class TestScatter2D:
 
 
 def test_angle_ticks_text_degrees():
-    assert angle_ticks_text([-30, -10, 5, 11, 62], degrees=True) == ["-30°", "-10°", "5°", "11°", "62°"]
-    assert angle_ticks_text([0, 10, 20, 30, 40, 50], degrees=True) == ["0°", "10°", "20°", "30°", "40°", "50°"]
+    assert angle_ticks_text([-30, -10, 5, 11, 62], degrees=True) == \
+            ["-30°", "-10°", "5°", "11°", "62°"]
+    assert angle_ticks_text([0, 10, 20, 30, 40, 50], degrees=True) == \
+            ["0°", "10°", "20°", "30°", "40°", "50°"]
 
 
 def test_angle_ticks_text_radians():
-    assert angle_ticks_text([-30, -15, 0, 45, 90], degrees=False) == ["-π/6", "-π/12", "0", "π/4", "π/2"]
-    assert angle_ticks_text([-67, 11, -24, 75, 180], degrees=False, digits=2) == ["-1.17", "0.19", "-2π/15", "5π/12", "π"]
-    assert angle_ticks_text([-67, 11, -24, 75, 180], degrees=False, digits=5) == ["-1.16937", "0.19199", "-2π/15", "5π/12", "π"]
+    assert angle_ticks_text([-30, -15, 0, 45, 90], degrees=False) == \
+            ["-π/6", "-π/12", "0", "π/4", "π/2"]
+    assert angle_ticks_text([-67, 11, -24, 75, 180], degrees=False, digits=2) == \
+            ["-1.17", "0.19", "-2π/15", "5π/12", "π"]
+    assert angle_ticks_text([-67, 11, -24, 75, 180], degrees=False, digits=5) == \
+            ["-1.16937", "0.19199", "-2π/15", "5π/12", "π"]
 
 
 class TestScatter2DRectilinear(TestScatter2D):
@@ -327,7 +332,8 @@ class TestScatter2DFullSphere(TestScatter2D):
         assert geo["domain"]["x"] == [0.05, 0.95]
         assert geo["domain"]["y"] == [0.05, 0.95]
 
-    @pytest.mark.parametrize(("mode", "angle_unit"), product(MODES, ("radians", "degrees")))
+    @pytest.mark.parametrize(("mode", "angle_unit"),
+                             product(MODES, ("radians", "degrees")))
     def test_ticks(self, mode, angle_unit):
         self.viewer.state.plot_mode = mode
         self.viewer.state.angle_unit = angle_unit
@@ -348,13 +354,16 @@ class TestScatter2DFullSphere(TestScatter2D):
         lon_angles = tuple(range(-150, 180, 30))
         assert equator_ticks["lon"] == lon_angles
         assert all(lat == 0 for lat in equator_ticks["lat"])
-        assert equator_ticks["text"] == tuple(angle_ticks_text(lon_angles, degrees=degrees))
+        assert equator_ticks["text"] == tuple(angle_ticks_text(lon_angles,
+                                                               degrees=degrees))
 
         lat_angles = tuple(range(-75, 90, 15))
         assert edge_ticks["lat"] == lat_angles
         assert all(lon == -180 for lon in edge_ticks["lon"])
-        assert edge_ticks["text"] == tuple(angle_ticks_text(lat_angles, degrees=degrees))
-        assert edge_ticks["textposition"] == ("middle left",) * 4 + ("middle right",) * 3 + ("middle left",) * 4
+        assert edge_ticks["text"] == tuple(angle_ticks_text(lat_angles,
+                                                            degrees=degrees))
+        assert edge_ticks["textposition"] == \
+            ("middle left",) * 4 + ("middle right",) * 3 + ("middle left",) * 4
 
 
     @pytest.mark.parametrize("mode", MODES)
@@ -382,7 +391,8 @@ class TestScatter2DFullSphere(TestScatter2D):
         assert yfont["family"] == DEFAULT_FONT
         assert yfont["size"] == 18
 
-    @pytest.mark.parametrize(("mode", "angle_unit"), product(MODES, ("radians", "degrees")))
+    @pytest.mark.parametrize(("mode", "angle_unit"),
+                             product(MODES, ("radians", "degrees")))
     def test_traces(self, mode, angle_unit):
         self.viewer.state.plot_mode = mode
         self.viewer.state.angle_unit = angle_unit

@@ -128,7 +128,8 @@ def geo_layout_config(viewer, **kwargs):
 def angle_ticks_text(angles, degrees=True, digits=2):
     if degrees:
         return [f"{ang}°" for ang in angles]
-    return [ThetaRadianFormatter.rad_fn(ang * np.pi / 180, digits=digits).replace(r"\pi", "π").replace("$", "") for ang in angles]
+    return [ThetaRadianFormatter.rad_fn(ang * np.pi / 180, digits=digits)
+            .replace(r"\pi", "π").replace("$", "") for ang in angles]
 
 
 def geo_ticks(viewer_state):
@@ -147,7 +148,9 @@ def geo_ticks(viewer_state):
 
     edge_latitudes = list(range(-75, 90, 15))
     edge_text = angle_ticks_text(edge_latitudes, degrees=degrees)
-    edge_text_positions = ["middle left"] * 4 + ["middle right"] * 3 + ["middle left"] * 4
+    edge_text_positions = ["middle left"] * 4 + \
+                          ["middle right"] * 3 + \
+                          ["middle left"] * 4
     edge_ticks = go.Scattergeo(
         lon=[-180 for _ in edge_latitudes],
         lat=edge_latitudes,
