@@ -4,7 +4,13 @@ from plotly.offline import plot
 
 from glue.config import viewer_tool
 from glue_plotly.common.common import data_count, layers_to_export
-from glue_plotly.common.scatter2d import rectilinear_layout_config, traces_for_layer
+from glue_plotly.common.scatter2d import (
+    geo_layout_config,
+    geo_ticks,
+    polar_layout_config_from_mpl,
+    rectilinear_layout_config,
+    traces_for_layer,
+)
 from glue_plotly.html_exporters.hover_utils import hover_data_collection_for_viewer
 from glue_plotly.html_exporters.jupyter.save_hover import JupyterSaveHoverDialog
 from glue_plotly.jupyter_base_export_tool import JupyterBaseExportTool
@@ -36,10 +42,22 @@ class PlotlyScatter2DBqplotExport(JupyterBaseExportTool):
         if not filepath:
             return
 
-        layout_config = rectilinear_layout_config(self.viewer)
+        rectilinear = getattr(self.viewer.state, "using_rectilinear", True)
+        polar = getattr(self.viewer.state, "using_polar", False)
+
+        if rectilinear:
+            layout_config = rectilinear_layout_config(self.viewer)
+        elif polar:
+            layout_config = polar_layout_config_from_mpl(self.viewer)
+        else:
+            layout_config = geo_layout_config(self.viewer)
 
         layout = go.Layout(**layout_config)
         fig = go.Figure(layout=layout)
+
+        if not (rectilinear or polar):
+            for tick in geo_ticks(self.viewer.state):
+                fig.add_trace(tick)
 
         layers = layers_to_export(self.viewer)
         add_data_label = data_count(layers) > 1
