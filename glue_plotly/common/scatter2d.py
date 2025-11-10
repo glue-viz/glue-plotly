@@ -157,6 +157,12 @@ def geo_ticks(viewer_state):
     return [equator_ticks, edge_ticks]
 
 
+def geo_annotations(viewer_state):
+    x_axislabel = go.layout.Annotation(x=0.5, y=0, text=viewer_state.x_att.label, showarrow=False)
+    y_axislabel = go.layout.Annotation(x=0, y=0.5, text=viewer_state.y_att.label, showarrow=False)
+    return [x_axislabel, y_axislabel]
+
+
 def scatter_mode(layer_state):
     if layer_state.line_visible and layer_state.cmap_mode == "Fixed":
         return "lines+markers"
