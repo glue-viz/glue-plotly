@@ -361,7 +361,7 @@ class TestScatter2DFullSphere(TestScatter2D):
     def test_annotations(self, mode):
         self.viewer.state.plot_mode = mode
         self.viewer.state.x_axislabel = "ABCDE"
-        
+
         annotations = geo_annotations(self.viewer.state)
         assert len(annotations) == 2
 
@@ -408,4 +408,3 @@ class TestScatter2DFullSphere(TestScatter2D):
         else:
             assert_equal(scatter["lon"], rad2deg(self.data["x"]))
             assert_equal(scatter["lat"], rad2deg(self.data["y"]))
-

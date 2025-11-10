@@ -1,5 +1,4 @@
 from uuid import uuid4
-from glue.core.util import ThetaRadianFormatter
 
 import numpy as np
 import plotly.figure_factory as ff
@@ -7,6 +6,7 @@ import plotly.graph_objs as go
 
 from glue.config import settings
 from glue.core import BaseData
+from glue.core.util import ThetaRadianFormatter
 from glue.utils import ensure_numerical
 from glue.viewers.scatter.layer_artist import ColoredLineCollection
 
@@ -128,8 +128,7 @@ def geo_layout_config(viewer, **kwargs):
 def angle_ticks_text(angles, degrees=True, digits=2):
     if degrees:
         return [f"{ang}°" for ang in angles]
-    else:
-        return [ThetaRadianFormatter.rad_fn(ang * np.pi / 180, digits=digits).replace("\pi", "π").replace("$", "") for ang in angles]
+    return [ThetaRadianFormatter.rad_fn(ang * np.pi / 180, digits=digits).replace(r"\pi", "π").replace("$", "") for ang in angles]
 
 
 def geo_ticks(viewer_state):

@@ -94,7 +94,7 @@ class PlotlyScatter2DStaticExport(Tool):
                 fig.add_trace(tick)
             for ann in geo_annotations(self.viewer.state):
                 fig.add_annotation(ann)
-            
+
         layers = layers_to_export(self.viewer)
         add_data_label = data_count(layers) > 1
         for layer in layers:
