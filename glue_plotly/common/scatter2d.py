@@ -143,7 +143,7 @@ def geo_ticks(viewer_state):
         showlegend=False,
         text=equator_text,
         mode="text",
-        hoverinfo="skip",
+        hoverinfo="none",
     )
 
     edge_latitudes = list(range(-75, 90, 15))
@@ -158,7 +158,7 @@ def geo_ticks(viewer_state):
         text=edge_text,
         mode="text",
         textposition=edge_text_positions,
-        hoverinfo="skip",
+        hoverinfo="none",
     )
 
     return [equator_ticks, edge_ticks]
