@@ -345,7 +345,7 @@ class TestScatter2DFullSphere(TestScatter2D):
             assert isinstance(tick, Scattergeo)
             assert tick["showlegend"] is False
             assert tick["mode"] == "text"
-            assert tick["hoverinfo"] == "skip"
+            assert tick["hoverinfo"] == "none"
 
         equator_ticks, edge_ticks = ticks
 
