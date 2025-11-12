@@ -60,8 +60,17 @@ def base_layout_config(viewer, include_dimensions=True, **kwargs):
         legend_font_color = viewer.state.legend.text_color
     else:
         legend_font_color = settings.FOREGROUND_COLOR
+
+    margin_h = 50
+    margin_v = 50
     config = dict(
-        margin=dict(r=50, l=50, b=50, t=50),  # noqa
+        margin=dict(
+            r=margin_h,
+            l=margin_h,
+            b=margin_v,
+            t=margin_v,
+            pad=10,
+        ),
         paper_bgcolor=settings.BACKGROUND_COLOR,
         plot_bgcolor=settings.BACKGROUND_COLOR,
         legend=dict(

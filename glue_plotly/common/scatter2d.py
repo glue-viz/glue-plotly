@@ -6,6 +6,7 @@ import plotly.graph_objs as go
 
 from glue.config import settings
 from glue.core import BaseData
+from glue.core.util import ThetaRadianFormatter
 from glue.utils import ensure_numerical
 from glue.viewers.scatter.layer_artist import ColoredLineCollection
 
@@ -102,6 +103,87 @@ def polar_layout_config(viewer, radial_axis_maker, **kwargs):
 
 def polar_layout_config_from_mpl(viewer, **kwargs):
     return polar_layout_config(viewer, mpl_radial_axis, **kwargs)
+
+
+def geo_layout_config(viewer, **kwargs):
+    layout_config = base_layout_config(viewer, **kwargs)
+    geo = dict(
+        projection_type=projection_type(viewer.state),
+        showcoastlines=False,
+        showcountries=False,
+        showlakes=False,
+        showland=False,
+        showocean=False,
+        showrivers=False,
+        scope="world",
+        domain=dict(
+            x=[0.05, 0.95],
+            y=[0.05, 0.95],
+        ),
+    )
+    layout_config.update(geo=geo, dragmode=False)
+    return layout_config
+
+
+def angle_ticks_text(angles, degrees=True, digits=2):
+    if degrees:
+        return [f"{ang}°" for ang in angles]
+    return [ThetaRadianFormatter.rad_fn(ang * np.pi / 180, digits=digits)
+            .replace(r"\pi", "π").replace("$", "") for ang in angles]
+
+
+def geo_ticks(viewer_state):
+    degrees = viewer_state.angle_unit == "degrees"
+    equator_longitudes = list(range(-150, 180, 30))
+    equator_text = angle_ticks_text(equator_longitudes, degrees=degrees)
+
+    equator_ticks = go.Scattergeo(
+        lon=equator_longitudes,
+        lat=[0 for _ in equator_longitudes],
+        showlegend=False,
+        text=equator_text,
+        mode="text",
+        hoverinfo="none",
+    )
+
+    edge_latitudes = list(range(-75, 90, 15))
+    edge_text = angle_ticks_text(edge_latitudes, degrees=degrees)
+    edge_text_positions = ["middle left"] * 4 + \
+                          ["middle right"] * 3 + \
+                          ["middle left"] * 4
+    edge_ticks = go.Scattergeo(
+        lon=[-180 for _ in edge_latitudes],
+        lat=edge_latitudes,
+        showlegend=False,
+        text=edge_text,
+        mode="text",
+        textposition=edge_text_positions,
+        hoverinfo="none",
+    )
+
+    return [equator_ticks, edge_ticks]
+
+
+def geo_annotations(viewer_state):
+    x_axislabel = go.layout.Annotation(
+        x=0.5,
+        y=0,
+        text=viewer_state.x_axislabel,
+        font=dict(family=DEFAULT_FONT, size=1.5 * viewer_state.x_axislabel_size),
+        showarrow=False,
+    )
+
+    proj = projection_type(viewer_state)
+    yaxis_x = 0.2 if proj == "azimuthal equal area" else 0
+    y_axislabel = go.layout.Annotation(
+        x=yaxis_x,
+        y=0.5,
+        text=viewer_state.y_axislabel,
+        font=dict(family=DEFAULT_FONT, size=1.5 * viewer_state.y_axislabel_size),
+        showarrow=False,
+        textangle=-90,
+    )
+    return [x_axislabel, y_axislabel]
 
 
 def scatter_mode(layer_state):
@@ -357,7 +439,6 @@ def trace_data_for_layer(viewer, layer_state, hover_data=None, add_data_label=Tr
 
     polar = getattr(viewer.state, "using_polar", False)
     degrees = viewer.state.using_degrees
-    proj = projection_type(viewer.state)
     if polar:
         scatter_info.update(theta=x,
                             r=y,
@@ -376,13 +457,9 @@ def trace_data_for_layer(viewer, layer_state, hover_data=None, add_data_label=Tr
         if not degrees:
             x = np.rad2deg(x)
             y = np.rad2deg(y)
-        traces["scatter"] = [go.Scattergeo(lon=x, lat=y, projection_type=proj,
-                                           showland=False, showcoastlines=False,
-                                           showlakes=False,
-                                           lataxis_showgrid=False,
-                                           lonaxis_showgrid=False,
-                                           bgcolor=settings.BACKGROUND_COLOR,
-                                           framecolor=settings.FOREGROUND_COLOR)]
+
+        scatter_info.update(lon=x, lat=y)
+        traces["scatter"] = [go.Scattergeo(**scatter_info)]
 
     return traces
 

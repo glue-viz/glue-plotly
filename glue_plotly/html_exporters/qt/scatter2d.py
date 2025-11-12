@@ -11,6 +11,9 @@ from glue.viewers.common.tool import Tool
 from glue_plotly import PLOTLY_ERROR_MESSAGE, PLOTLY_LOGO
 from glue_plotly.common import data_count, layers_to_export
 from glue_plotly.common.scatter2d import (
+    geo_annotations,
+    geo_layout_config,
+    geo_ticks,
     polar_layout_config_from_mpl,
     rectilinear_layout_config,
     traces_for_layer,
@@ -58,10 +61,12 @@ class PlotlyScatter2DStaticExport(Tool):
         rectilinear = getattr(self.viewer.state, "using_rectilinear", True)
         polar = getattr(self.viewer.state, "using_polar", False)
 
-        if polar:
+        if rectilinear:
+            layout_config = rectilinear_layout_config(self.viewer)
+        elif polar:
             layout_config = polar_layout_config_from_mpl(self.viewer)
         else:
-            layout_config = rectilinear_layout_config(self.viewer)
+            layout_config = geo_layout_config(self.viewer)
 
         if rectilinear:
             need_vectors = any(layer.state.vector_visible and \
@@ -83,6 +88,12 @@ class PlotlyScatter2DStaticExport(Tool):
 
         layout = go.Layout(**layout_config)
         fig = go.Figure(layout=layout)
+
+        if not (rectilinear or polar):
+            for tick in geo_ticks(self.viewer.state):
+                fig.add_trace(tick)
+            for ann in geo_annotations(self.viewer.state):
+                fig.add_annotation(ann)
 
         layers = layers_to_export(self.viewer)
         add_data_label = data_count(layers) > 1

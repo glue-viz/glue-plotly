@@ -3,8 +3,9 @@ from itertools import product
 import pytest
 from glue_qt.app import GlueApplication
 from glue_qt.viewers.scatter import ScatterViewer
-from numpy import log10
-from plotly.graph_objs import Scatter
+from numpy import log10, rad2deg
+from numpy.testing import assert_equal
+from plotly.graph_objs import Scatter, Scattergeo
 
 from glue.config import settings
 from glue.core import Data
@@ -17,7 +18,12 @@ from glue_plotly.common import (
     sanitize,
 )
 from glue_plotly.common.scatter2d import (
+    angle_ticks_text,
     base_marker,
+    geo_annotations,
+    geo_layout_config,
+    geo_ticks,
+    projection_type,
     rectilinear_2d_vectors,
     rectilinear_error_bars,
     rectilinear_lines,
@@ -41,6 +47,22 @@ class TestScatter2D:
         self.viewer = None
         self.app.close()
         self.app = None
+
+
+def test_angle_ticks_text_degrees():
+    assert angle_ticks_text([-30, -10, 5, 11, 62], degrees=True) == \
+            ["-30°", "-10°", "5°", "11°", "62°"]
+    assert angle_ticks_text([0, 10, 20, 30, 40, 50], degrees=True) == \
+            ["0°", "10°", "20°", "30°", "40°", "50°"]
+
+
+def test_angle_ticks_text_radians():
+    assert angle_ticks_text([-30, -15, 0, 45, 90], degrees=False) == \
+            ["-π/6", "-π/12", "0", "π/4", "π/2"]
+    assert angle_ticks_text([-67, 11, -24, 75, 180], degrees=False, digits=2) == \
+            ["-1.17", "0.19", "-2π/15", "5π/12", "π"]
+    assert angle_ticks_text([-67, 11, -24, 75, 180], degrees=False, digits=5) == \
+            ["-1.16937", "0.19199", "-2π/15", "5π/12", "π"]
 
 
 class TestScatter2DRectilinear(TestScatter2D):
@@ -267,3 +289,132 @@ class TestScatter2DRectilinear(TestScatter2D):
         scatter = traces["scatter"][0]
         assert scatter["hoverinfo"] == "text"
         assert len(scatter["hovertext"]) == len(self.layer.layer.main_components)
+
+
+class TestScatter2DFullSphere(TestScatter2D):
+
+    MODES = ("aitoff", "hammer", "lambert", "mollweide")
+
+    def setup_method(self, method):
+        super().setup_method(method)
+
+        self.viewer.state.x_axislabel_size = 3
+        self.viewer.state.y_axislabel_size = 12
+
+        self.layer = self.viewer.layers[0]
+        self.layer.state.color = "#ff0000"
+        self.layer.state.size = 5
+        self.layer.state.size_scaling = 1
+        self.layer.state.alpha = 0.5
+
+    def test_basic(self):
+        export_layers = layers_to_export(self.viewer)
+        assert len(export_layers) == 1
+        assert data_count(export_layers) == 1
+
+        assert len(self.data["x"]) == 3
+        assert len(self.data["y"]) == 3
+
+    @pytest.mark.parametrize("mode", MODES)
+    def test_layout(self, mode):
+        self.viewer.state.plot_mode = mode
+        layout = geo_layout_config(self.viewer)
+        assert layout["dragmode"] is False
+
+        geo = layout["geo"]
+        assert geo["projection_type"] == projection_type(self.viewer.state)
+
+        for show in ("showcoastlines", "showcountries", "showlakes",
+                     "showland", "showocean", "showrivers"):
+            assert geo[show] is False
+
+        assert geo["scope"] == "world"
+        assert geo["domain"]["x"] == [0.05, 0.95]
+        assert geo["domain"]["y"] == [0.05, 0.95]
+
+    @pytest.mark.parametrize(("mode", "angle_unit"),
+                             product(MODES, ("radians", "degrees")))
+    def test_ticks(self, mode, angle_unit):
+        self.viewer.state.plot_mode = mode
+        self.viewer.state.angle_unit = angle_unit
+        ticks = geo_ticks(self.viewer.state)
+
+        assert len(ticks) == 2
+
+        for tick in ticks:
+            assert isinstance(tick, Scattergeo)
+            assert tick["showlegend"] is False
+            assert tick["mode"] == "text"
+            assert tick["hoverinfo"] == "none"
+
+        equator_ticks, edge_ticks = ticks
+
+        degrees = angle_unit == "degrees"
+
+        lon_angles = tuple(range(-150, 180, 30))
+        assert equator_ticks["lon"] == lon_angles
+        assert all(lat == 0 for lat in equator_ticks["lat"])
+        assert equator_ticks["text"] == tuple(angle_ticks_text(lon_angles,
+                                                               degrees=degrees))
+
+        lat_angles = tuple(range(-75, 90, 15))
+        assert edge_ticks["lat"] == lat_angles
+        assert all(lon == -180 for lon in edge_ticks["lon"])
+        assert edge_ticks["text"] == tuple(angle_ticks_text(lat_angles,
+                                                            degrees=degrees))
+        assert edge_ticks["textposition"] == \
+            ("middle left",) * 4 + ("middle right",) * 3 + ("middle left",) * 4
+
+
+    @pytest.mark.parametrize("mode", MODES)
+    def test_annotations(self, mode):
+        self.viewer.state.plot_mode = mode
+        self.viewer.state.x_axislabel = "ABCDE"
+
+        annotations = geo_annotations(self.viewer.state)
+        assert len(annotations) == 2
+
+        xlabel, ylabel = annotations
+        assert xlabel["x"] == 0.5
+        assert xlabel["y"] == 0
+        assert xlabel["text"] == "ABCDE"
+        assert xlabel["showarrow"] is False
+        xfont = xlabel["font"]
+        assert xfont["family"] == DEFAULT_FONT
+        assert xfont["size"] == 4.5
+
+        assert ylabel["x"] == (0.2 if mode == "lambert" else 0)
+        assert ylabel["y"] == 0.5
+        assert ylabel["text"] == "y"
+        assert ylabel["showarrow"] is False
+        yfont = ylabel["font"]
+        assert yfont["family"] == DEFAULT_FONT
+        assert yfont["size"] == 18
+
+    @pytest.mark.parametrize(("mode", "angle_unit"),
+                             product(MODES, ("radians", "degrees")))
+    def test_traces(self, mode, angle_unit):
+        self.viewer.state.plot_mode = mode
+        self.viewer.state.angle_unit = angle_unit
+
+        hover_components = [self.data.id["x"], self.data.id["z"]]
+        hover_data = { cid.label: cid in hover_components \
+                       for cid in self.layer.layer.components }
+        traces = trace_data_for_layer(self.viewer, self.layer.state,
+                                      hover_data=hover_data,
+                                      add_data_label=True)
+
+        assert set(traces.keys()) == {"scatter"}
+        assert len(traces["scatter"]) == 1
+
+        scatter = traces["scatter"][0]
+        assert isinstance(scatter, Scattergeo)
+        assert scatter["hoverinfo"] == "text"
+        assert len(scatter["hovertext"]) == len(self.layer.layer.main_components)
+
+        if angle_unit == "degrees":
+            assert_equal(scatter["lon"], self.data["x"])
+            assert_equal(scatter["lat"], self.data["y"])
+        else:
+            assert_equal(scatter["lon"], rad2deg(self.data["x"]))
+            assert_equal(scatter["lat"], rad2deg(self.data["y"]))
