@@ -1,5 +1,9 @@
 from uuid import UUID
 
+import pytest
+
+pytest.importorskip("glue_jupyter")
+
 
 class BasePlotlyViewTests:
 

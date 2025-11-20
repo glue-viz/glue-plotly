@@ -1,6 +1,10 @@
-from glue_jupyter import jglue
+import pytest
 
-from glue_plotly.viewers.common.tests.utils import ExampleViewer
+pytest.importorskip("glue_jupyter")
+
+from glue_jupyter import jglue  # noqa: E402
+
+from glue_plotly.viewers.common.tests.utils import ExampleViewer  # noqa: E402
 
 
 class TestTools:
