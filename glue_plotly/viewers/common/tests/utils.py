@@ -2,7 +2,7 @@ from echo import CallbackProperty
 from ipywidgets import VBox
 
 from glue.viewers.common.state import ViewerState
-from glue_plotly.viewers.common import PlotlyBaseView
+from glue_plotly.viewers.common.viewer import PlotlyBaseView
 
 
 class ExampleState(ViewerState):

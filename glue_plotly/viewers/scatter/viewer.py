@@ -8,7 +8,7 @@ from glue_plotly.common.scatter2d import (
     radial_axis,
     rectilinear_layout_config,
 )
-from glue_plotly.viewers import PlotlyBaseView
+from glue_plotly.viewers.common.viewer import PlotlyBaseView
 
 from .layer_artist import PlotlyScatterLayerArtist
 from .layer_state_widget import PlotlyScatterLayerStateWidget

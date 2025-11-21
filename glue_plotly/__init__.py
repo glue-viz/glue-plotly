@@ -20,9 +20,10 @@ def setup():
 def setup_qt():
     """Performs necessary setup for using glue-plotly with glue-qt."""
     from . import common  # noqa
-    from .html_exporters import qt  # noqa
-    from .web.qt import setup
-    setup()
+    from .html_exporters.qt import setup as exporters_setup # noqa
+    from .web.qt import setup as web_setup
+    exporters_setup()
+    web_setup()
 
     from glue_qt.viewers.scatter import ScatterViewer
     ScatterViewer.subtools = {
@@ -79,12 +80,13 @@ def setup_qt():
 
 def setup_jupyter():
     """Performs necessary setup for using glue-plotly with glue-jupyter."""
-    from .html_exporters import jupyter # noqa
+    from .html_exporters.jupyter import setup as exporters_setup
     from glue_jupyter.bqplot.histogram import BqplotHistogramView
     from glue_jupyter.bqplot.image import BqplotImageView
     from glue_jupyter.bqplot.profile import BqplotProfileView
     from glue_jupyter.bqplot.scatter import BqplotScatterView
     from glue_jupyter.ipyvolume import IpyvolumeScatterView, IpyvolumeVolumeView
+    exporters_setup()
 
     BqplotHistogramView.tools += ["save:bqplot_plotlyhist"]
     BqplotImageView.tools += ["save:bqplot_plotlyimage2d"]
@@ -103,3 +105,5 @@ def setup_jupyter():
     else:
         JupyterVispyScatterViewer.tools += ["save:jupyter_plotly3dscatter"]
         JupyterVispyVolumeViewer.tools += ["save:jupyter_plotlyvolume"]
+
+    from .viewers.common import tools  # noqa
