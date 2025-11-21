@@ -1,7 +1,6 @@
 from itertools import product
 
 import pytest
-
 from numpy import arange, log10
 
 from glue.config import settings

@@ -8,7 +8,7 @@ def setup():
         from . import image  # noqa
         from . import profile  # noqa
         from . import scatter2d  # noqa
-        
+
         # glue-vispy-viewers
         try:
             from . import scatter3d  # noqa

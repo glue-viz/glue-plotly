@@ -9,7 +9,9 @@ pytest.importorskip("glue_vispy_viewers")
 
 from glue_vispy_viewers.scatter.jupyter import JupyterVispyScatterViewer  # noqa: E402
 
-from glue_plotly.html_exporters.jupyter.tests.test_base import BaseTestJupyterExporter  # noqa: E402
+from glue_plotly.html_exporters.jupyter.tests.test_base import (
+    BaseTestJupyterExporter,  # noqa: E402
+)
 
 
 class TestScatter3D(BaseTestJupyterExporter):

@@ -1,9 +1,8 @@
+import pytest
 from numpy import unique
 from plotly.graph_objs import Scatter
 
 from glue.core import Data
-
-import pytest
 
 pytest.importorskip("glue_jupyter")
 
@@ -12,7 +11,9 @@ from glue_jupyter.bqplot.histogram import BqplotHistogramView  # noqa: E402
 
 from glue_plotly.common import sanitize  # noqa: E402
 from glue_plotly.common.dotplot import dot_size, traces_for_layer  # noqa: E402
-from glue_plotly.viewers.histogram.dotplot_layer_artist import PlotlyDotplotLayerArtist  # noqa: E402
+from glue_plotly.viewers.histogram.dotplot_layer_artist import (
+    PlotlyDotplotLayerArtist,  # noqa: E402
+)
 from glue_plotly.viewers.histogram.viewer import PlotlyHistogramView  # noqa: E402
 
 

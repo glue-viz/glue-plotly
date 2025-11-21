@@ -1,9 +1,8 @@
+import pytest
 from plotly.graph_objects import Bar
 
 from glue.core import Data
 from glue_plotly.common import DEFAULT_FONT
-
-import pytest
 
 pytest.importorskip("glue_jupyter")
 

@@ -1,10 +1,9 @@
+import pytest
 from numpy import array_equal
 from plotly.graph_objects import Scatter
 
 from glue.core import Data
 from glue_plotly.common import DEFAULT_FONT
-
-import pytest
 
 pytest.importorskip("glue_jupyter")
 

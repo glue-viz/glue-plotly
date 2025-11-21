@@ -1,7 +1,6 @@
 from itertools import product
 
 import pytest
-
 from numpy import log10, rad2deg
 from numpy.testing import assert_equal
 from plotly.graph_objs import Scatter, Scattergeo

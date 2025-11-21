@@ -16,7 +16,6 @@ from glue_qt.app import GlueApplication  # noqa: E402
 from glue_qt.viewers.histogram import HistogramViewer  # noqa: E402
 
 
-
 class TestHistogram:
 
     def setup_method(self, method):

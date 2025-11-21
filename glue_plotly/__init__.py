@@ -80,12 +80,13 @@ def setup_qt():
 
 def setup_jupyter():
     """Performs necessary setup for using glue-plotly with glue-jupyter."""
-    from .html_exporters.jupyter import setup as exporters_setup
     from glue_jupyter.bqplot.histogram import BqplotHistogramView
     from glue_jupyter.bqplot.image import BqplotImageView
     from glue_jupyter.bqplot.profile import BqplotProfileView
     from glue_jupyter.bqplot.scatter import BqplotScatterView
     from glue_jupyter.ipyvolume import IpyvolumeScatterView, IpyvolumeVolumeView
+
+    from .html_exporters.jupyter import setup as exporters_setup
     exporters_setup()
 
     BqplotHistogramView.tools += ["save:bqplot_plotlyhist"]
