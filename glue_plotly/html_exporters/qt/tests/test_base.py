@@ -1,11 +1,15 @@
+import pytest
 from unittest.mock import patch
 
-from glue_qt.app import GlueApplication
-from qtpy.QtWidgets import QMessageBox
+pytest.importorskip("glue_qt")
 
-from glue_plotly.html_exporters.qt.save_hover import SaveHoverDialog
-from glue_plotly.sort_components import SortComponentsDialog
-from glue_plotly.volume_options import VolumeOptionsDialog
+from glue_qt.app import GlueApplication  # noqa: E402
+from qtpy.QtWidgets import QMessageBox  # noqa: E402
+
+from glue_plotly.html_exporters.qt.save_hover import SaveHoverDialog  # noqa: E402
+from glue_plotly.sort_components import SortComponentsDialog  # noqa: E402
+from glue_plotly.volume_options import VolumeOptionsDialog  # noqa: E402
+
 
 
 class TestQtExporter:

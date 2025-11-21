@@ -1,4 +1,8 @@
-from glue_jupyter import jglue
+import pytest
+
+pytest.importorskip("glue_jupyter")
+
+from glue_jupyter import jglue  # noqa: E402
 
 
 class BaseTestJupyterExporter:

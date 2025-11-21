@@ -11,7 +11,7 @@ pytest.importorskip("glue_jupyter")
 from glue_jupyter import JupyterApplication  # noqa: E402
 
 from glue_plotly.viewers.common.tests import BasePlotlyViewTests  # noqa: E402
-from glue_plotly.viewers.scatter import PlotlyScatterView  # noqa: E402
+from glue_plotly.viewers.scatter.viewer import PlotlyScatterView  # noqa: E402
 
 
 class TestScatterView(BasePlotlyViewTests):

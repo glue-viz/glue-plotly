@@ -7,24 +7,27 @@ from unittest.mock import patch
 
 import pytest
 from chart_studio.plotly import plotly
-from glue_qt.app import GlueApplication
-from glue_qt.viewers.histogram import HistogramViewer
-from glue_qt.viewers.profile import ProfileViewer
-from glue_qt.viewers.scatter import ScatterViewer
 from numpy import __version__ as numpy_version
 from packaging.version import Version
 from plotly.exceptions import PlotlyError
 
 from glue.core import Data, DataCollection
 
+pytest.importorskip("glue_qt")
+
 try:
-    from glue_qt.plugins.dendro_viewer import DendrogramViewer
+    from glue_qt.plugins.dendro_viewer import DendrogramViewer  # noqa: E402
 except ImportError:
     DendrogramViewer = None
 
-from glue_plotly.web.export_plotly import build_plotly_call
-from glue_plotly.web.qt import setup
-from glue_plotly.web.qt.exporter import QtPlotlyExporter
+from glue_qt.app import GlueApplication  # noqa: E402
+from glue_qt.viewers.histogram import HistogramViewer  # noqa: E402
+from glue_qt.viewers.profile import ProfileViewer  # noqa: E402
+from glue_qt.viewers.scatter import ScatterViewer  # noqa: E402
+
+from glue_plotly.web.export_plotly import build_plotly_call  # noqa: E402
+from glue_plotly.web.qt import setup  # noqa: E402
+from glue_plotly.web.qt.exporter import QtPlotlyExporter  # noqa: E402
 
 plotly_sign_in = mock.MagicMock()
 plotly_plot = mock.MagicMock()

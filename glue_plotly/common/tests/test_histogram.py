@@ -1,8 +1,6 @@
 from itertools import product
 
 import pytest
-from glue_qt.app import GlueApplication
-from glue_qt.viewers.histogram import HistogramViewer
 from numpy import log10
 from plotly.graph_objs import Bar
 
@@ -11,6 +9,12 @@ from glue.core import Data
 from glue_plotly.common import DEFAULT_FONT, data_count, layers_to_export, sanitize
 from glue_plotly.common.histogram import axis_from_mpl, traces_for_layer
 from glue_plotly.utils import PLOTLY_MAJOR_VERSION
+
+pytest.importorskip("glue_qt")
+
+from glue_qt.app import GlueApplication  # noqa: E402
+from glue_qt.viewers.histogram import HistogramViewer  # noqa: E402
+
 
 
 class TestHistogram:

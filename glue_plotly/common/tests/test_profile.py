@@ -1,8 +1,7 @@
 from itertools import product
 
 import pytest
-from glue_qt.app import GlueApplication
-from glue_qt.viewers.profile import ProfileViewer
+
 from numpy import arange, log10
 
 from glue.config import settings
@@ -11,6 +10,11 @@ from glue_plotly.common import DEFAULT_FONT, data_count, layers_to_export, sanit
 from glue_plotly.common.profile import axis_from_mpl, traces_for_layer
 from glue_plotly.common.tests.utils import SimpleCoordinates
 from glue_plotly.utils import PLOTLY_MAJOR_VERSION
+
+pytest.importorskip("glue_qt")
+
+from glue_qt.app import GlueApplication  # noqa: E402
+from glue_qt.viewers.profile import ProfileViewer  # noqa: E402
 
 
 class TestProfile:

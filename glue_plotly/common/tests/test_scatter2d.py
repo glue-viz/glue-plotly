@@ -1,8 +1,7 @@
 from itertools import product
 
 import pytest
-from glue_qt.app import GlueApplication
-from glue_qt.viewers.scatter import ScatterViewer
+
 from numpy import log10, rad2deg
 from numpy.testing import assert_equal
 from plotly.graph_objs import Scatter, Scattergeo
@@ -31,6 +30,11 @@ from glue_plotly.common.scatter2d import (
     trace_data_for_layer,
 )
 from glue_plotly.utils import PLOTLY_MAJOR_VERSION
+
+pytest.importorskip("glue_qt")
+
+from glue_qt.app import GlueApplication  # noqa: E402
+from glue_qt.viewers.scatter import ScatterViewer  # noqa: E402
 
 
 class TestScatter2D:
