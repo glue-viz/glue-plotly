@@ -38,7 +38,8 @@ jobs:
         - linux: py311-test-plotly6
         - linux: py312-test-all
         - linux: py312-test-qt
-        - linux: py312-test-jupyter
+        - linux: py312-test-3d-qt
+        - linux: py312-test-3d-jupyter
         - linux: py313-test-all
         - linux: py313-test-devdeps
         - linux: py312-glue118-test
@@ -53,7 +54,9 @@ jobs:
         - macos: py311-test-plotly6
         - macos: py312-test-all
         - macos: py312-test-qt
+        - macos: py312-test-3d-qt
         - macos: py312-test-jupyter
+        - macos: py312-test-3d-jupyter
         - macos: py313-test-all
         - macos: py313-test-devdeps
         - macos: py312-glue118-test
@@ -68,7 +71,9 @@ jobs:
         - windows: py311-test-plotly6
         - windows: py312-test-all
         - windows: py312-test-qt
+        - windows: py312-test-3d-qt
         - windows: py312-test-jupyter
+        - windows: py312-test-3d-jupyter
         - windows: py313-test-all
         - windows: py313-test-devdeps
         - windows: py312-glue118-test
