@@ -108,4 +108,3 @@ def setup_jupyter():
     else:
         JupyterVispyScatterViewer.tools += ["save:jupyter_plotly3dscatter"]
         JupyterVispyVolumeViewer.tools += ["save:jupyter_plotlyvolume"]
-
