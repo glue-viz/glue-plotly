@@ -1,6 +1,4 @@
 import pytest
-from glue_qt.app import GlueApplication
-from glue_qt.plugins.dendro_viewer import DendrogramViewer
 from numpy import log10
 from plotly.graph_objs import Scatter
 
@@ -13,9 +11,20 @@ from glue_plotly.common.dendrogram import trace_for_layer, x_axis
 
 NUMPY_LT_2, requires_numpy_lt2 = make_skipper("numpy", version="2.0", skip_if="ge")
 
+pytest.importorskip("glue_qt")
+
+from glue_qt.app import GlueApplication  # noqa: E402
+
+try:
+    from glue_qt.plugins.dendro_viewer import DendrogramViewer
+    DENDROGRAM_INSTALLED = True
+except ImportError:
+    DENDROGRAM_INSTALLED = False
+
 
 # Workaround until for the issue solved in https://github.com/glue-viz/glue-qt/pull/19
 @requires_numpy_lt2
+@pytest.mark.skipif(not DENDROGRAM_INSTALLED, reason="Requires Qt dendrogram plugin")
 class TestDendrogram:
 
     def setup_method(self, method):

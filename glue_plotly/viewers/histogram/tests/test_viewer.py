@@ -1,10 +1,15 @@
-from glue_jupyter import JupyterApplication
+import pytest
 from plotly.graph_objects import Bar
 
 from glue.core import Data
 from glue_plotly.common import DEFAULT_FONT
-from glue_plotly.viewers.common.tests import BasePlotlyViewTests
-from glue_plotly.viewers.histogram import PlotlyHistogramView
+
+pytest.importorskip("glue_jupyter")
+
+from glue_jupyter import JupyterApplication  # noqa: E402
+
+from glue_plotly.viewers.common.tests import BasePlotlyViewTests  # noqa: E402
+from glue_plotly.viewers.histogram.viewer import PlotlyHistogramView  # noqa: E402
 
 
 class TestHistogramViewer(BasePlotlyViewTests):

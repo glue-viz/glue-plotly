@@ -1,14 +1,20 @@
-from glue_jupyter import JupyterApplication
-from glue_qt.app import GlueApplication
-from glue_qt.viewers.histogram import HistogramViewer
+import pytest
 from numpy import unique
 from plotly.graph_objs import Scatter
 
 from glue.core import Data
-from glue_plotly.common import sanitize
-from glue_plotly.common.dotplot import dot_size, traces_for_layer
-from glue_plotly.viewers.histogram.dotplot_layer_artist import PlotlyDotplotLayerArtist
-from glue_plotly.viewers.histogram.viewer import PlotlyHistogramView
+
+pytest.importorskip("glue_jupyter")
+
+from glue_jupyter import JupyterApplication  # noqa: E402
+from glue_jupyter.bqplot.histogram import BqplotHistogramView  # noqa: E402
+
+from glue_plotly.common import sanitize  # noqa: E402
+from glue_plotly.common.dotplot import dot_size, traces_for_layer  # noqa: E402
+from glue_plotly.viewers.histogram.dotplot_layer_artist import (
+    PlotlyDotplotLayerArtist,  # noqa: E402
+)
+from glue_plotly.viewers.histogram.viewer import PlotlyHistogramView  # noqa: E402
 
 
 class SimpleDotplotViewer(PlotlyHistogramView):
@@ -80,7 +86,7 @@ class TestDotplot:
         # Default figure is 900x600, with margins of 50 on each side
         width = 900 - 50 - 50
         height = 600 - 50 - 50
-        diam = 0.95 * min(height / 15, width / 18)
+        diam = 0.95 * min(height / 15, (5/9) * width / 8)
         assert dots.marker.size == diam
 
     def test_dot_radius_defined(self):
@@ -108,9 +114,9 @@ class TestDotsHistogram:
              47,  28,   3,  44,  89,  75,  13,  94,  95,  43,  17,  88,   6,
              94, 100,  28,  45,  36,  63,  14,  90,  66]
         self.data = Data(label="dotplot", x=x)
-        self.app = GlueApplication()
+        self.app = JupyterApplication()
         self.app.session.data_collection.append(self.data)
-        self.viewer = self.app.new_data_viewer(HistogramViewer)
+        self.viewer = self.app.new_data_viewer(BqplotHistogramView)
         self.viewer.add_data(self.data)
         self.mask, self.sanitized = sanitize(self.data["x"])
 
@@ -132,9 +138,7 @@ class TestDotsHistogram:
         self.layer.state.alpha = 0.85
 
     def teardown_method(self, method):
-        self.viewer.close(warn=False)
         self.viewer = None
-        self.app.close()
         self.app = None
 
     def test_basic_dots(self):
@@ -155,9 +159,8 @@ class TestDotsHistogram:
 
         assert dots.y == expected_y
 
-        # Default figure is 640x480
-        width = 640
-        height = 480
+        width = 1200
+        height = 600
         diam = 0.95 * min(height / 15, width / 18)
         assert dots.marker.size == diam
 

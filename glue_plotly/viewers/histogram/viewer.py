@@ -3,7 +3,7 @@ from glue_jupyter.registries import viewer_registry
 
 from glue.core.subset import XRangeROI, roi_to_subset_state
 from glue_plotly.common import base_layout_config, base_rectilinear_axis
-from glue_plotly.viewers import PlotlyBaseView
+from glue_plotly.viewers.common.viewer import PlotlyBaseView
 from glue_plotly.viewers.histogram.layer_artist import PlotlyHistogramLayerArtist
 from glue_plotly.viewers.histogram.state import PlotlyHistogramViewerState
 from glue_plotly.viewers.histogram.viewer_state_widget import (

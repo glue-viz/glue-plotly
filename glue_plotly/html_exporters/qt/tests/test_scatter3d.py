@@ -4,6 +4,7 @@ import pytest
 
 from glue.core import Data
 
+pytest.importorskip("glue_qt")
 pytest.importorskip("glue_vispy_viewers")
 
 from glue_vispy_viewers.scatter.qt.scatter_viewer import (

@@ -5,7 +5,7 @@ from plotly.graph_objs import Scatter
 
 from glue.core import BaseData
 from glue_plotly.common import color_info, dimensions
-from glue_plotly.viewers.common import PlotlyBaseView
+from glue_plotly.viewers.common.viewer import PlotlyBaseView
 
 
 def dot_size(viewer, layer_state):

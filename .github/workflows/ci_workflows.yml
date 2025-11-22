@@ -32,44 +32,55 @@ jobs:
           - libhdf5-dev
       envs: |
         # Standard tests
-        - linux: py310-test
-        - linux: py311-test
-        - linux: py311-test-plotly5
-        - linux: py311-test-plotly6
-        - linux: py312-test
-        - linux: py313-test
-        - linux: py313-test-devdeps
-        - linux: py312-glue118-test
-        - linux: py312-glue119-test
-        - linux: py312-glue120-test
-        - linux: py312-glue121-test
-        - linux: py312-glue122-test
+        - linux: py310-test-all
+        - linux: py311-test-all
+        - linux: py311-all-plotly5
+        - linux: py311-all-plotly6
+        - linux: py312-test-all
+        - linux: py312-test-qt
+        - linux: py312-test-3d-qt
+        - linux: py312-test-3d-jupyter
+        - linux: py313-test-all
+        - linux: py313-test-all-devdeps
+        - linux: py312-glue118-test-all
+        - linux: py312-glue119-test-all
+        - linux: py312-glue120-test-all
+        - linux: py312-glue121-test-all
+        - linux: py312-glue122-test-all
 
-        - macos: py310-test
-        - macos: py311-test
-        - macos: py311-test-plotly5
-        - macos: py311-test-plotly6
-        - macos: py312-test
-        - macos: py313-test
-        - macos: py313-test-devdeps
-        - macos: py312-glue118-test
-        - macos: py312-glue119-test
-        - macos: py312-glue120-test
-        - macos: py312-glue121-test
-        - macos: py312-glue122-test
+        - macos: py310-test-all
+        - macos: py311-test-all
+        - macos: py311-all-plotly5
+        - macos: py311-all-plotly6
+        - macos: py312-test-all
+        - macos: py312-test-qt
+        - macos: py312-test-3d-qt
+        # - macos: py312-test-jupyter
+        # - macos: py312-test-3d-jupyter
+        - macos: py313-test-all
+        - macos: py313-test-all-devdeps
+        - macos: py312-glue118-test-all
+        - macos: py312-glue119-test-all
+        - macos: py312-glue120-test-all
+        - macos: py312-glue121-test-all
+        - macos: py312-glue122-test-all
 
-        - windows: py310-test
-        - windows: py311-test
-        - windows: py311-test-plotly5
-        - windows: py311-test-plotly6
-        - windows: py312-test
-        - windows: py313-test
-        - windows: py313-test-devdeps
-        - windows: py312-glue118-test
-        - windows: py312-glue119-test
-        - windows: py312-glue120-test
-        - windows: py312-glue121-test
-        - windows: py312-glue122-test
+        - windows: py310-test-all
+        - windows: py311-test-all
+        - windows: py311-all-plotly5
+        - windows: py311-all-plotly6
+        - windows: py312-test-all
+        - windows: py312-test-qt
+        - windows: py312-test-3d-qt
+        - windows: py312-test-jupyter
+        - windows: py312-test-3d-jupyter
+        - windows: py313-test-all
+        - windows: py313-test-all-devdeps
+        - windows: py312-glue118-test-all
+        - windows: py312-glue119-test-all
+        - windows: py312-glue120-test-all
+        - windows: py312-glue121-test-all
+        - windows: py312-glue122-test-all
 
   pages:
     needs: initial_checks
