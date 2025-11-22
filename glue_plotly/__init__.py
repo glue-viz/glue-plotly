@@ -87,6 +87,8 @@ def setup_jupyter():
     from glue_jupyter.ipyvolume import IpyvolumeScatterView, IpyvolumeVolumeView
 
     from .html_exporters.jupyter import setup as exporters_setup
+    from .viewers.common import tools  # noqa
+
     exporters_setup()
 
     BqplotHistogramView.tools += ["save:bqplot_plotlyhist"]
@@ -107,4 +109,3 @@ def setup_jupyter():
         JupyterVispyScatterViewer.tools += ["save:jupyter_plotly3dscatter"]
         JupyterVispyVolumeViewer.tools += ["save:jupyter_plotlyvolume"]
 
-    from .viewers.common import tools  # noqa
