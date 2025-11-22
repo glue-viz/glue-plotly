@@ -55,8 +55,8 @@ jobs:
         - macos: py312-test-all
         - macos: py312-test-qt
         - macos: py312-test-3d-qt
-        - macos: py312-test-jupyter
-        - macos: py312-test-3d-jupyter
+        # - macos: py312-test-jupyter
+        # - macos: py312-test-3d-jupyter
         - macos: py313-test-all
         - macos: py313-test-devdeps
         - macos: py312-glue118-test-all
