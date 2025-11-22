@@ -21,9 +21,7 @@ def setup_qt():
     """Performs necessary setup for using glue-plotly with glue-qt."""
     from . import common  # noqa
     from .html_exporters.qt import setup as exporters_setup # noqa
-    from .web.qt import setup as web_setup
     exporters_setup()
-    web_setup()
 
     from glue_qt.viewers.scatter import ScatterViewer
     ScatterViewer.subtools = {
