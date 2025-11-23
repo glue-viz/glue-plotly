@@ -4,10 +4,9 @@ Experimental plot.ly plugin for glue
 ------------------------------------
 
 This package is a plugin for `glue <https://glueviz.org/>`_ that allows linking glue
-to `Plotly <https://plotly.com/>`_. This includes three main pieces of functionality:
+to `Plotly <https://plotly.com/>`_. This includes two main pieces of functionality:
 
 - Export glue views to standalone HTML pages
-- Export glue views to Plotly's `Chart Studio <https://chart-studio.plotly.com/feed/#/>`_
 - Experimental glue viewers powered by Plotly
 
 
@@ -41,17 +40,6 @@ In glue-jupyter, the Plotly exporter tools are top-level toolbar tools (look for
 
 |bqplot toolbar|
 
-============
-Chart Studio
-============
-
-The Chart Studio exporter allows exporting a Qt glue session to Chart Studio, provided that all of the
-viewers in the session are supported. Currently supported viewers are the matplotlib scatter, histogram, profile, and dendrogram viewers.
-
-To access the exporter inside Qt glue, navigate to File > Advanced Exporters > Plotly.
-
-|Chart Studio demo|
-
 
 ========
 Viewers
@@ -84,5 +72,3 @@ Package Structure
     :alt: Qt Plotly export demo
 .. |bqplot toolbar| image:: https://raw.githubusercontent.com/glue-viz/glue-plotly/main/docs/assets/img/BqplotToolbarHighlighted.png
     :alt: bqplot Plotly export tool
-.. |Chart Studio demo| image:: https://raw.githubusercontent.com/glue-viz/glue-plotly/main/docs/assets/img/QtChartStudioExport.gif
-    :alt: Qt Chart Studio export demo
