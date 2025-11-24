@@ -1,5 +1,29 @@
 # Full changelog
 
+## v0.13.0 - 2025-11-24
+
+<!-- Release notes generated using configuration in .github/release.yml at main -->
+### What's Changed
+
+#### New Features
+
+* Support full-sphere plot modes in Plotly export by @Carifio24 in https://github.com/glue-viz/glue-plotly/pull/135
+
+#### Bug Fixes
+
+* Don't fail Qt setup if VisPy viewers aren't installed by @Carifio24 in https://github.com/glue-viz/glue-plotly/pull/134
+* Remove Chart Studio content by @Carifio24 in https://github.com/glue-viz/glue-plotly/pull/138
+
+#### Other Changes
+
+* Allow Plotly v6.1+ by @Carifio24 in https://github.com/glue-viz/glue-plotly/pull/126
+
+### New Contributors
+
+* @pre-commit-ci[bot] made their first contribution in https://github.com/glue-viz/glue-plotly/pull/129
+
+**Full Changelog**: https://github.com/glue-viz/glue-plotly/compare/v0.12.3...v0.13.0
+
 ## v0.12.3 - 2025-04-09
 
 <!-- Release notes generated using configuration in .github/release.yml at main -->
