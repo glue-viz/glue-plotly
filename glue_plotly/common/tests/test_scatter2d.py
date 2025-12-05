@@ -310,6 +310,10 @@ class TestScatter2DFullSphere(TestScatter2D):
         self.layer.state.size_scaling = 1
         self.layer.state.alpha = 0.5
 
+    def teardown_method(self, method):
+        settings.reset_defaults()
+        return super().teardown_method(method)
+
     def test_basic(self):
         export_layers = layers_to_export(self.viewer)
         assert len(export_layers) == 1
@@ -318,8 +322,12 @@ class TestScatter2DFullSphere(TestScatter2D):
         assert len(self.data["x"]) == 3
         assert len(self.data["y"]) == 3
 
-    @pytest.mark.parametrize("mode", MODES)
-    def test_layout(self, mode):
+    @pytest.mark.parametrize(("mode", "bgcolor"), product(MODES, ("white", "black")))
+    def test_layout(self, mode, bgcolor):
+
+        fgcolor = "black" if bgcolor == "white" else "white"
+        settings.BACKGROUND_COLOR = bgcolor
+        settings.FOREGROUND_COLOR = fgcolor
         self.viewer.state.plot_mode = mode
         layout = geo_layout_config(self.viewer)
         assert layout["dragmode"] is False
@@ -334,10 +342,16 @@ class TestScatter2DFullSphere(TestScatter2D):
         assert geo["scope"] == "world"
         assert geo["domain"]["x"] == [0.05, 0.95]
         assert geo["domain"]["y"] == [0.05, 0.95]
+        assert geo["framecolor"] == fgcolor
+        assert geo["bgcolor"] == bgcolor
 
-    @pytest.mark.parametrize(("mode", "angle_unit"),
-                             product(MODES, ("radians", "degrees")))
-    def test_ticks(self, mode, angle_unit):
+    @pytest.mark.parametrize(("mode", "angle_unit", "fgcolor"),
+                             product(MODES, ("radians", "degrees"), ("white", "black")))
+    def test_ticks(self, mode, angle_unit, bgcolor):
+
+        fgcolor = "black" if bgcolor == "white" else "white"
+        settings.BACKGROUND_COLOR = bgcolor
+        settings.FOREGROUND_COLOR = fgcolor
         self.viewer.state.plot_mode = mode
         self.viewer.state.angle_unit = angle_unit
         ticks = geo_ticks(self.viewer.state)
@@ -349,6 +363,9 @@ class TestScatter2DFullSphere(TestScatter2D):
             assert tick["showlegend"] is False
             assert tick["mode"] == "text"
             assert tick["hoverinfo"] == "none"
+            font = tick["font"]
+            assert font["family"] == DEFAULT_FONT
+            assert font["color"] == fgcolor
 
         equator_ticks, edge_ticks = ticks
 
