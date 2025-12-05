@@ -108,6 +108,8 @@ def polar_layout_config_from_mpl(viewer, **kwargs):
 def geo_layout_config(viewer, **kwargs):
     layout_config = base_layout_config(viewer, **kwargs)
     geo = dict(
+        framecolor=settings.FOREGROUND_COLOR,
+        bgcolor=settings.BACKGROUND_COLOR,
         projection_type=projection_type(viewer.state),
         showcoastlines=False,
         showcountries=False,
@@ -137,6 +139,12 @@ def geo_ticks(viewer_state):
     equator_longitudes = list(range(-150, 180, 30))
     equator_text = angle_ticks_text(equator_longitudes, degrees=degrees)
 
+    text_font = dict(
+        family=DEFAULT_FONT,
+        size=1.5 * viewer_state.y_axislabel_size,
+        color=settings.FOREGROUND_COLOR,
+    )
+
     equator_ticks = go.Scattergeo(
         lon=equator_longitudes,
         lat=[0 for _ in equator_longitudes],
@@ -144,6 +152,7 @@ def geo_ticks(viewer_state):
         text=equator_text,
         mode="text",
         hoverinfo="none",
+        textfont=text_font,
     )
 
     edge_latitudes = list(range(-75, 90, 15))
@@ -159,6 +168,7 @@ def geo_ticks(viewer_state):
         mode="text",
         textposition=edge_text_positions,
         hoverinfo="none",
+        textfont=text_font,
     )
 
     return [equator_ticks, edge_ticks]
@@ -169,7 +179,11 @@ def geo_annotations(viewer_state):
         x=0.5,
         y=0,
         text=viewer_state.x_axislabel,
-        font=dict(family=DEFAULT_FONT, size=1.5 * viewer_state.x_axislabel_size),
+        font=dict(
+            family=DEFAULT_FONT,
+            size=1.5 * viewer_state.x_axislabel_size,
+            color=settings.FOREGROUND_COLOR,
+        ),
         showarrow=False,
     )
 
@@ -179,7 +193,11 @@ def geo_annotations(viewer_state):
         x=yaxis_x,
         y=0.5,
         text=viewer_state.y_axislabel,
-        font=dict(family=DEFAULT_FONT, size=1.5 * viewer_state.y_axislabel_size),
+        font=dict(
+            family=DEFAULT_FONT,
+            size=1.5 * viewer_state.y_axislabel_size,
+            color=settings.FOREGROUND_COLOR,
+        ),
         showarrow=False,
         textangle=-90,
     )
