@@ -345,7 +345,7 @@ class TestScatter2DFullSphere(TestScatter2D):
         assert geo["framecolor"] == fgcolor
         assert geo["bgcolor"] == bgcolor
 
-    @pytest.mark.parametrize(("mode", "angle_unit", "fgcolor"),
+    @pytest.mark.parametrize(("mode", "angle_unit", "bgcolor"),
                              product(MODES, ("radians", "degrees"), ("white", "black")))
     def test_ticks(self, mode, angle_unit, bgcolor):
 
@@ -363,7 +363,7 @@ class TestScatter2DFullSphere(TestScatter2D):
             assert tick["showlegend"] is False
             assert tick["mode"] == "text"
             assert tick["hoverinfo"] == "none"
-            font = tick["font"]
+            font = tick["textfont"]
             assert font["family"] == DEFAULT_FONT
             assert font["color"] == fgcolor
 
