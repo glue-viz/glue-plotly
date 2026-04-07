@@ -198,7 +198,7 @@ def colorscale_info(layer_state, interval, contrast_bias):
     color_space = [cmap(b)[:3] for b in mapped_space]
     color_values = [tuple(float(256 * v) for v in p) for p in color_space]
     colorscale = [[0, f"rgb{color_values[0]}"]] + \
-                 [[u, f"rgb{c}"] for u, c in zip(unmapped_space, color_values)] + \
+                 [[u, f"rgb{c}"] for u, c in zip(unmapped_space, color_values, strict=True)] + \
                  [[1, f"rgb{color_values[-1]}"]]
     return mapped_bounds, colorscale
 
