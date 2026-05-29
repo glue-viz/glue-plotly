@@ -9,10 +9,10 @@
                 <v-select label="attribute" :items="cmap_att_items" v-model="cmap_att_selected" hide-details />
             </div>
             <div>
-                <glue-float-field label="min" :value.sync="cmap_vmin" />
+                <glue-float-field label="min" :value.sync="cmap_vmin" echo-type="float" />
             </div>
             <div>
-                <glue-float-field label="max" :value.sync="cmap_vmax" />
+                <glue-float-field label="max" :value.sync="cmap_vmax" echo-type="float" />
             </div>
             <div>
                 <v-select label="colormap" :items="cmap_items" v-model="cmap" hide-details/>
@@ -20,7 +20,7 @@
         </template>
         <div>
             <v-subheader class="pl-0 slider-label">opacity</v-subheader>
-            <glue-throttled-slider wait="300" min="0" max="1" step="0.01" :value.sync="alpha" hide-details />
+            <glue-throttled-slider wait="300" min="0" max="1" step="0.01" :value.sync="alpha" echo-type="float" hide-details />
         </div>
         <div class="text-subtitle-2 font-weight-bold">Points</div>
         <div>
@@ -39,28 +39,26 @@
                     <v-select label="attribute" :items="size_att_items" v-model="size_att_selected" hide-details />
                 </div>
                 <div>
-                    <glue-float-field label="min" :value.sync="size_vmin" />
+                    <glue-float-field label="min" :value.sync="size_vmin" echo-type="float" />
                 </div>
                 <div>
-                    <glue-float-field label="max" :value.sync="size_vmax" />
+                    <glue-float-field label="max" :value.sync="size_vmax" echo-type="float" />
                 </div>
             </template>
             <template v-if="density_map">
                 <div>
                     <v-subheader class="pl-0 slider-label">dpi</v-subheader>
-                    <glue-throttled-slider wait="300" min="12" max="144" step="1" :value.sync="dpi" hide-details />
+                    <glue-throttled-slider wait="300" min="12" max="144" step="1" :value.sync="dpi" echo-type="float" hide-details />
                 </div>
                 <div>
                     <v-subheader class="pl-0 slider-label">contrast</v-subheader>
-                    <glue-throttled-slider wait="300" min="0" max="1" step="0.01" :value.sync="density_contrast"
-                                         hide-details />
+                    <glue-throttled-slider wait="300" min="0" max="1" step="0.01" :value.sync="density_contrast" echo-type="float" hide-details />
                 </div>
             </template>
             <template v-else>
                <div>
                     <v-subheader class="pl-0 slider-label">size scaling</v-subheader>
-                    <glue-throttled-slider wait="300" min="0.1" max="10" step="0.01" :value.sync="size_scaling"
-                        hide-details />
+                    <glue-throttled-slider wait="300" min="0.1" max="10" step="0.01" :value.sync="size_scaling" echo-type="float" hide-details />
                 </div>
                 <div>
                       <v-subheader class="pl-0 slider-label">fill markers</v-subheader>
@@ -72,8 +70,7 @@
                 </div>
                 <div>
                     <v-subheader class="pl-0 slider-label">border size</v-subheader>
-                    <glue-throttled-slider wait="300" min="0" max="10" step="1" :value.sync="border_size"
-                        hide-details />
+                    <glue-throttled-slider wait="300" min="0" max="10" step="1" :value.sync="border_size" echo-type="float" hide-details />
                 </div>
                 <div>
                     <v-subheader class="pl-0 slider-label">match border color to layer</v-subheader>
@@ -81,19 +78,18 @@
                 </div>
                 <div>
                     <v-subheader class="pl-0 slider-label">border color</v-subheader>
-                    <v-menu v-model="border_color_menu_open"
-                            :disabled="border_color_match_layer">
-                        <template v-slot:activator="{ on }">
+                    <v-menu ref="menu" :disabled="border_color_match_layer">
+                        <template v-slot:activator="{ on, props }">
                             <span class="glue-color-menu"
                                   :style="`background: ${border_color_match_layer ? 'gray' : border_color}`"
                                   @click.stop="on.click"
                             >&nbsp;</span>
                         </template>
                         <div @click.stop="" style="text-align: end; background-color: white">
-                            <v-btn icon @click="border_color_menu_open = false">
+                            <v-btn icon @click="$refs.menu.save()">
                                 <v-icon>mdi-close</v-icon>
                             </v-btn>
-                            <v-color-picker v-model="border_color"></v-color-picker>
+                            <v-color-picker v-model="border_color" echo-type="text" ></v-color-picker>
                         </div>
                     </v-menu>
                 </div>
@@ -107,7 +103,7 @@
         <template v-if="line_visible">
             <div>
                 <v-subheader class="pl-0 slider-label">width</v-subheader>
-                <glue-throttled-slider wait="300" min="1" max="20" step="1" :value.sync="linewidth" hide-details />
+                <glue-throttled-slider wait="300" min="1" max="20" step="1" :value.sync="linewidth" echo-type="float" hide-details />
             </div>
             <div>
                 <v-select label="linestyle" :items="linestyle_items" v-model="linestyle_selected" hide-details />
