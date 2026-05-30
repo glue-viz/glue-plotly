@@ -1,5 +1,4 @@
 from glue_jupyter.common.state_widgets.layer_scatter import ScatterLayerStateWidget
-from traitlets import Bool
 
 
 class PlotlyScatterLayerStateWidget(ScatterLayerStateWidget):
