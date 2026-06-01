@@ -21,6 +21,10 @@ class TestHistogramViewer(BasePlotlyViewTests):
         self.viewer = self.app.new_data_viewer(PlotlyHistogramView)
         self.viewer.add_data(self.data)
 
+        self.layer = self.viewer.layers[0]
+        self.layer.state.color = "#abcdef"
+        self.layer.state.alpha = 0.75
+
         viewer_state = self.viewer.state
         viewer_state.x_min = 0.5
         viewer_state.hist_x_min = 0.5
@@ -32,10 +36,6 @@ class TestHistogramViewer(BasePlotlyViewTests):
         viewer_state.x_axislabel = "X Axis"
         viewer_state.y_axislabel = "Y Axis"
         viewer_state.normalize = False
-
-        self.layer = self.viewer.layers[0]
-        self.layer.state.color = "#abcdef"
-        self.layer.state.alpha = 0.75
 
     def teardown_method(self, method):
         self.viewer = None

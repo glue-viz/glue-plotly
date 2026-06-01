@@ -31,8 +31,8 @@ class PlotlyHistogramView(PlotlyBaseView):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self.state.add_callback("x_att", self._update_axes)
-        self.state.add_callback("normalize", self._update_axes)
+        self.state.add_callback("x_att", self._update_xaxis)
+        self.state.add_callback("normalize", self._update_yaxis)
         self.state.add_callback("gaps", self._gaps_changed)
         self.state.add_callback("gap_fraction", self._gaps_changed)
         self._update_axes()
@@ -50,14 +50,19 @@ class PlotlyHistogramView(PlotlyBaseView):
         config.update(xaxis=x_axis, yaxis=y_axis)
         return config
 
-    def _update_axes(self, *_args):
+    def _update_xaxis(self, *_args):
         if self.state.x_att is not None:
             self.state.x_axislabel = str(self.state.x_att)
 
+    def _update_yaxis(self, *_args):
         if self.state.normalize:
             self.state.y_axislabel = "Normalized number"
         else:
             self.state.y_axislabel = "Number"
+
+    def _update_axes(self, *_args):
+        self._update_xaxis()
+        self._update_yaxis()
 
     def _gaps_changed(self, *args):
         self.figure.layout.update(bargap=self._gap_from_state())

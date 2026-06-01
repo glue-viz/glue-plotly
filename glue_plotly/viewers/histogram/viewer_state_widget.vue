@@ -4,50 +4,33 @@
             <v-select :items="x_att_items" label="x axis" v-model="x_att_selected"/>
         </div>
         <div>
-            <v-btn-toggle dense multiple :value="modeSet" @change="modeSetChange">
-
-                <v-tooltip bottom>
-                    <template v-slot:activator="{ on }">
-                        <v-btn v-on="on" small value="normalize">
-                            <v-icon>unfold_more</v-icon>
-                        </v-btn>
-                    </template>
-                    <span>normalize</span>
-                </v-tooltip>
-
-                <v-tooltip bottom>
-                    <template v-slot:activator="{ on }">
-                        <v-btn v-on="on" small value="cumulative">
-                            <v-icon>trending_up</v-icon>
-                        </v-btn>
-                    </template>
-                    <span>cumulative</span>
-                </v-tooltip>
-            </v-btn-toggle>
+            <v-text-field type="number" step="1" label="number of bins" v-model.number="hist_n_bin" />
+        </div>
+        <div>
+            <glue-float-field label="x-min" :value.sync="hist_x_min" echo-type="float" />
+        </div>
+        <div>
+            <glue-float-field label="x-max" :value.sync="hist_x_max" echo-type="float" />
+        </div>
+        <div>
+            <v-switch v-model="normalize" label="Normalize" hide-details/>
+        </div>
+        <div>
+            <v-switch v-model="cumulative" label="Cumulative" hide-details/>
         </div>
         <div>
             <v-subheader class="pl-0 slider-label">x log</v-subheader>
-            <v-switch v-model="glue_state.x_log" hide-details style="margin-top: 0"/>
+            <v-switch v-model="x_log" hide-details style="margin-top: 0"/>
         </div>
         <div>
             <v-subheader class="pl-0 slider-label">y log</v-subheader>
-            <v-switch v-model="glue_state.y_log" hide-details style="margin-top: 0"/>
+            <v-switch v-model="y_log" hide-details style="margin-top: 0"/>
         </div>
-        <v-switch v-model="glue_state.show_axes" label="Show axes" hide-details/>
+        <div>
+            <v-btn variant="outlined" size="x-small" @click="bins_to_axis">
+                Fit Bins to Axes
+            </v-btn>
+        </div>
+        <v-switch v-model="show_axes" label="Show axes" hide-details/>
     </div>
 </template>
-<script>
-    module.exports = {
-        computed: {
-            modeSet() {
-                return [this.glue_state.normalize && 'normalize', this.glue_state.cumulative && 'cumulative']
-            }
-        },
-        methods: {
-            modeSetChange(v) {
-                this.glue_state.normalize = v.includes('normalize');
-                this.glue_state.cumulative = v.includes('cumulative');
-            }
-        }
-    }
-</script>
