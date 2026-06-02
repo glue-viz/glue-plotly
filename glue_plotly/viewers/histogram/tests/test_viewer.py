@@ -51,7 +51,7 @@ class TestHistogramViewer(BasePlotlyViewTests):
         assert bars.marker.opacity == 0.75
         assert bars.x == tuple(range(1, 7))
         expected_y = [3, 2, 3, 1, 0, 2]
-        assert all(a == b for a, b in zip(bars.y, expected_y))
+        assert all(a == b for a, b in zip(bars.y, expected_y, strict=True))
 
     def test_axes(self):
         x_axis = self.viewer.figure.layout.xaxis
