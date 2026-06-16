@@ -1,37 +1,54 @@
 import os
+from unittest.mock import patch
 
+from glue.viewers.scatter.state import ScatterViewerState
 import pytest
+import numpy as np
 
 from glue.core import Data
 
 pytest.importorskip("glue_qt")
 
-from glue_qt.viewers.scatter import ScatterViewer  # noqa: E402
+from glue_plotly.tests.helpers import html_screenshot_test
+from glue_qt.app import GlueApplication
+from glue_qt.viewers.scatter import ScatterViewer
 
-from .test_base import TestQtExporter  # noqa: E402
+from .helpers import qt_export_smoketest
 
 
-class TestScatter2D(TestQtExporter):
+def test_smoketest_scatter2d(tmpdir, data_xyz):
+    output_path = tmpdir.join("smoketest_qt_scatter2d_default.html").strpath
+    viewer_state = ScatterViewerState(plot_mode="rectilinear")
+    qt_export_smoketest({
+        "viewer_type": ScatterViewer, 
+        "data": data_xyz, 
+        "tool_id": "save:plotly2d", 
+        "output_path": output_path,
+        "viewer_state": viewer_state,
+    })
 
-    viewer_type = ScatterViewer
-    tool_id = "save:plotly2d"
 
-    def make_data(self):
-        return Data(x=[1, 2, 3], y=[4, 5, 6], z=[7, 8, 9], label="d1")
+def test_smoketest_scatter2d_polar_radians(tmpdir, data_xyz):
+    output_path = tmpdir.join("smoketest_qt_scatter2d_polar_radians.html").strpath
+    viewer_state = ScatterViewerState(plot_mode="polar", angle_unit="radians")
+    qt_export_smoketest({
+        "viewer_type": ScatterViewer, 
+        "data": data_xyz, 
+        "tool_id": "save:plotly2d", 
+        "output_path": output_path,
+        "viewer_state": viewer_state,
+    })
 
-    def test_default(self, tmpdir):
-        self.viewer.state.plot_mode = "rectilinear"
-        output_path = self.export_figure(tmpdir, "test_rectilinear.html")
-        assert os.path.exists(output_path)
 
-    def test_polar_radians(self, tmpdir):
-        self.viewer.state.plot_mode = "polar"
-        self.viewer.state.angle_unit = "radians"
-        output_path = self.export_figure(tmpdir, "test_polar_radians.html")
-        assert os.path.exists(output_path)
+def test_smoketest_scatter2d_polar_degrees(tmpdir, data_xyz):
+    output_path = tmpdir.join("smoketest_qt_scatter2d_polar_degrees.html").strpath
+    viewer_state = ScatterViewerState(plot_mode="polar", angle_unit="degrees")
+    qt_export_smoketest({
+        "viewer_type": ScatterViewer, 
+        "data": data_xyz, 
+        "tool_id": "save:plotly2d", 
+        "output_path": output_path,
+        "viewer_state": viewer_state,
+    })
 
-    def test_polar_degrees(self, tmpdir):
-        self.viewer.state.plot_mode = "polar"
-        self.viewer.state.angle_unit = "degrees"
-        output_path = self.export_figure(tmpdir, "test_polar_degrees.html")
-        assert os.path.exists(output_path)
+
