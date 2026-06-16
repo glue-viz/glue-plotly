@@ -1,3 +1,4 @@
+from contextlib import ExitStack, contextmanager
 import os
 from unittest.mock import patch
 
@@ -26,23 +27,32 @@ def auto_accept_messagebox():
     return exec_replacement
 
 
-def export_figure(self, tmpdir, output_filename):
+def export_figure(tmpdir, tool, output_filename):
     output_path = tmpdir.join(output_filename).strpath
-    with patch("qtpy.compat.getsavefilename") as fd:
-        fd.return_value = output_path, "html"
-        with patch.object(SaveHoverDialog, "exec_",
-                          self.auto_accept_selectdialog()), \
-             patch.object(SortComponentsDialog, "exec_",
-                          self.auto_accept_selectdialog()), \
-             patch.object(VolumeOptionsDialog, "exec_",
-                          self.auto_accept_messagebox()), \
-             patch.object(QMessageBox, "exec_",
-                          self.auto_accept_messagebox()):
-            self.tool.activate()
+    with qt_tool_patcher(output_path):
+        tool.activate()
     return output_path
 
 
-def qt_export_smoketest(options):
+@contextmanager
+def qt_tool_patcher(output_path):
+    dialog_managers = [
+        patch.object(SaveHoverDialog, "exec_",
+                      auto_accept_selectdialog()), \
+         patch.object(SortComponentsDialog, "exec_",
+                      auto_accept_selectdialog()), \
+         patch.object(VolumeOptionsDialog, "exec_",
+                      auto_accept_messagebox()), \
+         patch.object(QMessageBox, "exec_",
+                      auto_accept_messagebox())
+    ]
+    with ExitStack() as stack:
+        patcher = stack.enter_context(patch("qtpy.compat.getsavefilename"))
+        patcher.return_value = output_path, "html"
+        yield [patcher] + [stack.enter_context(mgr) for mgr in dialog_managers]
+
+
+def qt_export_figure(options):
     app = GlueApplication()
     data = options["data"]
     app.session.data_collection.append(data)
@@ -51,7 +61,7 @@ def qt_export_smoketest(options):
                                  state=options.get("viewer_state", None))
     tool_id = options["tool_id"]
     for subtool in viewer.toolbar.tools["save"].subtools:
-        if subtool.tool_id = tool_id:
+        if subtool.tool_id == tool_id:
             tool = subtool
             break
     else:
@@ -59,16 +69,5 @@ def qt_export_smoketest(options):
         raise ValueError(msg)
 
     output_path = options["output_path"]
-    with patch("qtpy.compat.getsavefilename") as fd:
-        fd.return_value = output_path, "html"
-        with patch.object(SaveHoverDialog, "exec_",
-                          auto_accept_selectdialog()), \
-             patch.object(SortComponentsDialog, "exec_",
-                          auto_accept_selectdialog()), \
-             patch.object(VolumeOptionsDialog, "exec_",
-                          auto_accept_messagebox()), \
-             patch.object(QMessageBox, "exec_",
-                          auto_accept_messagebox()):
-            tool.activate()
-
-    assert os.path.exists(output_path)
+    with qt_tool_patcher(output_path):
+        tool.activate()
