@@ -3,11 +3,13 @@ import pytest
 pytest.importorskip("glue_qt")
 pytest.importorskip("glue_vispy_viewers")
 
-from glue_plotly.html_exporters.qt.tests.helpers import qt_export_figure
-from glue_plotly.tests.helpers import html_screenshot_test
 from glue_vispy_viewers.scatter.qt.scatter_viewer import (
     VispyScatterViewer,
 )
+
+from glue_plotly.html_exporters.qt.tests.helpers import qt_export_figure
+from glue_plotly.tests.helpers import html_screenshot_test
+
 
 @html_screenshot_test
 def test_scatter3d(tmp_path, page, data_xyz):

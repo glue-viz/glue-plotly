@@ -1,5 +1,4 @@
 from contextlib import ExitStack, contextmanager
-import os
 from unittest.mock import patch
 
 import pytest
@@ -56,8 +55,8 @@ def qt_export_figure(options):
     app = GlueApplication()
     data = options["data"]
     app.session.data_collection.append(data)
-    viewer = app.new_data_viewer(options["viewer_type"], 
-                                 data=data, 
+    viewer = app.new_data_viewer(options["viewer_type"],
+                                 data=data,
                                  state=options.get("viewer_state", None))
     tool_id = options["tool_id"]
     is_subtool = options.get("subtool", True)
