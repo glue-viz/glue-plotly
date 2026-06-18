@@ -30,6 +30,7 @@ class PngFigure:
 def html_screenshot_test(*args, **kwargs):
 
     tolerance = kwargs.get("tolerance", 0)
+    wait = kwargs.get("wait", 200)
 
     def decorator(test_function):
         @pytest.mark.skipif("not HAS_VISUAL_TEST_DEPS")
@@ -43,6 +44,7 @@ def html_screenshot_test(*args, **kwargs):
             height = kwargs.get("height", 720)
             page.set_viewport_size({"width": width, "height": height})
             page.goto(f"file:{path}")
+            page.wait_for_timeout(wait)
 
             screenshot = page.screenshot()
             return PngFigure(screenshot)
