@@ -56,7 +56,7 @@ jobs:
             pip install pip tox --upgrade
       - run: ssh-add -D
       - add_ssh_keys:
-          fingerprints: "be:23:bb:43:77:fd:bc:2d:38:82:3e:38:06:27:0f:fe"
+          fingerprints: "SHA256:W59lQv7NHPnxMN9+4PGfTmUHTUtqhGL3U3N3XTSrpKg"
       - run: ssh-keyscan github.com >> ~/.ssh/known_hosts
       - run: git config --global user.email "glue@circleci" && git config --global user.name "Glue Circle CI"
       - run: git clone git@github.com:glue-viz/glue-plotly-visual-tests.git --depth 1 ~/glue-plotly-visual-tests/
