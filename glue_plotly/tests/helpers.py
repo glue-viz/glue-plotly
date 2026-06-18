@@ -42,7 +42,7 @@ def html_screenshot_test(*args, **kwargs):
             width = kwargs.get("width", 1280)
             height = kwargs.get("height", 720)
             page.set_viewport_size({"width": width, "height": height})
-            page.goto(path)
+            page.goto(f"file:{path}")
 
             screenshot = page.screenshot()
             return PngFigure(screenshot)
