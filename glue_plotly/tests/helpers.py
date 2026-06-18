@@ -6,13 +6,8 @@ try:
     import pytest_mpl  # noqa: F401
     import pytest_playwright  # noqa: F401
     HAS_VISUAL_TEST_DEPS = True
-except:
+except ImportError:
     HAS_VISUAL_TEST_DEPS = False
-
-
-def screenshot_when(page):
-    screenshot = page.screenshot()
-    return screenshot
 
 
 class PngFigure:
@@ -47,8 +42,7 @@ def html_screenshot_test(*args, **kwargs):
             page.goto(f"file:{path}")
             page.wait_for_timeout(wait)
 
-            screenshot = page.screenshot()
-            return PngFigure(screenshot)
+            return page.screenshot()
 
         return test_wrapper
 

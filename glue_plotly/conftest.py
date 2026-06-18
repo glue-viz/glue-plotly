@@ -12,7 +12,7 @@ def pytest_configure(config):
 @pytest.fixture
 def data_xyz():
     N = 100
-    np.random.seed(12345)
-    x = np.random.normal(10, 4, N)
-    y = np.random.normal(25, 10, N)
+    rng = np.random.default_rng(12345)
+    x = rng.normal(10, 4, N)
+    y = rng.normal(25, 10, N)
     return Data(label="Visual Scatter 2D", x=x, y=y)
