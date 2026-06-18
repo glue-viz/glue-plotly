@@ -10,7 +10,7 @@ from .helpers import qt_export_figure
 
 
 @html_screenshot_test
-def test_smoketest_scatter2d(tmp_path, page, data_xyz):
+def test_scatter2d(tmp_path, page, data_xyz):
     output_path = str(tmp_path / "qt_scatter2d_default.html")
     viewer_state = ScatterViewerState(plot_mode="rectilinear")
     qt_export_figure({
@@ -24,7 +24,7 @@ def test_smoketest_scatter2d(tmp_path, page, data_xyz):
 
 
 @html_screenshot_test
-def test_smoketest_scatter2d_polar_radians(tmp_path, page, data_xyz):
+def test_scatter2d_polar_radians(tmp_path, page, data_xyz):
     output_path = str(tmp_path / "qt_scatter2d_polar_radians.html")
     viewer_state = ScatterViewerState(plot_mode="polar", angle_unit="radians")
     qt_export_figure({
@@ -38,7 +38,7 @@ def test_smoketest_scatter2d_polar_radians(tmp_path, page, data_xyz):
 
 
 @html_screenshot_test
-def test_smoketest_scatter2d_polar_degrees(tmp_path, page, data_xyz):
+def test_scatter2d_polar_degrees(tmp_path, page, data_xyz):
     output_path = str(tmp_path / "qt_scatter2d_polar_degrees.html")
     viewer_state = ScatterViewerState(plot_mode="polar", angle_unit="degrees")
     qt_export_figure({
