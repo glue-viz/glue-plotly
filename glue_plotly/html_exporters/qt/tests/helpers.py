@@ -71,9 +71,9 @@ def qt_export_figure(options):
     else:
         try:
             tool = viewer.toolbar.tools[tool_id]
-        except KeyError:
+        except KeyError as err:
             msg = f"Could not find {tool_id} tool in viewer"
-            raise ValueError(msg)
+            raise ValueError(msg) from err
 
 
     output_path = options["output_path"]
