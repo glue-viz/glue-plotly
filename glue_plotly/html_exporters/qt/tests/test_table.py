@@ -15,5 +15,6 @@ def test_table(tmp_path, page, data_xyz):
         "data": data_xyz,
         "tool_id": "save:plotlytable",
         "output_path": output_path,
+        "subtool": False,
     })
     return output_path

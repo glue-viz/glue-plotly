@@ -60,13 +60,22 @@ def qt_export_figure(options):
                                  data=data, 
                                  state=options.get("viewer_state", None))
     tool_id = options["tool_id"]
-    for subtool in viewer.toolbar.tools["save"].subtools:
-        if subtool.tool_id == tool_id:
-            tool = subtool
-            break
+    is_subtool = options.get("subtool", True)
+    if is_subtool:
+        for subtool in viewer.toolbar.tools["save"].subtools:
+            if subtool.tool_id == tool_id:
+                tool = subtool
+                break
+        else:
+            msg = f"Could not find {tool_id} tool in viewer"
+            raise ValueError(msg)
     else:
-        msg = f"Could not find {tool_id} tool in viewer"
-        raise ValueError(msg)
+        try:
+            tool = viewer.toolbar.tools[tool_id]
+        except KeyError:
+            msg = f"Could not find {tool_id} tool in viewer"
+            raise ValueError(msg)
+
 
     output_path = options["output_path"]
     with qt_tool_patcher(output_path):
