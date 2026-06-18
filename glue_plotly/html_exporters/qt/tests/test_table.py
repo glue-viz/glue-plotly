@@ -2,9 +2,10 @@ import pytest
 
 pytest.importorskip("glue_qt")
 
-from glue_plotly.tests.helpers import html_screenshot_test
-from glue_plotly.html_exporters.qt.tests.helpers import qt_export_figure
 from glue_qt.viewers.table import TableViewer
+
+from glue_plotly.html_exporters.qt.tests.helpers import qt_export_figure
+from glue_plotly.tests.helpers import html_screenshot_test
 
 
 @html_screenshot_test

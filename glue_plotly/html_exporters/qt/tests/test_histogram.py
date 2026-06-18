@@ -7,6 +7,7 @@ pytest.importorskip("glue_qt")
 from glue_qt.viewers.histogram import HistogramViewer
 
 from glue_plotly.tests.helpers import html_screenshot_test
+
 from .helpers import qt_export_figure
 
 

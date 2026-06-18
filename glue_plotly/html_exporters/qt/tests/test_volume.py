@@ -5,10 +5,11 @@ from glue.core import Data
 pytest.importorskip("glue_qt")
 pytest.importorskip("glue_vispy_viewers")
 
-from glue_plotly.html_exporters.qt.tests.helpers import qt_export_figure
-from glue_plotly.tests.helpers import html_screenshot_test
 from glue_vispy_viewers.volume.qt.volume_viewer import VispyVolumeViewer
 from numpy import arange, ones
+
+from glue_plotly.html_exporters.qt.tests.helpers import qt_export_figure
+from glue_plotly.tests.helpers import html_screenshot_test
 
 
 @html_screenshot_test

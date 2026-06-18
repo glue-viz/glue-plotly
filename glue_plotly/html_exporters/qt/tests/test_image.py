@@ -8,6 +8,7 @@ from glue_qt.viewers.image.data_viewer import ImageViewer
 from numpy import arange, ones
 
 from glue_plotly.tests.helpers import html_screenshot_test
+
 from .helpers import qt_export_figure
 
 

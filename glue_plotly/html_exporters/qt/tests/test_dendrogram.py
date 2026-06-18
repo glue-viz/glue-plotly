@@ -8,6 +8,7 @@ pytest.importorskip("glue_qt.plugins.dendro_viewer.data_viewer")
 from glue_qt.plugins.dendro_viewer.data_viewer import DendrogramViewer
 
 from glue_plotly.tests.helpers import html_screenshot_test
+
 from .helpers import qt_export_figure
 
 NUMPY_LT_2, requires_numpy_lt2 = make_skipper("numpy", version="2.0", skip_if="ge")

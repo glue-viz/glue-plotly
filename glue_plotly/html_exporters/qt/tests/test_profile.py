@@ -7,6 +7,7 @@ pytest.importorskip("glue_qt")
 from glue_qt.viewers.profile import ProfileViewer
 
 from glue_plotly.tests.helpers import html_screenshot_test
+
 from .helpers import qt_export_figure
 
 
@@ -20,6 +21,6 @@ def test_profile(tmp_path, page):
        "viewer_type": ProfileViewer,
         "data": data,
         "tool_id": "save:plotlyprofile",
-        "output_path": output_path, 
+        "output_path": output_path,
     })
     return output_path
