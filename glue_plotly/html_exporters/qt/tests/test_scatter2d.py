@@ -1,37 +1,52 @@
-import os
-
 import pytest
-
-from glue.core import Data
 
 pytest.importorskip("glue_qt")
 
-from glue_qt.viewers.scatter import ScatterViewer  # noqa: E402
+from glue_qt.viewers.scatter import ScatterViewer
 
-from .test_base import TestQtExporter  # noqa: E402
+from glue.viewers.scatter.state import ScatterViewerState
+from glue_plotly.tests.helpers import html_screenshot_test
+
+from .helpers import qt_export_figure
 
 
-class TestScatter2D(TestQtExporter):
+@html_screenshot_test
+def test_scatter2d(tmp_path, page, data_xyz):
+    output_path = str(tmp_path / "qt_scatter2d_default.html")
+    viewer_state = ScatterViewerState(plot_mode="rectilinear")
+    qt_export_figure({
+        "viewer_type": ScatterViewer,
+        "data": data_xyz,
+        "tool_id": "save:plotly2d",
+        "output_path": output_path,
+        "viewer_state": viewer_state,
+    })
+    return output_path
 
-    viewer_type = ScatterViewer
-    tool_id = "save:plotly2d"
 
-    def make_data(self):
-        return Data(x=[1, 2, 3], y=[4, 5, 6], z=[7, 8, 9], label="d1")
+@html_screenshot_test
+def test_scatter2d_polar_radians(tmp_path, page, data_xyz):
+    output_path = str(tmp_path / "qt_scatter2d_polar_radians.html")
+    viewer_state = ScatterViewerState(plot_mode="polar", angle_unit="radians")
+    qt_export_figure({
+        "viewer_type": ScatterViewer,
+        "data": data_xyz,
+        "tool_id": "save:plotly2d",
+        "output_path": output_path,
+        "viewer_state": viewer_state,
+    })
+    return output_path
 
-    def test_default(self, tmpdir):
-        self.viewer.state.plot_mode = "rectilinear"
-        output_path = self.export_figure(tmpdir, "test_rectilinear.html")
-        assert os.path.exists(output_path)
 
-    def test_polar_radians(self, tmpdir):
-        self.viewer.state.plot_mode = "polar"
-        self.viewer.state.angle_unit = "radians"
-        output_path = self.export_figure(tmpdir, "test_polar_radians.html")
-        assert os.path.exists(output_path)
-
-    def test_polar_degrees(self, tmpdir):
-        self.viewer.state.plot_mode = "polar"
-        self.viewer.state.angle_unit = "degrees"
-        output_path = self.export_figure(tmpdir, "test_polar_degrees.html")
-        assert os.path.exists(output_path)
+@html_screenshot_test
+def test_scatter2d_polar_degrees(tmp_path, page, data_xyz):
+    output_path = str(tmp_path / "qt_scatter2d_polar_degrees.html")
+    viewer_state = ScatterViewerState(plot_mode="polar", angle_unit="degrees")
+    qt_export_figure({
+        "viewer_type": ScatterViewer,
+        "data": data_xyz,
+        "tool_id": "save:plotly2d",
+        "output_path": output_path,
+        "viewer_state": viewer_state,
+    })
+    return output_path

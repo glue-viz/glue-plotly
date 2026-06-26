@@ -1,5 +1,3 @@
-import os
-
 import pytest
 
 from glue.core import Data
@@ -7,23 +5,24 @@ from glue.core import Data
 pytest.importorskip("glue_qt")
 pytest.importorskip("glue_vispy_viewers")
 
-from glue_vispy_viewers.volume.qt.volume_viewer import VispyVolumeViewer  # noqa: E402
-from numpy import arange, ones  # noqa: E402
+from glue_vispy_viewers.volume.qt.volume_viewer import VispyVolumeViewer
+from numpy import arange, ones
 
-from .test_base import TestQtExporter  # noqa: E402
+from glue_plotly.html_exporters.qt.tests.helpers import qt_export_figure
+from glue_plotly.tests.helpers import html_screenshot_test
 
 
-class TestVolume(TestQtExporter):
-
-    viewer_type = VispyVolumeViewer
-    tool_id = "save:plotlyvolume"
-
-    def make_data(self):
-        return Data(label="d1",
-                    x=arange(24).reshape((2, 3, 4)),
-                    y=ones((2, 3, 4)),
-                    z=arange(100, 124).reshape((2, 3, 4)))
-
-    def test_default(self, tmpdir):
-        output_path = self.export_figure(tmpdir, "test.html")
-        assert os.path.exists(output_path)
+@html_screenshot_test
+def test_volume(tmp_path, page):
+    data = Data(label="d1",
+                x=arange(24).reshape((2, 3, 4)),
+                y=ones((2, 3, 4)),
+                z=arange(100, 124).reshape((2, 3, 4)))
+    output_path = str(tmp_path / "qt_volume.html")
+    qt_export_figure({
+        "viewer_type": VispyVolumeViewer,
+        "data": data,
+        "tool_id": "save:plotlyvolume",
+        "output_path": output_path,
+    })
+    return output_path
