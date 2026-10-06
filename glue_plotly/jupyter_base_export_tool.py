@@ -63,8 +63,8 @@ class JupyterBaseExportTool(Tool):
                 children=[
                     v.Card(children=[
                         v.CardText(children=[
-                            "This filepath already exists. "
-                            "Are you sure you want to overwrite it?"]),
+                            ("This filepath already exists. "
+                             "Are you sure you want to overwrite it?")]),
                         HBox(children=[yes_btn, no_btn],
                              layout=Layout(justify_content="flex-end", grid_gap="5px"))
                     ])
