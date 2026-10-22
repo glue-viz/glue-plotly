@@ -6,8 +6,7 @@ import pytest
 pytest.importorskip("glue_qt")
 
 from glue_qt.app import GlueApplication
-from qtpy import QApplication
-from qtpy.QtWidgets import QMessageBox
+from qtpy.QtWidgets import QApplication, QMessageBox
 
 from glue_plotly.html_exporters.qt.save_hover import SaveHoverDialog
 from glue_plotly.sort_components import SortComponentsDialog
