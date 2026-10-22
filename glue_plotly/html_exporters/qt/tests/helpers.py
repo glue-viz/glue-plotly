@@ -6,6 +6,7 @@ import pytest
 pytest.importorskip("glue_qt")
 
 from glue_qt.app import GlueApplication
+from qtpy import QApplication
 from qtpy.QtWidgets import QMessageBox
 
 from glue_plotly.html_exporters.qt.save_hover import SaveHoverDialog
@@ -79,3 +80,7 @@ def qt_export_figure(options):
     output_path = options["output_path"]
     with qt_tool_patcher(output_path):
         tool.activate()
+
+    viewer.close(warn=False)
+    app.close()
+    QApplication.processEvents()
