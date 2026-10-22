@@ -15,6 +15,7 @@ jobs:
         default: "cimg/python:3.11"
     docker:
       - image: << parameters.image >>
+    resource_class: large
     environment:
       TOXENV: << parameters.jobname >>
     steps:
