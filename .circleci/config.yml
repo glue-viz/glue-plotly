@@ -35,6 +35,7 @@ jobs:
       - run:
           name: Show results
           command: ls -R results || echo "no results dir"
+          when: always
       - store_artifacts:
           path: results
           when: always
