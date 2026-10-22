@@ -14,10 +14,7 @@ from glue_plotly.tests.helpers import html_screenshot_test
 
 @html_screenshot_test
 def test_volume(tmp_path, page):
-    data = Data(label="d1",
-                x=arange(12).reshape((2, 3, 2)),
-                y=ones((2, 3, 2)),
-                z=arange(100, 112).reshape((2, 3, 2)))
+    data = Data(label="d1", x=arange(12).reshape((2, 3, 2)))
     output_path = str(tmp_path / "qt_volume.html")
     qt_export_figure({
         "viewer_type": VispyVolumeViewer,
