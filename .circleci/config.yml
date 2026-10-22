@@ -34,6 +34,7 @@ jobs:
             tox -v
       - store_artifacts:
           path: results
+          when: always
       - run:
           name: "Image comparison page is available at: "
           command: echo "${CIRCLE_BUILD_URL}/artifacts/${CIRCLE_NODE_INDEX}/results/fig_comparison.html"
