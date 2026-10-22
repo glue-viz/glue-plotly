@@ -28,7 +28,10 @@ jobs:
             pip install pip tox --upgrade
       - run:
           name: Run tests
-          command: xvfb-run -a tox -v
+          command: |
+            Xvfb :99 -screen 0 1920x1080x24 &
+            export DISPLAY=:99
+            tox -v
       - store_artifacts:
           path: results
       - run:
