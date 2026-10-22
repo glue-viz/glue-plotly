@@ -25,8 +25,10 @@ class PngFigure:
 
 def html_screenshot_test(*args, **kwargs):
 
-    tolerance = kwargs.get("tolerance", 0)
-    wait = kwargs.get("wait", 200)
+    tolerance = kwargs.pop("tolerance", 0)
+    wait = kwargs.pop("wait", 200)
+    width = kwargs.pop("width", 1280)
+    height = kwargs.pop("height", 720)
 
     def decorator(test_function):
         @pytest.mark.skipif("not HAS_VISUAL_TEST_DEPS")
@@ -36,8 +38,6 @@ def html_screenshot_test(*args, **kwargs):
         @wraps(test_function)
         def test_wrapper(tmp_path, page, *args, **kwargs):
             path = test_function(tmp_path, page, *args, **kwargs)
-            width = kwargs.get("width", 1280)
-            height = kwargs.get("height", 720)
             page.set_viewport_size({"width": width, "height": height})
             page.goto(f"file:{path}")
             page.wait_for_timeout(wait)
