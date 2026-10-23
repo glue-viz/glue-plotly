@@ -33,7 +33,9 @@ def html_screenshot_test(*args, **kwargs):
     def decorator(test_function):
         @pytest.mark.skipif("not HAS_VISUAL_TEST_DEPS")
         @pytest.mark.mpl_image_compare(
-            tolerance=tolerance, **kwargs
+            tolerance=tolerance,
+            deterministic=True,
+            **kwargs
         )
         @wraps(test_function)
         def test_wrapper(tmp_path, page, *args, **kwargs):
@@ -42,7 +44,7 @@ def html_screenshot_test(*args, **kwargs):
             page.goto(f"file:{path}")
             page.wait_for_timeout(wait)
 
-            return page.screenshot()
+            return PngFigure(page.screenshot())
 
         return test_wrapper
 
