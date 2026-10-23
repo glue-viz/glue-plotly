@@ -1,5 +1,36 @@
 version: 2.1
 
+# Reusable steps shared by the visual and deploy jobs
+commands:
+
+  install-visual-deps:
+    description: "Install system libraries for Qt, Xvfb and Chromium, plus tox"
+    steps:
+      - run:
+          name: Install dependencies
+          command: |
+            sudo apt update
+            sudo apt install xvfb libxkbcommon-x11-0 libxcb-icccm4 libxcb-image0 libxcb-keysyms1 libxcb-randr0 libxcb-render-util0 libxcb-xinerama0 libxcb-xfixes0 libxcb-shape0 libxcb-cursor0 libegl1 libgl1 \
+              libatk1.0-0 libatk-bridge2.0-0 libcups2 libxkbcommon0 libatspi2.0-0 libxdamage1 libgbm1 libpango-1.0-0 libcairo2 libasound2
+            pip install pip tox --upgrade
+
+  run-tox-xvfb:
+    description: "Run tox with a virtual X display so Qt can start"
+    parameters:
+      step_name:
+        type: string
+        default: "Run tests"
+      tox_args:
+        type: string
+        default: ""
+    steps:
+      - run:
+          name: << parameters.step_name >>
+          command: |
+            Xvfb :99 -screen 0 1920x1080x24 &
+            export DISPLAY=:99
+            tox -v << parameters.tox_args >>
+
 jobs:
 
   # The following job is to run any visual comparison test, and runs on any branch
@@ -19,29 +50,14 @@ jobs:
       TOXENV: << parameters.jobname >>
     steps:
       - checkout
-      - run:
-          name: Install dependencies
-          command: |
-            sudo apt update
-            sudo apt install xvfb libxkbcommon-x11-0 libxcb-icccm4 libxcb-image0 libxcb-keysyms1 libxcb-randr0 libxcb-render-util0 libxcb-xinerama0 libxcb-xfixes0 libxcb-shape0 libxcb-cursor0 libegl1 libgl1 \
-              libatk1.0-0 libatk-bridge2.0-0 libcups2 libxkbcommon0 libatspi2.0-0 libxdamage1 libgbm1 libpango-1.0-0 libcairo2 libasound2
-            pip install pip tox --upgrade
-      - run:
-          name: Run tests
-          command: |
-            Xvfb :99 -screen 0 1920x1080x24 &
-            export DISPLAY=:99
-            tox -v
-      - run:
-          name: Show results
-          command: ls -R results || echo "no results dir"
-          when: always
+      - install-visual-deps
+      - run-tox-xvfb
       - store_artifacts:
           path: results
-          when: always
       - run:
           name: "Image comparison page is available at: "
           command: echo "${CIRCLE_BUILD_URL}/artifacts/${CIRCLE_NODE_INDEX}/results/fig_comparison.html"
+          when: always
 
   # The following job runs only on main - and its main purpose is to update the
   # reference images in the glue-plotly-visual-tests repository. This job needs
@@ -57,21 +73,16 @@ jobs:
       TOXENV: << parameters.jobname >>
     steps:
       - checkout
-      - run:
-          name: Install dependencies
-          command: |
-            sudo apt update
-            sudo apt install libatk1.0-0 libatk-bridge2.0-0 libcups2 libxkbcommon0 libatspi2.0-0 libxdamage1 libgbm1 libpango-1.0-0 libcairo2 libasound2
-            pip install pip tox --upgrade
+      - install-visual-deps
       - run: ssh-add -D
       - add_ssh_keys:
           fingerprints: "SHA256:W59lQv7NHPnxMN9+4PGfTmUHTUtqhGL3U3N3XTSrpKg"
       - run: ssh-keyscan github.com >> ~/.ssh/known_hosts
       - run: git config --global user.email "glue@circleci" && git config --global user.name "Glue Circle CI"
       - run: git clone git@github.com:glue-viz/glue-plotly-visual-tests.git --depth 1 ~/glue-plotly-visual-tests/
-      - run:
-          name: Generate reference images
-          command: tox -v -- --mpl-generate-path=/home/circleci/glue-plotly-visual-tests/images/$TOXENV
+      - run-tox-xvfb:
+          step_name: "Generate reference images"
+          tox_args: "-- --mpl-generate-path=/home/circleci/glue-plotly-visual-tests/images/$TOXENV"
       - run: |
           cd ~/glue-plotly-visual-tests/
           git pull
