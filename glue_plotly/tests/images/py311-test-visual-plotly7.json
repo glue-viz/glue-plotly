@@ -1,1 +1,11 @@
-{}
+{
+  "glue_plotly.html_exporters.qt.tests.test_dendrogram.test_dendrogram[chromium]": "8bd33ffa7da8f11bc2cb94e881bdbad6490a3be3e6332a44bcb47569ae2b157e",
+  "glue_plotly.html_exporters.qt.tests.test_histogram.test_histogram[chromium]": "b461b2fc68dc51afef09ed618e78f78b3d49c9e80e87c674b7e8dd2994b5023b",
+  "glue_plotly.html_exporters.qt.tests.test_image.test_image[chromium]": "f6758ceb6d01fa2124f28ad6d5140f9a50649e23d15392181c61af3266eef663",
+  "glue_plotly.html_exporters.qt.tests.test_profile.test_profile[chromium]": "075cc632a2c5efa7b6bd4d3c6af71d0ba4a98d590b2a026a301c2621551ccefd",
+  "glue_plotly.html_exporters.qt.tests.test_scatter2d.test_scatter2d[chromium]": "3d2847fcd14a48b0d8b6ce3f3c49e355bb6a7d86b318f07be412f0c5a17c6699",
+  "glue_plotly.html_exporters.qt.tests.test_scatter2d.test_scatter2d_polar_radians[chromium]": "e3d6a6d93ab13ef1141dcb46a880f772177ca0edf7a13ba961ef63e0b98e6dcd",
+  "glue_plotly.html_exporters.qt.tests.test_scatter2d.test_scatter2d_polar_degrees[chromium]": "7fad11ca5194675c4a1d4b7eda8a0d2c36087a8e1b93be089985cdcc19b04c31",
+  "glue_plotly.html_exporters.qt.tests.test_scatter3d.test_scatter3d[chromium]": "a0e85e0efbfcf12f7f9a1cd502eb913da6d9da71c6365f607136ce49138e112a",
+  "glue_plotly.html_exporters.qt.tests.test_table.test_table[chromium]": "5029167a80eba751223b4cfffc9567b0324bc6d476401f194642da6c2c7140e4"
+}
