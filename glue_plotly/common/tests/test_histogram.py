@@ -8,7 +8,6 @@ from glue.config import settings
 from glue.core import Data
 from glue_plotly.common import DEFAULT_FONT, data_count, layers_to_export, sanitize
 from glue_plotly.common.histogram import axis_from_mpl, traces_for_layer
-from glue_plotly.utils import PLOTLY_MAJOR_VERSION
 
 pytest.importorskip("glue_qt")
 
@@ -72,12 +71,8 @@ class TestHistogram:
         assert common_items.items() <= x_axis.items()
         assert common_items.items() <= y_axis.items()
 
-        if PLOTLY_MAJOR_VERSION == 6:
-            assert y_axis["title"]["text"] == "Y Axis"
-            assert x_axis["title"]["text"] == "X Axis"
-        else:
-            assert x_axis["title"] == "X Axis"
-            assert y_axis["title"] == "Y Axis"
+        assert y_axis["title"]["text"] == "Y Axis"
+        assert x_axis["title"]["text"] == "X Axis"
 
         assert x_axis["type"] == "log" if log_x else "linear"
         assert y_axis["type"] == "log" if log_y else "linear"
@@ -92,12 +87,8 @@ class TestHistogram:
         assert y_axis["range"] == expected_y_range
 
         base_font_dict = dict(family=DEFAULT_FONT, color=settings.FOREGROUND_COLOR)
-        if PLOTLY_MAJOR_VERSION == 6:
-            assert x_axis["title"]["font"] == dict(**base_font_dict, size=28)
-            assert y_axis["title"]["font"] == dict(**base_font_dict, size=16)
-        else:
-            assert x_axis["titlefont"] == dict(**base_font_dict, size=28)
-            assert y_axis["titlefont"] == dict(**base_font_dict, size=16)
+        assert x_axis["title"]["font"] == dict(**base_font_dict, size=28)
+        assert y_axis["title"]["font"] == dict(**base_font_dict, size=16)
 
         assert x_axis["tickfont"] == dict(**base_font_dict, size=27)
         assert y_axis["tickfont"] == dict(**base_font_dict, size=30)

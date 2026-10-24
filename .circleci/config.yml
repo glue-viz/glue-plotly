@@ -101,7 +101,8 @@ workflows:
           matrix:
             parameters:
               jobname:
-                - "py311-test-visual"
+                - "py311-test-visual-plotly6"
+                - "py311-test-visual-plotly7"
 
       # - visual:
       #     name: "py311-test-visual-dev"
@@ -113,7 +114,8 @@ workflows:
           matrix:
             parameters:
               jobname:
-                - "py311-test-visual"
+                - "py311-test-visual-plotly6"
+                - "py311-test-visual-plotly7"
           filters:
             branches:
               only:
