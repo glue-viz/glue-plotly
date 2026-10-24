@@ -77,7 +77,7 @@ class PlotlyScatter2DStaticExport(Tool):
                 warning_text = (
                     "Plotly and Matlotlib vector graphics differ "
                     "and your graph may look different when exported. "
-                    "Do you want to proceed?",
+                    "Do you want to proceed?"
                 )
                 proceed = warn(title=warning_title,
                                text=warning_text,
